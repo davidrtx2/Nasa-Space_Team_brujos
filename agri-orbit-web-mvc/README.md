@@ -55,7 +55,7 @@ node index.js               # http://localhost:8787 sirve la web + /api/agri-ai
 - Endpoints: `GET /api/agri-ai/health`, `POST /api/agri-ai/chat` (`{messages, context, lang, questionLang}` → `{reply}`).
 - Proveedor: cualquier API compatible con OpenAI Chat Completions (OpenAI, Groq, OpenRouter, Together, Ollama…) vía `OPENAI_BASE_URL` y `OPENAI_MODEL`.
 - La clave solo vive en variables de entorno del servidor; el JavaScript público no contiene claves. El prompt del sistema está en `server/lib/prompt.js`.
-- Seguridad: validación de mensajes (solo roles `user`/`assistant`, 1.200 caracteres por pregunta), contexto saneado y limitado (16 KB), cuerpo máx. 32 KB, rate limit por IP (`RATE_LIMIT_MAX`/`RATE_LIMIT_WINDOW_MS`), timeout al proveedor, CORS por lista (`ALLOWED_ORIGINS`), sin ejecución de código.
+- Seguridad: validación de mensajes (solo roles `user`/`assistant`, 1.200 caracteres por pregunta), contexto saneado y limitado (16 KB), cuerpo máx. 64 KB, rate limit por IP (`RATE_LIMIT_MAX`/`RATE_LIMIT_WINDOW_MS`), timeout al proveedor, CORS por lista (`ALLOWED_ORIGINS`), sin ejecución de código.
 - Web estática en otro dominio (p. ej. GitHub Pages): despliega `server/` (Render, Railway, Fly…) con `SERVE_STATIC=0`, `TRUST_PROXY=1` y `ALLOWED_ORIGINS=https://tu-sitio`, y apunta el frontend con `<meta name="agri-ai-endpoint" content="https://tu-backend/api/agri-ai">` en `index.html` (o `window.AGRI_AI_ENDPOINT`). Con `python3 -m http.server` y sin backend, el chat muestra "no disponible".
 
 ## El caso: Corredor Seco de Chiquimula, Guatemala

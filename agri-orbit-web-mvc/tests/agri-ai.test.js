@@ -139,7 +139,16 @@ const sameShape = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     ok(run(`AGRI_AI.error`) === code && run(`AGRI_AI.history.length`) === n && els['#aiInput'].value === '¿Qué cultivo conviene?' && els['#aiMsgs'].innerHTML.includes('aierr'),
       `error "${code}": aviso visible, sin respuesta inventada y la pregunta vuelve al campo`);
   }
-  run(`AGRI_AI.status='online'`); sandbox.navigator.onLine = false;
+  fetchMock.impl = (url, opts) => { sent = JSON.parse(opts.body); return jsonRes(200, { reply: 'ok' }); };
+  run(`AGRI_AI.history=[]; for (let i=0;i<9;i++){ AGRI_AI.history.push({role:'user',content:'p'.repeat(1200)}); AGRI_AI.history.push({role:'assistant',content:'r'.repeat(4000)}); }`);
+  await run(`sendAgriAI('¿Y el agua?')`);
+  const total = sent.messages.reduce((n, m) => n + m.content.length, 0);
+  let valid = true; try { require('../server/lib/validate').validateChatBody(sent); } catch (e) { valid = false; }
+  ok(total <= LIMITS.maxTotalChars && valid && Buffer.byteLength(JSON.stringify(sent)) < require('../server/lib/config').getConfig({}).maxBodyBytes && sent.messages.at(-1).content === '¿Y el agua?',
+    `conversación larga recortada dentro de los límites del backend (${total} caracteres)`);
+  const cal = run(`buildAIContext('¿Cuál es el balance hídrico de cada mes?')`);
+  ok(cal.calendar && cal.climate && Array.isArray(cal.climate.monthlyWithScenario) && cal.climate.monthlyWithScenario.length === 12 && 'etMm' in cal.climate.monthlyWithScenario[0], 'pregunta de calendario incluye lluvia y ET mensuales');
+  run(`AGRI_AI.history=[]; AGRI_AI.status='online'`); sandbox.navigator.onLine = false;
   await run(`sendAgriAI('hola')`);
   ok(run(`AGRI_AI.error`) === 'noconn' && run(`AGRI_AI.status`) === 'noconn', 'sin internet → "necesita conexión"');
   sandbox.navigator.onLine = true;

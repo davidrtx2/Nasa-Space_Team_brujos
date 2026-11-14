@@ -57,7 +57,7 @@ const chat = (q = '¿Cómo puedo ahorrar agua?', extra = {}) => ({ messages: [{ 
     ['content no texto', { messages: [{ role: 'user', content: { $gt: 1 } }] }, 400]
   ];
   for (const [name, body, st] of bad) { r = await req(u1, '/api/agri-ai/chat', { method: 'POST', body }); ok(r.status === st && r.j && r.j.error, `rechaza: ${name} (${r.status})`); }
-  r = await req(u1, '/api/agri-ai/chat', { method: 'POST', body: 'x'.repeat(40000) });
+  r = await req(u1, '/api/agri-ai/chat', { method: 'POST', body: 'x'.repeat(70000) });
   ok(r.status === 413, 'cuerpo > MAX_BODY_BYTES → 413');
   r = await fetch(u1 + '/api/agri-ai/chat', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: '{}' });
   ok(r.status === 415, 'Content-Type distinto de JSON → 415');
@@ -76,6 +76,12 @@ const chat = (q = '¿Cómo puedo ahorrar agua?', extra = {}) => ({ messages: [{ 
   ok(last.status === 429 && +last.h.get('retry-after') > 0, 'supera RATE_LIMIT_MAX → 429 con Retry-After');
   r = await req(u1, '/api/agri-ai/health');
   ok(r.status === 200, 'health no consume cupo de chat');
+
+  const sp = createServer({ ...base, apiKey: 'k', trustProxy: true, rateMax: 2 }, { chatCompletion: fake, log: () => {} });
+  const up = await listen(sp);
+  for (let i = 0; i < 3; i++) last = await req(up, '/api/agri-ai/chat', { method: 'POST', body: chat(), headers: { 'X-Forwarded-For': `10.0.0.${i}, 203.0.113.7` } });
+  ok(last.status === 429, 'TRUST_PROXY: falsear la IP izquierda de X-Forwarded-For no evade el rate limit');
+  sp.close();
 
   console.log('AGRI-AI backend · archivos estáticos');
   r = await req(u1, '/');
@@ -102,6 +108,14 @@ const chat = (q = '¿Cómo puedo ahorrar agua?', extra = {}) => ({ messages: [{ 
   r = await req(u2, '/api/agri-ai/chat', { method: 'POST', body: chat() });
   ok(r.status === 504, 'timeout del proveedor → 504');
   s2.close(); slow.closeAllConnections(); slow.close();
+  // proveedor que envía cabeceras y se queda colgado en el cuerpo
+  const hang = http.createServer((q, s) => { s.writeHead(200, { 'Content-Type': 'application/json' }); s.write('{"choices":'); });
+  const uh = await listen(hang);
+  const s3 = createServer({ ...base, apiKey: 'k', baseUrl: uh, upstreamTimeoutMs: 300 }, { log: () => {} });
+  const u3 = await listen(s3);
+  r = await req(u3, '/api/agri-ai/chat', { method: 'POST', body: chat() });
+  ok(r.status === 504, 'timeout leyendo el cuerpo del proveedor → 504');
+  s3.close(); hang.closeAllConnections(); hang.close();
 
   console.log('AGRI-AI backend · saneamiento e idioma');
   const evil = JSON.parse('{"__proto__":{"polluted":1},"site":{"name":"<script>alert(1)</script>","bad key":1},"f":"x"}');

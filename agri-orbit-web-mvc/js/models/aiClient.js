@@ -9,7 +9,7 @@ const AGRI_AI = {
   provider: null, model: null,
   open: false, busy: false, error: null,
   history: [],           // [{role:'user'|'assistant', content, at}]
-  MAX_TURNS: 10, MAX_CHARS: 1200
+  MAX_TURNS: 10, MAX_CHARS: 1200, MAX_HISTORY_CHARS: 12000
 };
 
 /* Resuelve el endpoint: window.AGRI_AI_ENDPOINT > <meta name="agri-ai-endpoint"> > mismo origen /api/agri-ai */
@@ -68,6 +68,8 @@ async function aiAsk(question){
   const last = hist[hist.length - 1];
   if (last && last.role === 'user' && last.content === q) hist.pop();   // la pregunta pendiente ya va al final
   const past = hist.slice(-(AGRI_AI.MAX_TURNS * 2 - 1)).map(m => ({ role: m.role, content: m.content.slice(0, 4000) }));
+  let size = past.reduce((n, m) => n + m.content.length, 0);
+  while (past.length && size > AGRI_AI.MAX_HISTORY_CHARS) size -= past.shift().content.length;   // sin pasar los límites del backend
   const body = {
     messages: [...past, { role: 'user', content: q }],
     context: buildAIContext(q),

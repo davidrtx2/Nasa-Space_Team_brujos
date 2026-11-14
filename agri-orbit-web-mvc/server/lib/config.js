@@ -23,7 +23,7 @@ function getConfig(env = process.env){
     trustProxy: env.TRUST_PROXY === '1',
     rateMax: int('RATE_LIMIT_MAX', 20),
     rateWindowMs: int('RATE_LIMIT_WINDOW_MS', 60000),
-    maxBodyBytes: int('MAX_BODY_BYTES', 32768),
+    maxBodyBytes: int('MAX_BODY_BYTES', 65536),
     upstreamTimeoutMs: int('UPSTREAM_TIMEOUT_MS', 30000),
     maxOutputTokens: int('MAX_OUTPUT_TOKENS', 800),
     staticRoot: path.resolve(__dirname, '..', '..')
