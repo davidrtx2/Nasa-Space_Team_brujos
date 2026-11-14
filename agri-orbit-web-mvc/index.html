@@ -9,6 +9,8 @@
 <meta property="og:title" content="AGRI-ORBIT · Resilient rotations with NASA data">
 <meta property="og:description" content="Decide what to plant next with NASA satellite data.">
 <meta property="og:type" content="website">
+<!-- AGRI-AI: URL del backend (vacío = mismo origen /api/agri-ai). Nunca pongas claves de API aquí. -->
+<meta name="agri-ai-endpoint" content="">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='11' fill='%230b3d91'/%3E%3Cpath d='M15 23c3-1 6-4 7-9 1 4-1 8-5 10' fill='%234ade80'/%3E%3Cellipse cx='20' cy='20' rx='18' ry='6.5' fill='none' stroke='%232dd4bf' stroke-width='2' transform='rotate(-24 20 20)'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -357,6 +359,28 @@
   </div>
   <div class="fine"><span data-es="Prototipo con fines demostrativos: valida las decisiones con extensionistas locales.">Demo prototype: validate decisions with local extension agents.</span><span id="foot"></span></div>
 </footer>
+<!-- AGRI-AI · asistente agrícola inteligente -->
+<button class="aifab" id="aiFab" type="button" aria-controls="aiPanel" aria-expanded="false" aria-label="Open AGRI-AI assistant" data-es-aria="Abrir el asistente AGRI-AI">
+  <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 27V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M16 17c-5 0-8-3-8-8 5 0 8 3 8 8zM16 15c0-5 3-8 8-8 0 5-3 8-8 8z" fill="currentColor"/><circle cx="25" cy="23" r="2" fill="currentColor"/><circle cx="7" cy="23" r="2" fill="currentColor"/><path d="M9 23h3M20 23h3" stroke="currentColor" stroke-width="1.5"/></svg>
+  <span>AGRI-AI</span>
+</button>
+<section class="aipanel" id="aiPanel" role="dialog" aria-modal="false" aria-labelledby="aiTitle" hidden>
+  <div class="aihead">
+    <div class="aiico" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 27V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M16 17c-5 0-8-3-8-8 5 0 8 3 8 8zM16 15c0-5 3-8 8-8 0 5-3 8-8 8z" fill="currentColor"/><circle cx="25" cy="23" r="2" fill="currentColor"/><circle cx="7" cy="23" r="2" fill="currentColor"/><path d="M9 23h3M20 23h3" stroke="currentColor" stroke-width="1.5"/></svg></div>
+    <div class="aiht">
+      <h3 id="aiTitle">AGRI<b>·</b>AI</h3>
+      <div class="aistatus" id="aiStatus" aria-live="polite"></div>
+    </div>
+    <button class="aiclose" id="aiClose" type="button" aria-label="Close AGRI-AI" data-es-aria="Cerrar AGRI-AI">×</button>
+  </div>
+  <div class="aictx" id="aiCtx"></div>
+  <div class="aimsgs" id="aiMsgs" aria-live="polite"></div>
+  <form class="aiform" id="aiForm" autocomplete="off">
+    <textarea id="aiInput" rows="1" maxlength="1200" placeholder="Ask about your land, NASA data or rotations…" data-es-ph="Pregunta sobre tu terreno, los datos NASA o las rotaciones…" aria-label="Your question" data-es-aria="Tu pregunta"></textarea>
+    <button class="btn solid aisend" id="aiSend" type="submit" aria-label="Send" data-es-aria="Enviar"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10l14-7-5 15-2.5-6.5z" fill="currentColor"/></svg></button>
+  </form>
+  <div class="aifine" data-es="AGRI-AI interpreta los resultados del modelo de AGRI-ORBIT; no garantiza rendimientos. Valida con extensionistas locales.">AGRI-AI interprets AGRI-ORBIT model results; it does not guarantee yields. Validate with local extension agents.</div>
+</section>
 <div class="tip" id="tip"></div>
 <div class="toast" id="toast"></div>
 <button class="totop" id="totop" aria-label="Back to top" data-es-aria="Volver arriba">↑</button>
@@ -370,6 +394,8 @@
 <script src="js/models/calendar.js"></script>
 <script src="js/models/nasa.js"></script>
 <script src="js/models/globe.js"></script>
+<script src="js/models/aiContext.js"></script>
+<script src="js/models/aiClient.js"></script>
 <script src="js/views/dashboard.js"></script>
 <script src="js/views/map.js"></script>
 <script src="js/views/analysis.js"></script>
@@ -379,8 +405,10 @@
 <script src="js/views/live.js"></script>
 <script src="js/views/globe.js"></script>
 <script src="js/views/chrome.js"></script>
+<script src="js/views/agriAI.js"></script>
 <script src="js/controllers/controls.js"></script>
 <script src="js/controllers/globe.js"></script>
+<script src="js/controllers/agriAI.js"></script>
 <script src="js/controllers/app.js"></script>
 </body>
 </html>

@@ -13,16 +13,22 @@ js/models/              Modelo: datos, estado y lógica
   calendar.js           Balance hídrico y calendario mensual
   nasa.js               NASA POWER / GIBS en vivo, instantánea local (snap/)
   globe.js              Países, capas y geometría del globo
+  aiContext.js          AGRI-AI: contexto agrícola estructurado (solo lectura de S/LIVE)
+  aiClient.js           AGRI-AI: conversación y comunicación con el backend (sin claves)
 js/views/               Vistas: funciones render* que pintan el DOM
-  dashboard.js  map.js  analysis.js  calendar.js  compare.js  live.js  globe.js  chrome.js
+  dashboard.js  map.js  analysis.js  calendar.js  compare.js  live.js  globe.js  chrome.js  agriAI.js
 js/controllers/         Controladores: eventos y orquestación
   controls.js           Panel de controles
   globe.js              Interacción con el globo y búsqueda
   app.js                recompute(), renderAll() y arranque
+  agriAI.js             AGRI-AI: abrir/cerrar, envío de preguntas
+server/                 Backend de AGRI-AI (Node ≥ 18, sin dependencias)
 snap/                   Datos e imágenes NASA descargados para uso sin conexión
 tests/
   model.test.js         Arnés Node del modelo (métricas de agua, caso, exportación)
   render.smoke.js       Render del caso con DOM mínimo (ambos idiomas y prioridades)
+  agri-ai.test.js       AGRI-AI frontend + integración frontend → backend → proveedor
+  agri-ai.server.test.js AGRI-AI backend: validación, seguridad, rate limit, errores
 ```
 
 La vista del caso está en `js/views/case.js`. Los scripts se cargan en orden (modelos → vistas → controladores) desde `index.html`.
@@ -34,7 +40,23 @@ python3 -m http.server 8080    # en esta carpeta
 # abrir http://localhost:8080
 ```
 
-Sin build. Sin conexión usa la instantánea `snap/power.json` (datos reales de NASA POWER, nov-2026) y las imágenes `snap/*.webp`. Pruebas del modelo: `node tests/model.test.js` y `node tests/render.smoke.js`.
+Sin build. Sin conexión usa la instantánea `snap/power.json` (datos reales de NASA POWER, nov-2026) y las imágenes `snap/*.webp`. Pruebas del modelo: `node tests/model.test.js` y `node tests/render.smoke.js`. Pruebas de AGRI-AI: `node tests/agri-ai.test.js` y `node tests/agri-ai.server.test.js`.
+
+## AGRI-AI · asistente agrícola
+
+Botón flotante **AGRI-AI** (abajo a la derecha). AGRI-ORBIT proporciona los datos y realiza los cálculos agronómicos; AGRI-AI interpreta, explica y ayuda a decidir. En cada pregunta el navegador envía al backend solo las secciones relevantes del estado actual (región, suelo, riego, escenario, prioridades, clima NASA POWER con su procedencia, últimos 90 días, IMERG, riesgos, calendario, rotaciones y caso Chiquimula), generadas por `buildAIContext()` sin modificar el estado. Si el backend no está configurado o no hay internet, el chat lo indica y el resto de la app sigue funcionando (incluida la instantánea offline); nunca muestra respuestas simuladas.
+
+```bash
+cd server
+cp .env.example .env        # pon OPENAI_API_KEY (y opcional OPENAI_MODEL / OPENAI_BASE_URL)
+node index.js               # http://localhost:8787 sirve la web + /api/agri-ai
+```
+
+- Endpoints: `GET /api/agri-ai/health`, `POST /api/agri-ai/chat` (`{messages, context, lang, questionLang}` → `{reply}`).
+- Proveedor: cualquier API compatible con OpenAI Chat Completions (OpenAI, Groq, OpenRouter, Together, Ollama…) vía `OPENAI_BASE_URL` y `OPENAI_MODEL`.
+- La clave solo vive en variables de entorno del servidor; el JavaScript público no contiene claves. El prompt del sistema está en `server/lib/prompt.js`.
+- Seguridad: validación de mensajes (solo roles `user`/`assistant`, 1.200 caracteres por pregunta), contexto saneado y limitado (16 KB), cuerpo máx. 64 KB, rate limit por IP (`RATE_LIMIT_MAX`/`RATE_LIMIT_WINDOW_MS`), timeout al proveedor, CORS por lista (`ALLOWED_ORIGINS`), sin ejecución de código.
+- Web estática en otro dominio (p. ej. GitHub Pages): despliega `server/` (Render, Railway, Fly…) con `SERVE_STATIC=0`, `TRUST_PROXY=1` y `ALLOWED_ORIGINS=https://tu-sitio`, y apunta el frontend con `<meta name="agri-ai-endpoint" content="https://tu-backend/api/agri-ai">` en `index.html` (o `window.AGRI_AI_ENDPOINT`). Con `python3 -m http.server` y sin backend, el chat muestra "no disponible".
 
 ## El caso: Corredor Seco de Chiquimula, Guatemala
 
@@ -77,7 +99,7 @@ EN voice-over (subtitles if recorded in Spanish):
 
 ## Uso de IA
 
-El código de la vista del caso, la corrección de métricas, la integración IMERG, las pruebas y esta documentación fueron redactados con asistencia de IA (Devin, Cognition) y revisados por el equipo. Las cifras que se muestran provienen del modelo del repositorio y de las APIs NASA citadas; la IA no generó datos climáticos.
+El código de la vista del caso, la corrección de métricas, la integración IMERG, las pruebas y esta documentación fueron redactados con asistencia de IA (Devin, Cognition) y revisados por el equipo. Las cifras que se muestran provienen del modelo del repositorio y de las APIs NASA citadas; la IA no generó datos climáticos. El asistente AGRI-AI (en tiempo de ejecución) solo interpreta el contexto que le envía la app; no calcula puntajes ni reemplaza el motor agronómico.
 
 ## Limitaciones pendientes
 
