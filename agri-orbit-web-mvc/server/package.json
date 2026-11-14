@@ -1,0 +1,13 @@
+{
+  "name": "agri-orbit-ai-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AGRI-AI backend for AGRI-ORBIT: receives questions + authorized farm context and queries an OpenAI-compatible LLM. No dependencies.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node ../tests/agri-ai.server.test.js && node ../tests/agri-ai.test.js"
+  },
+  "engines": { "node": ">=18" },
+  "license": "MIT"
+}

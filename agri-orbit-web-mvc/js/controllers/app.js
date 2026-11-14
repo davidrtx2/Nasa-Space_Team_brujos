@@ -10,6 +10,7 @@ function renderAll(){
   $('#v-econ').textContent=S.prio.econ; $('#v-soil').textContent=S.prio.soil; $('#v-water').textContent=S.prio.water; $('#v-risk').textContent=S.prio.risk; $('#v-forage').textContent=S.prio.forage; renderCurrent(); renderMkt();
   $('#v-dT').textContent=(S.dT>0?'+':'')+S.dT+' °C'; $('#v-dP').textContent=(S.dP>0?'+':'')+S.dP+' %';
   $('#srcPower').textContent = LIVE.mode==='live' ? tr('live','en vivo') : tr('built-in','integrado');
+  if (typeof renderAgriAI==='function') renderAgriAI();
 }
 let tmr; function recompute(){ clearTimeout(tmr); tmr=setTimeout(()=>{ runEngine(); renderAll(); if (G.proj) renderPlace(); },90); }
 
@@ -26,3 +27,4 @@ renderPlace();
 initGlobe();
 loadTextures(); initConstellation(); decorateSections();
 scheduleLive();
+if (typeof initAgriAI==='function') initAgriAI();
