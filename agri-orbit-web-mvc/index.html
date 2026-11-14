@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AGRI-ORBIT · Rotaciones resilientes con datos NASA</title>
+<meta name="description" content="AGRI-ORBIT compara rotaciones de cultivos para Latinoamérica con datos satelitales de la NASA: lluvia, humedad del suelo, vegetación, calor y agua subterránea.">
+<meta name="theme-color" content="#0a0f1a">
+<meta property="og:title" content="AGRI-ORBIT · Rotaciones resilientes con datos NASA">
+<meta property="og:description" content="Decide qué sembrar después con datos satelitales de la NASA.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='11' fill='%230b3d91'/%3E%3Cpath d='M15 23c3-1 6-4 7-9 1 4-1 8-5 10' fill='%234ade80'/%3E%3Cellipse cx='20' cy='20' rx='18' ry='6.5' fill='none' stroke='%232dd4bf' stroke-width='2' transform='rotate(-24 20 20)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+
+<header id="top">
+  <a class="brand" href="#top" aria-label="AGRI-ORBIT, inicio">
+    <svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><defs><radialGradient id="lg" cx="40%" cy="35%" r="65%"><stop offset="0" stop-color="#5fd0ff"/><stop offset="1" stop-color="#0b3d91"/></radialGradient></defs><circle cx="20" cy="20" r="11" fill="url(#lg)"/><path d="M15 23c3-1 6-4 7-9 1 4-1 8-5 10" fill="#4ade80" opacity=".9"/><ellipse cx="20" cy="20" rx="18" ry="6.5" fill="none" stroke="#99f6e4" stroke-width="1.4" transform="rotate(-24 20 20)"/><circle cx="35.5" cy="13" r="2.2" fill="#fff"/></svg>
+    <div>
+      <h1>AGRI<b>·</b>ORBIT</h1>
+      <small>Rotaciones resilientes con datos NASA</small>
+    </div>
+  </a>
+  <nav class="top" aria-label="Secciones">
+    <a href="#s-globo">Globo</a>
+    <a href="#s-ranking">Rotaciones</a>
+    <a href="#s-why">Comparar</a>
+    <a href="#s-cal">Calendario</a>
+    <a href="#s-mapa">Parcelas</a>
+    <a href="#s-tradeoff">Ventajas</a>
+    <a href="#s-riesgo">Riesgo</a>
+    <a href="#s-incert">Incertidumbre</a>
+    <a href="#s-fuentes">Datos</a>
+    <a href="#s-glosario">Glosario</a>
+  </nav>
+</header>
+<div id="scrollbar" aria-hidden="true"></div>
+
+<div class="strip" id="strip"></div>
+<section class="hero2" aria-label="Presentación">
+  <div class="h2-left">
+    <div class="eyebrow"><span class="live"></span> NASA Space Apps Challenge · Reto “Cambio de rumbo”</div>
+    <h2 class="hero-t">Decide qué sembrar después,<br><span>con los ojos de la NASA sobre tu campo.</span></h2>
+    <p class="hero-p">AGRI-ORBIT une lo que miden los satélites de la NASA (lluvia, humedad del suelo, vegetación, calor y agua subterránea) con el suelo y las prioridades de cada agricultor. Así compara rotaciones de cultivos que cuidan el agua, protegen el suelo y resisten el clima que viene.</p>
+    <div class="hero-cta">
+      <a class="btn solid" href="#s-globo">Explorar el globo satelital</a>
+      <a class="btn" href="#s-ranking">Ver la recomendación</a>
+    </div>
+    <div class="stats" id="heroStats"></div>
+  </div>
+  <div class="h2-right">
+    <svg id="constel" viewBox="0 0 520 440" role="group" aria-label="Constelación de satélites de la NASA que alimentan la herramienta">
+      <defs>
+        <radialGradient id="atm" cx="50%" cy="50%" r="50%"><stop offset="78%" stop-color="#4fb6ff" stop-opacity="0"/><stop offset="88%" stop-color="#4fb6ff" stop-opacity=".35"/><stop offset="100%" stop-color="#4fb6ff" stop-opacity="0"/></radialGradient>
+        <radialGradient id="shade" cx="38%" cy="34%" r="70%"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#00050f" stop-opacity=".82"/></radialGradient>
+        <clipPath id="earthClip"><circle cx="260" cy="220" r="104"/></clipPath>
+      </defs>
+      <circle cx="260" cy="220" r="132" fill="url(#atm)"/>
+      <ellipse class="orb" cx="260" cy="220" rx="205" ry="70" transform="rotate(-18 260 220)"/>
+      <ellipse class="orb" cx="260" cy="220" rx="165" ry="150" transform="rotate(30 260 220)"/>
+      <ellipse class="orb" cx="260" cy="220" rx="150" ry="48" transform="rotate(12 260 220)"/>
+      <g clip-path="url(#earthClip)">
+        <rect x="150" y="110" width="220" height="220" fill="#0b2c55"/>
+        <g><image href="snap/world_bm.webp" x="-283" y="116" width="416" height="208" preserveAspectRatio="none"/><image href="snap/world_bm.webp" x="133" y="116" width="416" height="208" preserveAspectRatio="none"/>
+          <animateTransform attributeName="transform" type="translate" from="0 0" to="416 0" dur="90s" repeatCount="indefinite"/></g>
+      </g>
+      <circle cx="260" cy="220" r="104" fill="url(#shade)"/>
+      <circle cx="260" cy="220" r="104" fill="none" stroke="rgba(150,220,255,.5)"/>
+      <g class="sats">
+        <g class="sat" data-s="smap" tabindex="0" role="button" aria-label="SMAP"><circle class="hit" r="16"/><rect class="pn" x="-15" y="-2.5" width="9" height="5"/><rect class="pn" x="6" y="-2.5" width="9" height="5"/><rect class="bd" x="-4" y="-3.5" width="8" height="7" rx="1"/><text y="-10">SMAP</text><animateMotion dur="34s" repeatCount="indefinite" begin="0s" path="M65,283.3 A205,70,-18,1,0,455,156.7 A205,70,-18,1,0,65,283.3"/></g>
+        <g class="sat" data-s="gpm" tabindex="0" role="button" aria-label="GPM"><circle class="hit" r="16"/><rect class="pn" x="-15" y="-2.5" width="9" height="5"/><rect class="pn" x="6" y="-2.5" width="9" height="5"/><rect class="bd" x="-4" y="-3.5" width="8" height="7" rx="1"/><text y="-10">GPM</text><animateMotion dur="34s" repeatCount="indefinite" begin="-11s" path="M65,283.3 A205,70,-18,1,0,455,156.7 A205,70,-18,1,0,65,283.3"/></g>
+        <g class="sat" data-s="noaa20" tabindex="0" role="button" aria-label="NOAA-20"><circle class="hit" r="16"/><rect class="pn" x="-15" y="-2.5" width="9" height="5"/><rect class="pn" x="6" y="-2.5" width="9" height="5"/><rect class="bd" x="-4" y="-3.5" width="8" height="7" rx="1"/><text y="-10">NOAA-20</text><animateMotion dur="34s" repeatCount="indefinite" begin="-22s" path="M65,283.3 A205,70,-18,1,0,455,156.7 A205,70,-18,1,0,65,283.3"/></g>
+        <g class="sat" data-s="terra" tabindex="0" role="button" aria-label="Terra"><circle class="hit" r="16"/><rect class="pn" x="-15" y="-2.5" width="9" height="5"/><rect class="pn" x="6" y="-2.5" width="9" height="5"/><rect class="bd" x="-4" y="-3.5" width="8" height="7" rx="1"/><text y="-10">TERRA</text><animateMotion dur="46s" repeatCount="indefinite" begin="-4s" path="M117.1,137.5 A165,150,30,1,0,402.9,302.5 A165,150,30,1,0,117.1,137.5"/></g>
+        <g class="sat" data-s="grace" tabindex="0" role="button" aria-label="GRACE-FO"><circle class="hit" r="16"/><rect class="pn" x="-15" y="-2.5" width="9" height="5"/><rect class="pn" x="6" y="-2.5" width="9" height="5"/><rect class="bd" x="-4" y="-3.5" width="8" height="7" rx="1"/><text y="-10">GRACE-FO</text><animateMotion dur="46s" repeatCount="indefinite" begin="-19s" path="M117.1,137.5 A165,150,30,1,0,402.9,302.5 A165,150,30,1,0,117.1,137.5"/></g>
+        <g class="sat" data-s="landsat" tabindex="0" role="button" aria-label="Landsat 9"><circle class="hit" r="16"/><rect class="pn" x="-15" y="-2.5" width="9" height="5"/><rect class="pn" x="6" y="-2.5" width="9" height="5"/><rect class="bd" x="-4" y="-3.5" width="8" height="7" rx="1"/><text y="-10">LANDSAT 9</text><animateMotion dur="46s" repeatCount="indefinite" begin="-34s" path="M117.1,137.5 A165,150,30,1,0,402.9,302.5 A165,150,30,1,0,117.1,137.5"/></g>
+        <g class="sat iss" data-s="ecostress" tabindex="0" role="button" aria-label="ECOSTRESS en la Estación Espacial"><circle class="hit" r="16"/><rect class="pn" x="-17" y="-3" width="11" height="6"/><rect class="pn" x="6" y="-3" width="11" height="6"/><rect class="bd" x="-5" y="-2" width="10" height="4" rx="1"/><text y="-10">ISS · ECOSTRESS</text><animateMotion dur="22s" repeatCount="indefinite" begin="-6s" path="M113.3,188.8 A150,48,12,1,0,406.7,251.2 A150,48,12,1,0,113.3,188.8"/></g>
+      </g>
+    </svg>
+    <div class="satinfo" id="satinfo" aria-live="polite"></div>
+    <div class="satchips" aria-label="Misiones"><button data-s="smap">SMAP</button><button data-s="gpm">GPM</button><button data-s="terra">MODIS</button><button data-s="noaa20">VIIRS</button><button data-s="grace">GRACE-FO</button><button data-s="landsat">Landsat</button><button data-s="ecostress">ECOSTRESS</button><button data-s="power">POWER</button></div>
+  </div>
+</section>
+<section class="pipe" aria-label="Del espacio a tu parcela">
+  <div class="pstep"><svg viewBox="0 0 24 24"><path d="M4 12l4-4 4 4-4 4zM12 12l4-4 4 4-4 4z"/><path d="M8 8l4-4M16 16l-4 4"/></svg><div><b>1 · Observan</b><span>SMAP, GPM, MODIS, VIIRS, GRACE-FO y SRTM miden el campo desde el espacio.</span></div></div>
+  <div class="parrow">→</div>
+  <div class="pstep"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg><div><b>2 · Se armonizan</b><span>NASA POWER y GIBS llevan todo a tu punto, por mes y por temporada.</span></div></div>
+  <div class="parrow">→</div>
+  <div class="pstep"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3"/></svg><div><b>3 · Se comparan</b><span>Más de mil rotaciones con tus prioridades y 1 000 climas simulados.</span></div></div>
+  <div class="parrow">→</div>
+  <div class="pstep"><svg viewBox="0 0 24 24"><path d="M12 22V11"/><path d="M12 11C12 6 8 3 3 3c0 5 4 8 9 8zM12 14c0-4 3-7 8-7 0 4-3 7-8 7z"/></svg><div><b>4 · Decides tú</b><span>Con tu extensionista, con evidencia, beneficios, vacíos y riesgos.</span></div></div>
+</section>
+
+
+<div class="wrap">
+  <!-- ============ CONTROLES ============ -->
+  <aside class="controls" aria-label="Datos de entrada">
+    <div class="card accent">
+      <div class="hd"><h3><span class="step">1</span>Ubicación y clima</h3></div>
+      <label class="f" for="site">Región de referencia (o elige en el globo)</label>
+      <select id="site"></select>
+      <div class="row3" style="grid-template-columns:1fr 1fr auto;align-items:end">
+        <div><label class="f" for="lat">Latitud</label><input id="lat" type="number" step="0.01" value="14.80"></div>
+        <div><label class="f" for="lon">Longitud</label><input id="lon" type="number" step="0.01" value="-89.54"></div>
+        <button class="btn" id="goCoord" style="height:34px">Ir</button>
+      </div>
+      <button class="btn" id="fetchBtn" style="width:100%;margin-top:10px">⟳ Actualizar datos NASA en vivo</button>
+      <div class="clim" id="clim"></div>
+      <div class="note" id="climNote"></div>
+      <label class="f" for="scen">Escenario climático a futuro</label>
+      <select id="scen">
+        <option value="actual">Clima actual</option>
+        <option value="moderado" selected>Calentamiento moderado</option>
+        <option value="severo">Calentamiento severo</option>
+        <option value="custom">Personalizado</option>
+      </select>
+      <div class="slider"><div class="top"><span>Cambio de temperatura</span><b id="v-dT"></b></div><input type="range" id="s-dT" min="0" max="3" step="0.5" value="1" aria-label="Cambio de temperatura"></div>
+      <div class="slider"><div class="top"><span>Cambio de lluvia</span><b id="v-dP"></b></div><input type="range" id="s-dP" min="-30" max="20" step="5" value="-5" aria-label="Cambio de lluvia"></div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h3><span class="step">2</span>Suelo y finca</h3></div>
+      <label class="f">Textura del suelo</label>
+      <div class="seg" id="texture">
+        <button data-v="arenoso">Arenoso</button><button data-v="franco" class="on">Franco</button><button data-v="arcilloso">Arcilloso</button>
+      </div>
+      <div class="row3">
+        <div><label class="f" for="om">M.O. %</label><input id="om" type="number" step="0.1" min="0.3" max="10" value="2.5"></div>
+        <div><label class="f" for="ph">pH</label><input id="ph" type="number" step="0.1" min="4" max="9" value="6.2"></div>
+        <div><label class="f" for="slope">Pendiente %</label><input id="slope" type="number" step="1" min="0" max="60" value="8"></div>
+      </div>
+      <label class="f">Riego disponible</label>
+      <div class="seg" id="irr">
+        <button data-v="none" class="on">Secano</button><button data-v="limited">Limitado</button><button data-v="full">Completo</button>
+      </div>
+      <label class="f">Ciclos en la rotación</label>
+      <div class="seg" id="len">
+        <button data-v="3">3 ciclos</button><button data-v="4" class="on">4 ciclos</button>
+      </div>
+      <label class="f">Tu rotación actual (ajústala si es distinta)</label>
+      <div class="currot" id="currot"></div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h3><span class="step">3</span>Prioridades del agricultor</h3><span class="tag">pesos</span></div>
+      <div class="slider"><div class="top"><span>Ganancia del ciclo</span><b id="v-econ"></b></div><input type="range" id="p-econ" min="0" max="100" value="55" aria-label="Peso de la ganancia"></div>
+      <div class="slider"><div class="top"><span>Salud del suelo a 10 años</span><b id="v-soil"></b></div><input type="range" id="p-soil" min="0" max="100" value="60" aria-label="Peso de la salud del suelo"></div>
+      <div class="slider"><div class="top"><span>Ahorro de agua</span><b id="v-water"></b></div><input type="range" id="p-water" min="0" max="100" value="60" aria-label="Peso del ahorro de agua"></div>
+      <div class="slider"><div class="top"><span>Estabilidad ante extremos</span><b id="v-risk"></b></div><input type="range" id="p-risk" min="0" max="100" value="65" aria-label="Peso de la estabilidad"></div>
+      <div class="slider"><div class="top"><span>Forraje para animales</span><b id="v-forage"></b></div><input type="range" id="p-forage" min="0" max="100" value="15" aria-label="Peso del forraje"></div>
+      <label class="f">Cultivos que puedes vender o usar</label>
+      <div class="chips" id="mkt"></div>
+      <div class="note">Toca un cultivo para quitarlo si no tienes mercado, semilla o equipo para él. El ranking se recalcula al instante.</div>
+    </div>
+  </aside>
+
+  <!-- ============ RESULTADOS ============ -->
+  <main id="contenido">
+    <section class="card accent" id="s-globo">
+      <div class="hd"><h2><span class="num">00</span>Explora Latinoamérica</h2>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <input id="gsearch" type="text" list="gsearchList" placeholder="Buscar país o región…" style="width:220px" aria-label="Buscar país o región">
+          <datalist id="gsearchList"></datalist>
+          <div class="seg" id="glayer" aria-label="Capa satelital del globo">
+            <button data-v="bm" class="on">Tierra</button><button data-v="tc">Nubes</button><button data-v="rain">Lluvia</button><button data-v="smap">Humedad</button><button data-v="ndvi">Vegetación</button><button data-v="grace">Agua subt.</button>
+          </div>
+        </div>
+      </div>
+      <div class="globewrap">
+        <div class="globebox" id="globebox">
+          <canvas id="globe" aria-label="Globo interactivo: arrastra para girar, rueda para acercar, clic para elegir un lugar" role="img"></canvas>
+          <div class="gctl">
+            <button class="btn" id="gzin" aria-label="Acercar">+</button>
+            <button class="btn" id="gzout" aria-label="Alejar">−</button>
+            <button class="btn" id="ghome" aria-label="Vista de Latinoamérica">⌂</button>
+            <button class="btn" id="gspin" aria-label="Girar el globo">⟳</button>
+          </div>
+          <div class="glegend" id="glegend"></div>
+          <div class="gmsg" id="globeMsg">Cargando mapa base…</div>
+          <div class="ghelp">Arrastra para girar · rueda o +/− para acercar · clic en tierra para analizar ese punto</div>
+        </div>
+        <div class="place" id="place"></div>
+      </div>
+      <div class="livebox" id="livebox">
+        <div class="livehd">
+          <div><span class="ldot" id="liveDot"></span><b>Herramientas NASA integradas · lo que ven los satélites aquí</b><span id="liveBadge"></span><div class="sub" id="liveSub"></div></div>
+          <button class="btn" id="liveRefresh">⟳ Actualizar</button>
+        </div>
+        <div id="liveMsg"></div>
+        <div class="tiles" id="tiles"></div>
+        <div id="series"></div>
+        <div class="statgrid live4" id="livestats"></div>
+      </div>
+    </section>
+
+    <section class="card accent" id="s-ranking">
+      <div class="hd"><h2><span class="num">01</span>Rotaciones recomendadas para tu finca</h2><span class="tag" id="nEval"></span></div>
+      <div class="kpis" id="kpis"></div>
+      <div style="height:12px"></div>
+      <div class="rank" id="rank"></div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+        <label class="f" style="margin-top:0">Arma tu propia rotación y compárala</label>
+        <div class="builder" id="builder"></div>
+      </div>
+    </section>
+
+    <section class="card" id="s-why">
+      <div class="hd"><h2><span class="num">02</span>Compara estrategias y entiende cada una</h2>
+        <div style="display:flex;gap:6px"><button class="btn" id="copyTxt">Copiar plan</button><button class="btn" id="copyJson">Copiar JSON</button></div></div>
+      <div class="support">🤝 <b>Herramienta de apoyo:</b> muestra patrones y posibilidades a partir de datos. No reemplaza tu experiencia ni la de tu extensionista o técnico local: revisen juntos los riesgos antes de cambiar la rotación.</div>
+      <div style="overflow-x:auto" id="cmpTable"></div>
+      <div class="note" style="margin-bottom:12px">Toca el nombre de una opción para ver su ficha. En verde, el mejor valor de cada fila.</div>
+      <div id="ficha"></div>
+      <textarea id="exportBox" style="display:none;margin-top:10px" readonly aria-label="Texto para copiar"></textarea>
+    </section>
+
+    <section class="card" id="s-cal">
+      <div class="hd"><h2><span class="num">03</span>Calendario del campo: suelo desnudo y épocas vulnerables</h2><span class="tag" id="calTag"></span></div>
+      <svg id="climChart" viewBox="0 0 760 150" style="width:100%" role="img" aria-label="Lluvia y evapotranspiración por mes"></svg>
+      <div class="calwrap"><div id="calRows"></div></div>
+      <div class="legend">
+        <span class="pill"><i style="background:#2a3446;border:1px dashed #64748b"></i>suelo sin protección</span>
+        <span class="pill"><i class="lg-res"></i>rastrojo (protección parcial)</span>
+        <span class="pill"><i class="lg-fal"></i>barbecho</span>
+        <span class="pill"><i class="vf heat" style="position:static"></i>calor</span>
+        <span class="pill"><i class="vf dry" style="position:static"></i>falta de agua / canícula</span>
+        <span class="pill"><i class="vf frost" style="position:static"></i>helada</span>
+        <span class="pill"><i class="vf wet" style="position:static"></i>exceso de lluvia</span>
+      </div>
+      <div class="statgrid" id="calStats"></div>
+      <div class="note" id="calNote"></div>
+    </section>
+
+    <section class="card" id="s-mapa">
+      <div class="hd"><h2><span class="num">04</span>Mapa de parcelas · plan en el tiempo</h2>
+        <div class="seg" id="layer"><button data-v="crop" class="on">Cultivo</button><button data-v="erosion">Riesgo erosión</button><button data-v="moist">Humedad suelo</button><button data-v="frost">Heladas</button></div></div>
+      <div class="mapwrap">
+        <div>
+          <svg id="farm" viewBox="0 0 660 330" style="width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px" role="img" aria-label="Mapa de parcelas de la finca"></svg>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:8px">
+            <button class="btn" id="play" aria-label="Reproducir">▶</button>
+            <input type="range" id="year" min="0" max="7" value="0" style="flex:1" aria-label="Ciclo">
+            <span class="mono" id="yearLbl" style="min-width:80px;text-align:right"></span>
+          </div>
+          <div class="legend" id="legend"></div>
+        </div>
+        <div class="detail" id="pdetail"></div>
+      </div>
+      <div class="note">Cada parcela empieza la rotación en un punto distinto, así cada ciclo hay varios cultivos en la finca (diversifica ingresos y riesgo). Pendiente y humedad por parcela son ilustrativas a partir de tus datos.</div>
+    </section>
+
+    <div class="grid2">
+      <section class="card" id="s-tradeoff">
+        <div class="hd"><h2><span class="num">05</span>Ventajas y desventajas</h2>
+          <select id="cmp" style="width:auto" aria-label="Comparar con"></select></div>
+        <div style="display:grid;grid-template-columns:220px 1fr;gap:14px;align-items:center" id="tradeGrid">
+          <svg id="radar" viewBox="0 0 240 230" style="width:100%"></svg>
+          <div id="tbars"></div>
+        </div>
+        <div class="note" id="tradeNote"></div>
+      </section>
+
+      <section class="card" id="s-riesgo">
+        <div class="hd"><h2><span class="num">06</span>Comprender el riesgo</h2><span class="tag" id="riskTag"></span></div>
+        <div class="hzh"><span>Amenaza en el sitio</span><span>Elegida</span><span id="hzCmpLbl">Comparada</span></div>
+        <div id="hz"></div>
+        <div class="note">Nivel de amenaza = clima del sitio + escenario. Riesgo residual = amenaza × exposición de los cultivos (tolerancia, cobertura del suelo, labranza).</div>
+      </section>
+    </div>
+
+    <section class="card" id="s-incert">
+      <div class="hd"><h2><span class="num">07</span>Hacer visible la incertidumbre</h2><span class="tag">1 000 simulaciones · mismo clima para ambas rotaciones</span></div>
+      <svg id="fan" viewBox="0 0 720 260" style="width:100%" role="img" aria-label="Abanico de resultados acumulados"></svg>
+      <div class="statgrid" id="mcStats"></div>
+      <div class="note">Cada simulación sortea la lluvia (según su variabilidad entre años), la anomalía de temperatura y olas de calor, y arrastra el estado del suelo de un ciclo al siguiente. Las bandas muestran el rango donde cae el 50 % y el 80 % de los resultados.</div>
+    </section>
+
+    <section class="card" id="s-fuentes">
+      <div class="hd"><h2><span class="num">08</span>Datos NASA y limitaciones</h2></div>
+      <div style="overflow-x:auto"><table class="src">
+        <thead><tr><th>Dato</th><th>Fuente</th><th>Uso en la herramienta</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>Clima diario y normal: temperatura, lluvia, radiación, viento, heladas</td><td>NASA POWER (Agroclimatología)</td><td>Aptitud de cultivos, calendario, últimos 90 días, motor de rotaciones</td><td><span class="badge on" id="srcPower">integrado</span></td></tr>
+          <tr><td>Imagen a color real</td><td>NOAA-20 VIIRS · NASA GIBS</td><td>Globo (capa Nubes) y herramienta “Imagen satelital”</td><td><span class="badge on">integrado</span></td></tr>
+          <tr><td>Lluvia</td><td>GPM IMERG · NASA GIBS</td><td>Globo (capa Lluvia) y herramienta “Lluvia”</td><td><span class="badge on">integrado</span></td></tr>
+          <tr><td>Humedad del suelo</td><td>SMAP L4 · NASA GIBS y POWER</td><td>Globo, herramienta “Humedad de raíces”, sequía relámpago</td><td><span class="badge on">integrado</span></td></tr>
+          <tr><td>Vigor vegetal (NDVI)</td><td>Terra MODIS · NASA GIBS</td><td>Globo (capa Vegetación) y herramienta NDVI por lugar</td><td><span class="badge on">integrado</span></td></tr>
+          <tr><td>Relieve y pendiente</td><td>SRTM + ASTER GDEM · NASA GIBS</td><td>Herramienta “Relieve y pendiente”</td><td><span class="badge on">integrado</span></td></tr>
+          <tr><td>Agua subterránea</td><td>GRACE-FO · NASA GIBS</td><td>Globo, herramienta “Agua subterránea”, riesgo de riego</td><td><span class="badge on">integrado</span></td></tr>
+          <tr><td>Base del planeta</td><td>Blue Marble · NASA GIBS</td><td>Textura del globo y de la portada</td><td><span class="badge on">integrado</span></td></tr>
+          <tr><td>Evapotranspiración y estrés térmico</td><td>ECOSTRESS · OpenET</td><td>Calibrar el agua que usa cada cultivo</td><td><span class="badge next">siguiente paso</span></td></tr>
+          <tr><td>Imágenes de 30 m por parcela</td><td>Landsat 9 / HLS · Sentinel-2 (ESA)</td><td>NDVI e historia de cada parcela</td><td><span class="badge next">siguiente paso</span></td></tr>
+          <tr><td>Escenarios futuros</td><td>NEX-GDDP-CMIP6</td><td>Reemplazar los escenarios ilustrativos</td><td><span class="badge next">siguiente paso</span></td></tr>
+          <tr><td>Datos solo de EE. UU.</td><td>Web Soil Survey, SSURGO, CDL, PRISM, NAIP, NASS…</td><td>Aplicables a la región de referencia de Ogallala</td><td><span class="badge next">fuera de LATAM</span></td></tr>
+        </tbody>
+      </table></div>
+      <div class="note">NASA no respalda a entidades que no sean del Gobierno de EE. UU. ni es responsable de la información de sitios web externos; al usarlos se aplican sus propias condiciones de uso.</div>
+      <div class="note"><b>Limitaciones honestas:</b> los coeficientes de cultivo (agua, temperatura óptima, tolerancias, fijación de N, índice de ingreso) son simplificados y relativos; el modelo es de reglas y puntajes, no un simulador fisiológico como DSSAT o AquaCrop. En esta vista, el clima y las imágenes son datos reales de NASA POWER y NASA GIBS descargados el 14 nov 2026 para las 44 regiones; un clic en el globo usa la región más cercana. Publicada en la web, la página los consulta en vivo para el punto exacto. Los límites de países vienen de Natural Earth (world-atlas). Usa el resultado para explorar opciones y conversarlas con extensionistas locales (p. ej. ICTA o MAGA en Guatemala), no como receta.</div>
+    </section>
+
+    <section class="card" id="s-glosario">
+      <div class="hd"><h2><span class="num">09</span>Glosario y cómo piensa la herramienta</h2></div>
+      <div class="glos">
+        <div><h4>Evapotranspiración (ET)</h4><p>Agua que se va del campo al aire: la que se evapora del suelo y la que transpiran las plantas. Si la lluvia de un mes es mucho menor que la ET, el cultivo sufre. ECOSTRESS la mide desde el espacio.</p></div>
+        <div><h4>Balance hídrico</h4><p>Lluvia (más riego) menos evapotranspiración. En el calendario, las barras ámbar marcan los meses en que la lluvia no llega ni a la mitad de lo que el campo pierde.</p></div>
+        <div><h4>Humedad del suelo y anomalía</h4><p>Cuánta agua hay en la zona de raíces (SMAP). Una anomalía es la diferencia con lo normal para esa época: una anomalía negativa avisa una sequía antes de que se vea en la planta.</p></div>
+        <div><h4>NDVI (índice de vegetación)</h4><p>Número de −1 a 1 calculado con la luz roja e infrarroja que refleja la planta (Landsat, MODIS). Valores altos indican cultivo vigoroso; bajos, suelo desnudo o plantas estresadas.</p></div>
+        <div><h4>Riesgo de helada</h4><p>Meses en que la temperatura mínima media baja de unos 3 °C: es probable que algunas noches lleguen a 0 °C y dañen cultivos sensibles.</p></div>
+        <div><h4>Agua subterránea (GRACE)</h4><p>Los satélites GRACE y GRACE-FO miden pequeños cambios de gravedad causados por el agua almacenada bajo tierra. Un descenso sostenido indica que se extrae más de lo que se recarga.</p></div>
+        <div><h4>Leguminosas, coberturas y raíces profundas</h4><p>Las leguminosas (frijol, haba, tarwi, mucuna) fijan nitrógeno del aire. Las coberturas protegen el suelo y agregan materia orgánica. Las raíces profundas (sorgo, girasol, quinua) aflojan el suelo y mejoran la infiltración.</p></div>
+        <div><h4>Satélite y medición en tierra</h4><p>El satélite ve grandes áreas todos los días, pero en píxeles de 1 a 36 km y con estimaciones. Una estación o un análisis de suelo mide un solo punto con más precisión. Combinar ambos da el mejor resultado.</p></div>
+      </div>
+      <div class="howmodel">
+        <h4>Cómo llega a una recomendación</h4>
+        <ol>
+          <li><b>Armoniza los datos:</b> lleva clima (POWER), humedad (SMAP), lluvia (GPM), elevación (SRTM) y agua subterránea (GRACE) a un mismo punto y a valores por mes y por temporada.</li>
+          <li><b>Calcula la aptitud</b> de cada cultivo según temperatura, agua disponible, calor, heladas, pH y textura.</li>
+          <li><b>Evalúa más de mil rotaciones</b> y suma los efectos entre cultivos: nitrógeno que deja una leguminosa, plagas compartidas por la misma familia, agua que gasta una cobertura.</li>
+          <li><b>Pondera con tus prioridades</b> (ingreso, suelo, agua, estabilidad, forraje) y descarta los cultivos que no puedes vender.</li>
+          <li><b>Mide la incertidumbre</b> con 1 000 años simulados de lluvia y temperatura, y te dice qué datos faltan.</li>
+        </ol>
+        <p class="note">Dónde se necesita criterio humano: elegir variedades y fechas de siembra, confirmar mercados y precios, conocer la historia de plagas de tu parcela y validar el suelo en campo.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div>
+    <h5>AGRI-ORBIT</h5>
+    Herramienta de apoyo a decisiones para rotaciones de cultivos resilientes, creada por Team Brujos para el reto “Cambio de rumbo: adaptando las granjas con datos de la NASA” del NASA Space Apps Challenge.
+  </div>
+  <div>
+    <h5>Datos</h5>
+    <a href="https://power.larc.nasa.gov/" target="_blank" rel="noopener">NASA POWER</a> · <a href="https://smap.jpl.nasa.gov/" target="_blank" rel="noopener">SMAP</a> · <a href="https://gpm.nasa.gov/data/imerg" target="_blank" rel="noopener">GPM IMERG</a><br>
+    <a href="https://worldview.earthdata.nasa.gov/" target="_blank" rel="noopener">Worldview</a> · <a href="https://search.earthdata.nasa.gov/" target="_blank" rel="noopener">Earthdata Search</a> · <a href="https://ecostress.jpl.nasa.gov/" target="_blank" rel="noopener">ECOSTRESS</a><br>
+    Límites de países: Natural Earth
+  </div>
+  <div>
+    <h5>Secciones</h5>
+    <a href="#s-globo">Globo</a> · <a href="#s-ranking">Rotaciones</a> · <a href="#s-mapa">Parcelas</a><br>
+    <a href="#s-tradeoff">Ventajas y desventajas</a> · <a href="#s-riesgo">Riesgo</a><br>
+    <a href="#s-incert">Incertidumbre</a> · <a href="#s-fuentes">Datos y limitaciones</a>
+  </div>
+  <div class="fine"><span>Prototipo con fines demostrativos: valida las decisiones con extensionistas locales.</span><span id="foot"></span></div>
+</footer>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast"></div>
+<button class="totop" id="totop" aria-label="Volver arriba">↑</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="js/models/data.js"></script>
+<script src="js/models/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/models/engine.js"></script>
+<script src="js/models/calendar.js"></script>
+<script src="js/models/nasa.js"></script>
+<script src="js/models/globe.js"></script>
+<script src="js/views/dashboard.js"></script>
+<script src="js/views/map.js"></script>
+<script src="js/views/analysis.js"></script>
+<script src="js/views/calendar.js"></script>
+<script src="js/views/compare.js"></script>
+<script src="js/views/live.js"></script>
+<script src="js/views/globe.js"></script>
+<script src="js/views/chrome.js"></script>
+<script src="js/controllers/controls.js"></script>
+<script src="js/controllers/globe.js"></script>
+<script src="js/controllers/app.js"></script>
+</body>
+</html>
