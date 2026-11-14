@@ -42,7 +42,8 @@ function createServer(cfg = getConfig(), deps = {}){
     }
     return false;
   };
-  const clientIp = req => (cfg.trustProxy && String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()) || req.socket.remoteAddress || 'unknown';
+  // Con TRUST_PROXY=1 se usa la última IP de X-Forwarded-For (la que añade el proxy de confianza); las anteriores las controla el cliente.
+  const clientIp = req => (cfg.trustProxy && String(req.headers['x-forwarded-for'] || '').split(',').pop().trim()) || req.socket.remoteAddress || 'unknown';
 
   const readBody = req => new Promise((resolve, reject) => {
     const len = +req.headers['content-length'] || 0;
