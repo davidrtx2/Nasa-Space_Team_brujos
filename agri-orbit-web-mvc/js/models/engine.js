@@ -51,13 +51,13 @@ function hazards(e){
   const s=S.site, sc=scen();
   const drought = clamp(.55*clamp(1-e.P/1300) + .9*s.Pcv*sc.cv - .05);
   return {
-    heat:   {n:'Calor extremo', d:`Máx. mes más cálido ≈ ${e.Tmax.toFixed(1)} °C`, v: clamp((e.Tmax-31)/8)},
-    drought:{n:'Sequía estacional', d:`Lluvia ≈ ${r0(e.P)} mm/año · variabilidad ${pct(s.Pcv*sc.cv)}`, v: drought},
-    flash:  {n:'Sequía relámpago / canícula', d:`Humedad zona radicular ${s.GWET.toFixed(2)} · calor`, v: clamp(.5*drought + .4*clamp((e.Tmax-28)/10) + .3*(.6-s.GWET))},
-    erosion:{n:'Erosión (viento y escorrentía)', d:`Pendiente ${S.slope} % · viento ${pct(s.wind)}`, v: clamp(.35*s.wind + .35*s.heavy*(S.slope/12) + .3*clamp(S.slope/25))},
-    rain:   {n:'Lluvias intensas / encharcamiento', d:`Suelo ${S.texture}`, v: clamp(s.heavy*(S.texture==='arcilloso'?1.15:.85))},
-    frost:  {n:'Heladas', d: e.frost>0 ? 'Riesgo en la estación fría' : 'No relevante en este sitio', v: e.frost},
-    gw:     {n:'Agua subterránea en descenso', d:`GRACE/GRACE-FO (ref.) · ${S.irr==='none'?'afecta si usas riego':'tu finca usa riego'}`, v: s.gw}
+    heat:   {n:tr('Extreme heat','Calor extremo'), d:tr(`Warmest-month max ≈ ${e.Tmax.toFixed(1)} °C`,`Máx. mes más cálido ≈ ${e.Tmax.toFixed(1)} °C`), v: clamp((e.Tmax-31)/8)},
+    drought:{n:tr('Seasonal drought','Sequía estacional'), d:tr(`Rainfall ≈ ${r0(e.P)} mm/yr · variability ${pct(s.Pcv*sc.cv)}`,`Lluvia ≈ ${r0(e.P)} mm/año · variabilidad ${pct(s.Pcv*sc.cv)}`), v: drought},
+    flash:  {n:tr('Flash drought / dry spell','Sequía relámpago / canícula'), d:tr(`Root-zone moisture ${s.GWET.toFixed(2)} · heat`,`Humedad zona radicular ${s.GWET.toFixed(2)} · calor`), v: clamp(.5*drought + .4*clamp((e.Tmax-28)/10) + .3*(.6-s.GWET))},
+    erosion:{n:tr('Erosion (wind and runoff)','Erosión (viento y escorrentía)'), d:tr(`Slope ${S.slope} % · wind ${pct(s.wind)}`,`Pendiente ${S.slope} % · viento ${pct(s.wind)}`), v: clamp(.35*s.wind + .35*s.heavy*(S.slope/12) + .3*clamp(S.slope/25))},
+    rain:   {n:tr('Heavy rain / waterlogging','Lluvias intensas / encharcamiento'), d:tr(`${texLbl(S.texture)} soil`,`Suelo ${S.texture}`), v: clamp(s.heavy*(S.texture==='arcilloso'?1.15:.85))},
+    frost:  {n:tr('Frost','Heladas'), d: e.frost>0 ? tr('Risk in the cold season','Riesgo en la estación fría') : tr('Not relevant at this site','No relevante en este sitio'), v: e.frost},
+    gw:     {n:tr('Declining groundwater','Agua subterránea en descenso'), d:`GRACE/GRACE-FO (ref.) · ${S.irr==='none'?tr('matters if you irrigate','afecta si usas riego'):tr('your farm uses irrigation','tu finca usa riego')}`, v: s.gw}
   };
 }
 
@@ -154,10 +154,10 @@ function runEngine(){
     picked.push(r); if (picked.length===5) break;
   }
   if (!picked.length && all.length) picked.push(all[0]);
-  const curSeq = curRot(); const base = evaluate(curSeq, ctx); base.isBase=true; base.name='Tu rotación actual';
-  picked.forEach((r,i)=>r.name='Opción '+(i+1));
+  const curSeq = curRot(); const base = evaluate(curSeq, ctx); base.isBase=true; base.name=tr('Your current rotation','Tu rotación actual');
+  picked.forEach((r,i)=>r.name=tr('Option ','Opción ')+(i+1));
   let custom=null;
-  if (S.custom){ custom = evaluate(S.custom.slice(0,L), ctx); custom.isCustom=true; custom.name='Mi rotación'; }
+  if (S.custom){ custom = evaluate(S.custom.slice(0,L), ctx); custom.isCustom=true; custom.name=tr('My rotation','Mi rotación'); }
   S.results = picked; S.base = base; S.customRes = custom; S.ctx = ctx; S.nEval = count;
   if (S.sel >= picked.length && S.sel!=='custom') S.sel = 0;
   computeCalendar();

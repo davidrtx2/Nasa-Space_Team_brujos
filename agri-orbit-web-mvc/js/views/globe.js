@@ -14,12 +14,12 @@ function inView(lon,lat){ return d3.geoDistance([lon,lat],[-G.rot[0],-G.rot[1]])
 /* ---------- Globo con imágenes satelitales reales ---------- */
 const TEX = {list:{}, ready:false};
 const GLAYERS = {
-  bm:{lbl:'Tierra · Blue Marble (NASA)', ramp:null},
-  tc:{lbl:'Nubes y color real · VIIRS, 13 nov 2026', ramp:null},
-  rain:{lbl:'Lluvia · GPM IMERG, 13 nov 2026', ramp:['#a6e07a','#f4e842','#f2952b','#e0402a'], ends:['ligera','intensa']},
-  smap:{lbl:'Humedad de raíces · SMAP L4', ramp:['#f1e05a','#93cf55','#36c1b2','#2a72e0','#1a2fb5'], ends:['seco','húmedo']},
-  ndvi:{lbl:'Vigor vegetal · MODIS NDVI 8 días', ramp:['#cdb894','#dfe6a6','#7dba55','#2b7a2f','#0f4d1c'], ends:['poco','mucho']},
-  grace:{lbl:'Agua subterránea · GRACE-FO', ramp:['#d7301f','#fc9272','#f7f7f7','#9ecae1','#2166ac'], ends:['menos','más']}
+  bm:{lbl:'Earth · Blue Marble (NASA)', lblEs:'Tierra · Blue Marble (NASA)', ramp:null},
+  tc:{lbl:'Clouds & true color · VIIRS, Nov 13, 2026', lblEs:'Nubes y color real · VIIRS, 13 nov 2026', ramp:null},
+  rain:{lbl:'Rainfall · GPM IMERG, Nov 13, 2026', lblEs:'Lluvia · GPM IMERG, 13 nov 2026', ramp:['#a6e07a','#f4e842','#f2952b','#e0402a'], ends:['light','heavy'], endsEs:['ligera','intensa']},
+  smap:{lbl:'Root-zone moisture · SMAP L4', lblEs:'Humedad de raíces · SMAP L4', ramp:['#f1e05a','#93cf55','#36c1b2','#2a72e0','#1a2fb5'], ends:['dry','wet'], endsEs:['seco','húmedo']},
+  ndvi:{lbl:'Vegetation vigor · MODIS NDVI 8-day', lblEs:'Vigor vegetal · MODIS NDVI 8 días', ramp:['#cdb894','#dfe6a6','#7dba55','#2b7a2f','#0f4d1c'], ends:['low','high'], endsEs:['poco','mucho']},
+  grace:{lbl:'Groundwater · GRACE-FO', lblEs:'Agua subterránea · GRACE-FO', ramp:['#d7301f','#fc9272','#f7f7f7','#9ecae1','#2166ac'], ends:['less','more'], endsEs:['menos','más']}
 };
 G.tlayer='bm';
 async function loadTextures(){
@@ -94,7 +94,7 @@ function drawGlobe(){
     const [x,y]=proj([s.lon,s.lat]), on=k===S.siteKey || k===S.site.refKey;
     ctx.beginPath(); ctx.arc(x,y,pr+1.5,0,2*Math.PI); ctx.fillStyle='rgba(10,15,26,.75)'; ctx.fill();
     ctx.beginPath(); ctx.arc(x,y,pr,0,2*Math.PI); ctx.fillStyle= on ? '#4ade80' : '#99f6e4'; ctx.fill();
-    if (G.k>=2.4){ const lbl=s.region.split(' · ')[0]; ctx.font='600 10.5px Inter, sans-serif'; const tw=ctx.measureText(lbl).width, rc=[x+pr+4,y-8,tw+6,14];
+    if (G.k>=2.4){ const lbl=siteRegion(s).split(' · ')[0]; ctx.font='600 10.5px Inter, sans-serif'; const tw=ctx.measureText(lbl).width, rc=[x+pr+4,y-8,tw+6,14];
       if (!labels.some(o=>rc[0]<o[0]+o[2]&&rc[0]+rc[2]>o[0]&&rc[1]<o[1]+o[3]&&rc[1]+rc[3]>o[1])){ labels.push(rc); ctx.fillStyle='rgba(10,15,26,.72)'; ctx.fillRect(rc[0]-3,rc[1],rc[2],rc[3]); ctx.fillStyle='#e8f4ff'; ctx.fillText(lbl,x+pr+4,y+3); } }
   }
   const sp=[S.site.lon,S.site.lat];
@@ -106,6 +106,6 @@ function drawGlobe(){
   }
 }
 function renderLegend(){
-  const L=GLAYERS[G.tlayer];
-  $('#glegend').innerHTML = `<div class="lg-t">${L.lbl}</div>${L.ramp?`<div class="ramp" style="background:linear-gradient(90deg,${L.ramp.join(',')})"></div><div class="ends"><span>${L.ends[0]}</span><span>${L.ends[1]}</span></div>`:''}<div class="lg-s"><i></i> ${Object.keys(SITES).length} regiones de referencia · imágenes NASA GIBS</div>`;
+  const L=GLAYERS[G.tlayer], ends=lx(L,'ends');
+  $('#glegend').innerHTML = `<div class="lg-t">${lx(L,'lbl')}</div>${L.ramp?`<div class="ramp" style="background:linear-gradient(90deg,${L.ramp.join(',')})"></div><div class="ends"><span>${ends[0]}</span><span>${ends[1]}</span></div>`:''}<div class="lg-s"><i></i> ${Object.keys(SITES).length} ${tr('reference regions · NASA GIBS imagery','regiones de referencia · imágenes NASA GIBS')}</div>`;
 }

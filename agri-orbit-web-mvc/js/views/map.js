@@ -30,46 +30,46 @@ function renderMap(){
   const svg=$('#farm');
   let h = `<defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="rgba(0,0,0,.25)" stroke-width="2"/></pattern></defs>`;
   h += `<path d="M10 300 C 140 260, 230 320, 360 292 S 560 250, 650 300" fill="none" stroke="#00b4d8" stroke-width="5" opacity=".55"/>`;
-  h += `<text x="560" y="318" fill="#00b4d8" font-size="10" opacity=".8">quebrada</text>`;
+  h += `<text x="560" y="318" fill="#00b4d8" font-size="10" opacity=".8">${tr('creek','quebrada')}</text>`;
   PARCELS.forEach(p=>{
     const id=parcelCrop(R,p.k,t), c=CROPS[id];
     const slope = S.slope*p.sf;
     let fill=c.c, val='';
     if (S.layer==='erosion'){ const v=clamp(H.erosion.v*(slope/Math.max(1,S.slope))*(1-c.cov)*(.6+.6*c.till)*1.6); fill=colorScale(v); val=pct(v); }
-    if (S.layer==='frost'){ const v=clamp(s.frost*(.45+.75*(p.cy/300))*(1-.3*(slope/Math.max(1,S.slope*1.4))) * (1-c.ft*.6)); fill=colorScale(v); val=s.frost?pct(v):'sin helada'; }
+    if (S.layer==='frost'){ const v=clamp(s.frost*(.45+.75*(p.cy/300))*(1-.3*(slope/Math.max(1,S.slope*1.4))) * (1-c.ft*.6)); fill=colorScale(v); val=s.frost?pct(v):tr('no frost','sin helada'); }
     if (S.layer==='moist'){ const v=clamp(s.GWET*p.mf*(1+.25*(c.cov-.5)) - .004*slope); fill=moistScale(v); val=v.toFixed(2); }
     const pts=p.pts.map(q=>q.join(',')).join(' ');
     h += `<polygon class="parcel ${S.parcel===p.k?'sel':''}" data-k="${p.k}" points="${pts}" fill="${fill}" fill-opacity="${S.layer==='crop'?.78:.85}" stroke="#0a0f1a" stroke-width="2"/>`;
     if (id==='barbecho' && S.layer==='crop') h += `<polygon points="${pts}" fill="url(#hatch)" pointer-events="none"/>`;
     h += `<text x="${p.cx}" y="${p.cy-4}" text-anchor="middle" font-size="11" fill="#0a0f1a" font-weight="700" pointer-events="none">P-${String(p.k+1).padStart(2,'0')}</text>`;
-    h += `<text x="${p.cx}" y="${p.cy+10}" text-anchor="middle" font-size="9.5" fill="#0a0f1a" pointer-events="none">${S.layer==='crop'?c.n.split(' ')[0]:val}</text>`;
+    h += `<text x="${p.cx}" y="${p.cy+10}" text-anchor="middle" font-size="9.5" fill="#0a0f1a" pointer-events="none">${S.layer==='crop'?cn(c).split(' ')[0]:val}</text>`;
   });
   h += `<line x1="30" y1="22" x2="630" y2="22" stroke="#2dd4bf" stroke-dasharray="3 3" opacity=".5"/>`;
-  h += `<text x="30" y="16" fill="#2dd4bf" font-size="9.5">Finca demo · 8 parcelas · ${s.name}</text>`;
+  h += `<text x="30" y="16" fill="#2dd4bf" font-size="9.5">${tr('Demo farm · 8 plots ·','Finca demo · 8 parcelas ·')} ${siteName(s)}</text>`;
   svg.innerHTML=h;
   svg.querySelectorAll('.parcel').forEach(el=>{
     el.onclick=()=>{S.parcel=+el.dataset.k; renderMap();};
-    el.onmousemove=ev=>{const k=+el.dataset.k, id=parcelCrop(R,k,t); const tip=$('#tip'); tip.style.display='block'; tip.style.left=(ev.clientX+12)+'px'; tip.style.top=(ev.clientY+12)+'px'; tip.innerHTML=`P-${String(k+1).padStart(2,'0')} · ${CROPS[id].n}<br>Pendiente ≈ ${r0(S.slope*PARCELS[k].sf)} %`;};
+    el.onmousemove=ev=>{const k=+el.dataset.k, id=parcelCrop(R,k,t); const tip=$('#tip'); tip.style.display='block'; tip.style.left=(ev.clientX+12)+'px'; tip.style.top=(ev.clientY+12)+'px'; tip.innerHTML=`P-${String(k+1).padStart(2,'0')} · ${cn(CROPS[id])}<br>${tr('Slope','Pendiente')} ≈ ${r0(S.slope*PARCELS[k].sf)} %`;};
     el.onmouseleave=()=>$('#tip').style.display='none';
   });
   const L=R.seq.length;
-  $('#yearLbl').textContent = `Ciclo ${t+1} de ${2*L}`;
+  $('#yearLbl').textContent = tr(`Cycle ${t+1} of ${2*L}`,`Ciclo ${t+1} de ${2*L}`);
   $('#year').max = 2*L-1;
   // leyenda
   if (S.layer==='crop'){
     $('#legend').innerHTML=[...new Set(R.seq)].map(pill).join('');
   } else if (S.layer==='erosion' || S.layer==='frost'){
-    $('#legend').innerHTML=`<span class="pill"><i style="background:${colorScale(0)}"></i>bajo</span><span class="pill"><i style="background:${colorScale(.5)}"></i>medio</span><span class="pill"><i style="background:${colorScale(1)}"></i>alto</span>`;
+    $('#legend').innerHTML=`<span class="pill"><i style="background:${colorScale(0)}"></i>${tr('low','bajo')}</span><span class="pill"><i style="background:${colorScale(.5)}"></i>${tr('medium','medio')}</span><span class="pill"><i style="background:${colorScale(1)}"></i>${tr('high','alto')}</span>`;
   } else {
-    $('#legend').innerHTML=`<span class="pill"><i style="background:${moistScale(.2)}"></i>seco</span><span class="pill"><i style="background:${moistScale(.5)}"></i>medio</span><span class="pill"><i style="background:${moistScale(.85)}"></i>húmedo</span>`;
+    $('#legend').innerHTML=`<span class="pill"><i style="background:${moistScale(.2)}"></i>${tr('dry','seco')}</span><span class="pill"><i style="background:${moistScale(.5)}"></i>${tr('medium','medio')}</span><span class="pill"><i style="background:${moistScale(.85)}"></i>${tr('wet','húmedo')}</span>`;
   }
   // detalle
   const p=PARCELS[S.parcel];
   let tl='';
-  for (let y=0;y<2*L;y++){ const id=parcelCrop(R,p.k,y); tl+=`<div class="${y===t?'now':''}"><span style="width:56px">Ciclo ${y+1}</span>${pill(id)}</div>`; }
+  for (let y=0;y<2*L;y++){ const id=parcelCrop(R,p.k,y); tl+=`<div class="${y===t?'now':''}"><span style="width:56px">${tr('Cycle','Ciclo')} ${y+1}</span>${pill(id)}</div>`; }
   const id=parcelCrop(R,p.k,t), st=R.stages[R.seq.indexOf(id)];
-  $('#pdetail').innerHTML = `<h4>Parcela P-${String(p.k+1).padStart(2,'0')}</h4>
-    <div class="mono" style="font-size:11px;color:var(--muted)">Pendiente ≈ ${r0(S.slope*p.sf)} % · ahora: <b style="color:var(--txt)">${CROPS[id].n}</b></div>
-    <div class="mono" style="font-size:11px;color:var(--muted)">Aptitud del cultivo: <b style="color:var(--green)">${pct(st?st.y:0)}</b></div>
+  $('#pdetail').innerHTML = `<h4>${tr('Plot','Parcela')} P-${String(p.k+1).padStart(2,'0')}</h4>
+    <div class="mono" style="font-size:11px;color:var(--muted)">${tr('Slope','Pendiente')} ≈ ${r0(S.slope*p.sf)} % · ${tr('now','ahora')}: <b style="color:var(--txt)">${cn(CROPS[id])}</b></div>
+    <div class="mono" style="font-size:11px;color:var(--muted)">${tr('Crop suitability','Aptitud del cultivo')}: <b style="color:var(--green)">${pct(st?st.y:0)}</b></div>
     <div class="tl">${tl}</div>`;
 }

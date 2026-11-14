@@ -4,13 +4,16 @@
 /* =========================================================
    EVENTOS
    ========================================================= */
+function buildSiteSelect(){
+  const byC={}; Object.values(SITES).forEach(v=>(byC[siteCountry(v)]=byC[siteCountry(v)]||[]).push(v));
+  $('#site').innerHTML = `<option value="globe" disabled>${tr('📍 Point picked on the globe','📍 Punto elegido en el globo')}</option>` + Object.keys(byC).map(c=>`<optgroup label="${c}">${byC[c].map(v=>`<option value="${v.key}">${siteRegion(v)}</option>`).join('')}</optgroup>`).join('');
+  $('#site').value = S.siteKey;
+}
 function initControls(){
-  const byC={}; Object.values(SITES).forEach(v=>(byC[v.country]=byC[v.country]||[]).push(v));
-  $('#site').innerHTML = '<option value="globe" disabled>📍 Punto elegido en el globo</option>' + Object.keys(byC).map(c=>`<optgroup label="${c}">${byC[c].map(v=>`<option value="${v.key}">${v.region}</option>`).join('')}</optgroup>`).join('');
-  $('#site').value=S.siteKey;
+  buildSiteSelect();
   $('#site').onchange=e=>selectSite(e.target.value);
   $('#goCoord').onclick=()=>{ const lat=+$('#lat').value, lon=+$('#lon').value;
-    if (!isFinite(lat)||!isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180){ toast('Coordenadas no válidas'); return; }
+    if (!isFinite(lat)||!isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180){ toast(tr('Invalid coordinates','Coordenadas no válidas')); return; }
     const f = G.ready ? countryAt(lon,lat) : null; pickPoint(lon,lat,f); flyTo(lon,lat); };
   $('#scen').onchange=e=>{ S.scen=e.target.value; if (SCEN[S.scen]){ S.dT=SCEN[S.scen].dT; S.dP=SCEN[S.scen].dP; $('#s-dT').value=S.dT; $('#s-dP').value=S.dP; } recompute(); };
   ['dT','dP'].forEach(k=>$('#s-'+k).oninput=e=>{ S[k]=+e.target.value; const m=Object.keys(SCEN).find(q=>SCEN[q].dT===S.dT&&SCEN[q].dP===S.dP); S.scen=m||'custom'; $('#scen').value=S.scen; recompute(); });
@@ -36,13 +39,37 @@ function initControls(){
   $('#liveRefresh').onclick=()=>loadLive(true);
   const exportTxt=()=>{
     const R=getSel(), s=S.site;
-    return `PLAN DE ROTACIÓN — AGRI-ORBIT\nSitio: ${s.name} (${s.lat.toFixed(2)}, ${s.lon.toFixed(2)})\nClima: ${S.live?'NASA POWER':'valores de referencia'} · Escenario: ${scen().lbl}\nSuelo: ${S.texture}, M.O. ${S.om} %, pH ${S.ph}, pendiente ${S.slope} %, riego: ${S.irr}\nPrioridades: ganancia ${S.prio.econ}, suelo ${S.prio.soil}, agua ${S.prio.water}, estabilidad ${S.prio.risk}\n\nRotación elegida: ${seqTxt(R.seq)}\nPuntajes — economía ${r0(R.m.econ)}, agua ${r0(R.m.water)}, suelo ${r0(R.m.soil)}, estabilidad ${r0(R.m.resil)}\nRiego necesario: ${r0(R.m.irrigation)} mm/ciclo · Fertilizante N: ${r0(R.m.nFert)} kg/ha/ciclo\n\nPor qué:\n` + reasons(R).map(r=>'- '+r[1].replace(/<[^>]+>/g,'')).join('\n');
+    return tr(
+`ROTATION PLAN — AGRI-ORBIT
+Site: ${siteName(s)} (${s.lat.toFixed(2)}, ${s.lon.toFixed(2)})
+Climate: ${S.live?'NASA POWER':'reference values'} · Scenario: ${scen().lbl}
+Soil: ${texLbl(S.texture)}, O.M. ${S.om} %, pH ${S.ph}, slope ${S.slope} %, irrigation: ${irrLbl(S.irr)}
+Priorities: profit ${S.prio.econ}, soil ${S.prio.soil}, water ${S.prio.water}, stability ${S.prio.risk}
+
+Chosen rotation: ${seqTxt(R.seq)}
+Scores — economics ${r0(R.m.econ)}, water ${r0(R.m.water)}, soil ${r0(R.m.soil)}, stability ${r0(R.m.resil)}
+Irrigation needed: ${r0(R.m.irrigation)} mm/cycle · N fertilizer: ${r0(R.m.nFert)} kg/ha/cycle
+
+Why:
+`,
+`PLAN DE ROTACIÓN — AGRI-ORBIT
+Sitio: ${siteName(s)} (${s.lat.toFixed(2)}, ${s.lon.toFixed(2)})
+Clima: ${S.live?'NASA POWER':'valores de referencia'} · Escenario: ${scen().lbl}
+Suelo: ${texLbl(S.texture)}, M.O. ${S.om} %, pH ${S.ph}, pendiente ${S.slope} %, riego: ${irrLbl(S.irr)}
+Prioridades: ganancia ${S.prio.econ}, suelo ${S.prio.soil}, agua ${S.prio.water}, estabilidad ${S.prio.risk}
+
+Rotación elegida: ${seqTxt(R.seq)}
+Puntajes — economía ${r0(R.m.econ)}, agua ${r0(R.m.water)}, suelo ${r0(R.m.soil)}, estabilidad ${r0(R.m.resil)}
+Riego necesario: ${r0(R.m.irrigation)} mm/ciclo · Fertilizante N: ${r0(R.m.nFert)} kg/ha/ciclo
+
+Por qué:
+`) + reasons(R).map(r=>'- '+r[1].replace(/<[^>]+>/g,'')).join('\n');
   };
   const copy=async(text)=>{
-    try{ await navigator.clipboard.writeText(text); toast('Copiado al portapapeles'); $('#exportBox').style.display='none'; }
-    catch(e){ const box=$('#exportBox'); box.style.display='block'; box.value=text; box.focus(); box.select(); toast('Selecciona y copia el texto'); }
+    try{ await navigator.clipboard.writeText(text); toast(tr('Copied to clipboard','Copiado al portapapeles')); $('#exportBox').style.display='none'; }
+    catch(e){ const box=$('#exportBox'); box.style.display='block'; box.value=text; box.focus(); box.select(); toast(tr('Select and copy the text','Selecciona y copia el texto')); }
   };
   $('#copyTxt').onclick=()=>copy(exportTxt());
-  $('#copyJson').onclick=()=>{ const R=getSel(); copy(JSON.stringify({site:{name:S.site.name,lat:S.site.lat,lon:S.site.lon,live:S.live},scenario:S.scen,soil:{texture:S.texture,om:S.om,ph:S.ph,slope:S.slope,irrigation:S.irr},priorities:S.prio,rotation:R.seq,metrics:Object.fromEntries(Object.entries(R.m).map(([k,v])=>[k,typeof v==='number'?+v.toFixed(1):v])),parcels:PARCELS.map(p=>({id:'P-'+String(p.k+1).padStart(2,'0'),plan:Array.from({length:2*R.seq.length},(_,t)=>parcelCrop(R,p.k,t))}))},null,2)); };
+  $('#copyJson').onclick=()=>{ const R=getSel(); copy(JSON.stringify({site:{name:siteName(S.site),lat:S.site.lat,lon:S.site.lon,live:S.live},scenario:S.scen,soil:{texture:S.texture,om:S.om,ph:S.ph,slope:S.slope,irrigation:S.irr},priorities:S.prio,rotation:R.seq,metrics:Object.fromEntries(Object.entries(R.m).map(([k,v])=>[k,typeof v==='number'?+v.toFixed(1):v])),parcels:PARCELS.map(p=>({id:'P-'+String(p.k+1).padStart(2,'0'),plan:Array.from({length:2*R.seq.length},(_,t)=>parcelCrop(R,p.k,t))}))},null,2)); };
   window.addEventListener('resize',()=>renderTrade());
 }

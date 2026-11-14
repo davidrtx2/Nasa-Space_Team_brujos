@@ -37,8 +37,9 @@ function pickPoint(lon,lat,country){
   const near=nearestSite(lon,lat), ref=SITES[near.key];
   S.siteKey='globe';
   S.site={...ref, key:'globe', lat, lon, refKey:near.key, refDist:near.d, pending:true,
-    region:`Punto seleccionado`, country: country ? (country.properties.name||'') : ref.country,
-    name:`Punto ${lat.toFixed(2)}, ${lon.toFixed(2)} · ${country?country.properties.name:ref.country}`};
+    region:'Selected point', regionEn:'Selected point', regionEs:'Punto seleccionado', country: country ? (country.properties.name||'') : ref.country,
+    nameEn:`Point ${lat.toFixed(2)}, ${lon.toFixed(2)} · ${country?country.properties.name:siteCountry(ref)}`,
+    nameEs:`Punto ${lat.toFixed(2)}, ${lon.toFixed(2)} · ${country?country.properties.name:siteCountry(ref)}`};
   S.live=false; S.custom=null; S.current=null; S.sel=0; S.cmp='base';
   G.sel={country};
   $('#site').value='globe'; $('#lat').value=lat.toFixed(3); $('#lon').value=lon.toFixed(3);
@@ -47,13 +48,13 @@ function pickPoint(lon,lat,country){
 
 function fillSearch(){
   const items=new Set();
-  Object.values(SITES).forEach(s=>items.add(s.name));
+  Object.values(SITES).forEach(s=>items.add(siteName(s)));
   G.countries.filter(f=>f.latam && f.properties.name).forEach(f=>items.add(f.properties.name));
-  $('#gsearchList').innerHTML=[...items].sort((a,b)=>a.localeCompare(b,'es')).map(n=>`<option value="${n}">`).join('');
+  $('#gsearchList').innerHTML=[...items].sort((a,b)=>a.localeCompare(b,LANG==='es'?'es':'en')).map(n=>`<option value="${n}">`).join('');
 }
 
 function initGlobe(){
-  if (!window.d3){ $('#globeMsg').textContent='No se pudo cargar D3 (sin conexión).'; return; }
+  if (!window.d3){ $('#globeMsg').textContent=tr('Could not load D3 (offline).','No se pudo cargar D3 (sin conexión).'); return; }
   G.proj=d3.geoOrthographic().clipAngle(90).precision(.4);
   G.grat=d3.geoGraticule10();
   sizeGlobe(); renderLegend();
@@ -69,7 +70,7 @@ function initGlobe(){
     if (!hit){ G.hover=null; tip.style.display='none'; return; }
     const sk=siteAtPixel(hit.x,hit.y), f=G.ready?countryAt(...hit.ll):null; G.hover=f;
     if (sk||f){ tip.style.display='block'; tip.style.left=(e.clientX+12)+'px'; tip.style.top=(e.clientY+12)+'px';
-      tip.innerHTML = sk ? `<b>${SITES[sk].region}</b><br>${SITES[sk].country} · ${LAYERS[G.layer].fmt(SITES[sk][G.layer])}` : `${f.properties.name||''}<br>${hit.ll[1].toFixed(2)}, ${hit.ll[0].toFixed(2)}`; }
+      tip.innerHTML = sk ? `<b>${siteRegion(SITES[sk])}</b><br>${siteCountry(SITES[sk])} · ${LAYERS[G.layer].fmt(SITES[sk][G.layer])}` : `${f.properties.name||''}<br>${hit.ll[1].toFixed(2)}, ${hit.ll[0].toFixed(2)}`; }
     else tip.style.display='none';
   });
   c.addEventListener('pointerup',e=>{
@@ -81,7 +82,7 @@ function initGlobe(){
         if (sk) selectSite(sk,false);
         else {
           const f=G.ready?countryAt(...hit.ll):null;
-          if (G.ready && !f) toast('Eso es océano: elige un punto en tierra');
+          if (G.ready && !f) toast(tr('That is ocean: pick a point on land','Eso es océano: elige un punto en tierra'));
           else pickPoint(hit.ll[0],hit.ll[1],f);
         }
       }
@@ -97,11 +98,11 @@ function initGlobe(){
   $('#glayer').querySelectorAll('button').forEach(b=>b.onclick=()=>{ $('#glayer').querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); G.tlayer=b.dataset.v; G.texKey=null; renderLegend(); });
   $('#gsearch').onchange=e=>{
     const q=e.target.value.trim().toLowerCase(); if(!q) return;
-    const sk=Object.keys(SITES).find(k=>SITES[k].name.toLowerCase()===q) || Object.keys(SITES).find(k=>SITES[k].name.toLowerCase().includes(q));
+    const sk=Object.keys(SITES).find(k=>siteName(SITES[k]).toLowerCase()===q) || Object.keys(SITES).find(k=>siteName(SITES[k]).toLowerCase().includes(q));
     const f=G.countries.find(f=>(f.properties.name||'').toLowerCase()===q);
-    if (f && !(sk && SITES[sk].name.toLowerCase()===q)){ flyTo(f.centroid[0],f.centroid[1],3); G.sel={country:f}; const s2=nearestSite(...f.centroid); toast(`${f.properties.name}: haz clic en el mapa para elegir un punto`); }
+    if (f && !(sk && siteName(SITES[sk]).toLowerCase()===q)){ flyTo(f.centroid[0],f.centroid[1],3); G.sel={country:f}; const s2=nearestSite(...f.centroid); toast(`${f.properties.name}: ${tr('click the map to pick a point','haz clic en el mapa para elegir un punto')}`); }
     else if (sk) selectSite(sk);
-    else toast('No encontré ese lugar');
+    else toast(tr('I could not find that place','No encontré ese lugar'));
     e.target.value='';
   };
   (function loop(){

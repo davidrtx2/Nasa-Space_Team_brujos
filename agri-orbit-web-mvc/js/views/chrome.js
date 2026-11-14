@@ -2,27 +2,32 @@
    Vistas de página: pie, constelación de satélites, iconos de sección y portada. */
 
 function renderFoot(){
-  $('#foot').textContent = `Modelo de reglas v0.3 · ${new Date().toLocaleDateString('es')} · sin datos personales`;
+  $('#foot').textContent = `${tr('Rules model','Modelo de reglas')} v0.3 · ${new Date().toLocaleDateString(LANG==='es'?'es':'en')} · ${tr('no personal data','sin datos personales')}`;
 }
 
 /* ---------- Constelación de satélites (portada) ---------- */
 const SATS = {
-  smap:{n:'SMAP', full:'Soil Moisture Active Passive', mide:'La humedad del suelo en todo el planeta, cada 2–3 días.', uso:'Humedad de raíces, riesgo de sequía relámpago y la capa “Humedad” del globo.', sec:'#livebox'},
-  gpm:{n:'GPM', full:'Global Precipitation Measurement · IMERG', mide:'La lluvia en todo el planeta cada 30 minutos.', uso:'Lluvia reciente, lluvias intensas y erosión.', sec:'#livebox'},
-  terra:{n:'Terra · MODIS', full:'Moderate Resolution Imaging Spectroradiometer', mide:'El verdor de la vegetación (NDVI) cada 8 días.', uso:'Vigor vegetal y meses con suelo desnudo.', sec:'#livebox'},
-  noaa20:{n:'NOAA-20 · VIIRS', full:'Visible Infrared Imaging Radiometer Suite', mide:'Imágenes a color real de todo el planeta cada día.', uso:'Nubes, campos y suelo desnudo de ayer.', sec:'#s-globo'},
-  grace:{n:'GRACE-FO', full:'Gravity Recovery and Climate Experiment Follow-On', mide:'Cambios del agua subterránea a partir de la gravedad terrestre.', uso:'Riesgo de agotar el acuífero si se riega.', sec:'#s-riesgo'},
-  landsat:{n:'Landsat 9', full:'Programa Landsat · NASA / USGS', mide:'Imágenes de 30 m: se distingue cada parcela.', uso:'Siguiente paso: NDVI e historia de cada parcela.', sec:'#s-mapa'},
-  ecostress:{n:'ECOSTRESS', full:'En la Estación Espacial Internacional', mide:'Temperatura de las plantas y evapotranspiración.', uso:'Siguiente paso: calibrar el agua que usa cada cultivo.', sec:'#s-cal'},
-  power:{n:'NASA POWER', full:'Prediction Of Worldwide Energy Resources', mide:'Clima diario y normal: temperatura, lluvia, radiación, viento.', uso:'Aptitud de cada cultivo, calendario y últimos 90 días.', sec:'#s-cal'}
+  smap:{n:'SMAP', full:'Soil Moisture Active Passive', mide:'Soil moisture across the planet, every 2–3 days.', mideEs:'La humedad del suelo en todo el planeta, cada 2–3 días.', uso:'Root-zone moisture, flash-drought risk and the globe’s “Moisture” layer.', usoEs:'Humedad de raíces, riesgo de sequía relámpago y la capa “Humedad” del globo.', sec:'#livebox'},
+  gpm:{n:'GPM', full:'Global Precipitation Measurement · IMERG', mide:'Rainfall across the planet every 30 minutes.', mideEs:'La lluvia en todo el planeta cada 30 minutos.', uso:'Recent rainfall, heavy rain and erosion.', usoEs:'Lluvia reciente, lluvias intensas y erosión.', sec:'#livebox'},
+  terra:{n:'Terra · MODIS', full:'Moderate Resolution Imaging Spectroradiometer', mide:'Vegetation greenness (NDVI) every 8 days.', mideEs:'El verdor de la vegetación (NDVI) cada 8 días.', uso:'Vegetation vigor and months with bare soil.', usoEs:'Vigor vegetal y meses con suelo desnudo.', sec:'#livebox'},
+  noaa20:{n:'NOAA-20 · VIIRS', full:'Visible Infrared Imaging Radiometer Suite', mide:'True-color images of the whole planet every day.', mideEs:'Imágenes a color real de todo el planeta cada día.', uso:'Yesterday’s clouds, fields and bare soil.', usoEs:'Nubes, campos y suelo desnudo de ayer.', sec:'#s-globo'},
+  grace:{n:'GRACE-FO', full:'Gravity Recovery and Climate Experiment Follow-On', mide:'Groundwater changes inferred from Earth’s gravity.', mideEs:'Cambios del agua subterránea a partir de la gravedad terrestre.', uso:'Risk of depleting the aquifer when irrigating.', usoEs:'Riesgo de agotar el acuífero si se riega.', sec:'#s-riesgo'},
+  landsat:{n:'Landsat 9', full:'Landsat program · NASA / USGS', mide:'30 m imagery: each plot is visible.', mideEs:'Imágenes de 30 m: se distingue cada parcela.', uso:'Next step: NDVI and history of each plot.', usoEs:'Siguiente paso: NDVI e historia de cada parcela.', sec:'#s-mapa'},
+  ecostress:{n:'ECOSTRESS', full:'On the International Space Station', mide:'Plant temperature and evapotranspiration.', mideEs:'Temperatura de las plantas y evapotranspiración.', uso:'Next step: calibrating the water each crop uses.', usoEs:'Siguiente paso: calibrar el agua que usa cada cultivo.', sec:'#s-cal'},
+  power:{n:'NASA POWER', full:'Prediction Of Worldwide Energy Resources', mide:'Daily and climatology weather: temperature, rainfall, radiation, wind.', mideEs:'Clima diario y normal: temperatura, lluvia, radiación, viento.', uso:'Suitability of each crop, calendar and last 90 days.', usoEs:'Aptitud de cada cultivo, calendario y últimos 90 días.', sec:'#s-cal'}
 };
+let SATSEL='smap';
+function showSat(k){
+  SATSEL=k; const s=SATS[k], box=$('#satinfo'); if (!box) return;
+  document.querySelectorAll('#constel .sat').forEach(g=>g.classList.toggle('on',g.dataset.s===k));
+  box.innerHTML=`<div class="si-k">${tr('MISSION','MISIÓN')}</div><div class="si-n">${s.n}</div><div class="si-f">${s.full}</div><div class="si-r"><b>${tr('What it measures:','Qué mide:')}</b> ${lx(s,'mide')}</div><div class="si-r"><b>${tr('In AGRI-ORBIT:','En AGRI-ORBIT:')}</b> ${lx(s,'uso')}</div><a href="${s.sec}">${tr('See it in the tool ↓','Ver en la herramienta ↓')}</a>`;
+}
+const refreshSat = () => showSat(SATSEL);
 function initConstellation(){
   const box=$('#satinfo'); if (!box) return;
-  const show=k=>{ const s=SATS[k]; document.querySelectorAll('#constel .sat').forEach(g=>g.classList.toggle('on',g.dataset.s===k));
-    box.innerHTML=`<div class="si-k">MISIÓN</div><div class="si-n">${s.n}</div><div class="si-f">${s.full}</div><div class="si-r"><b>Qué mide:</b> ${s.mide}</div><div class="si-r"><b>En AGRI-ORBIT:</b> ${s.uso}</div><a href="${s.sec}">Ver en la herramienta ↓</a>`; };
-  document.querySelectorAll('#constel .sat').forEach(g=>{ g.addEventListener('click',()=>show(g.dataset.s)); g.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); show(g.dataset.s);} }); });
-  document.querySelectorAll('.satchips button').forEach(b=>b.onclick=()=>show(b.dataset.s));
-  show('smap');
+  document.querySelectorAll('#constel .sat').forEach(g=>{ g.addEventListener('click',()=>showSat(g.dataset.s)); g.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); showSat(g.dataset.s);} }); });
+  document.querySelectorAll('.satchips button').forEach(b=>b.onclick=()=>showSat(b.dataset.s));
+  showSat(SATSEL);
 }
 
 /* ---------- Iconos de sección ---------- */
@@ -46,11 +51,14 @@ function decorateSections(){
   window.addEventListener('scroll',()=>{ const d=document.documentElement; if (bar) bar.style.width=(100*d.scrollTop/Math.max(1,d.scrollHeight-d.clientHeight))+'%'; if (top) top.classList.toggle('show',d.scrollTop>900); },{passive:true});
 }
 
-function initChrome(){
+function renderHeroStats(){
   const nCountries=new Set(Object.values(SITES).filter(s=>s.country!=='EE. UU.').map(s=>s.country)).size;
   const nCrops=Object.keys(CROPS).filter(k=>k!=='barbecho').length;
-  $('#heroStats').innerHTML=[[Object.keys(SITES).length,'regiones agrícolas'],[nCountries,'países de Latinoamérica'],[nCrops,'cultivos y coberturas'],['1 000','simulaciones por análisis']]
+  $('#heroStats').innerHTML=[[Object.keys(SITES).length,tr('agricultural regions','regiones agrícolas')],[nCountries,tr('Latin American countries','países de Latinoamérica')],[nCrops,tr('crops and covers','cultivos y coberturas')],['1 000',tr('simulations per analysis','simulaciones por análisis')]]
     .map(([v,k])=>`<div class="stat"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');
+}
+function initChrome(){
+  renderHeroStats();
   const links=[...document.querySelectorAll('nav.top a')];
   const io=new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting){ links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id)); } }); },{rootMargin:'-45% 0px -50% 0px'});
   links.forEach(a=>{ const t=document.querySelector(a.getAttribute('href')); if(t) io.observe(t); });

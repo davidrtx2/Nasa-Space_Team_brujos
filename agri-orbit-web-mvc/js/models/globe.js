@@ -7,10 +7,10 @@
 const LATAM = new Set(['032','068','076','152','170','188','192','214','218','222','320','328','332','340','388','484','558','591','600','604','630','740','780','858','862','084','044','254','052','028','212','308','662','670','533','531','535','238','659','660','092','850','796','136']);
 const G = {k:1, rot:[78,10,0], layer:'P', countries:[], ready:false, spin:false, hover:null, sel:null, anim:null};
 const LAYERS = {
-  P:{lbl:'Lluvia anual (mm) · ref. GPM IMERG / POWER', dom:[0,2500], fmt:v=>r0(v)+' mm', ip:()=>d3.interpolateYlGnBu},
-  Tg:{lbl:'Temperatura de temporada (°C) · POWER T2M', dom:[5,30], fmt:v=>v.toFixed(0)+' °C', ip:()=>t=>d3.interpolateRdYlBu(1-t)},
-  GWET:{lbl:'Humedad zona radicular (0–1) · SMAP L4', dom:[.1,.75], fmt:v=>v.toFixed(2), ip:()=>d3.interpolateViridis},
-  elev:{lbl:'Elevación (m) · SRTM', dom:[0,4000], fmt:v=>r0(v)+' m', ip:()=>d3.interpolateCividis}
+  P:{lbl:'Annual rainfall (mm) · ref. GPM IMERG / POWER', lblEs:'Lluvia anual (mm) · ref. GPM IMERG / POWER', dom:[0,2500], fmt:v=>r0(v)+' mm', ip:()=>d3.interpolateYlGnBu},
+  Tg:{lbl:'Season temperature (°C) · POWER T2M', lblEs:'Temperatura de temporada (°C) · POWER T2M', dom:[5,30], fmt:v=>v.toFixed(0)+' °C', ip:()=>t=>d3.interpolateRdYlBu(1-t)},
+  GWET:{lbl:'Root-zone moisture (0–1) · SMAP L4', lblEs:'Humedad zona radicular (0–1) · SMAP L4', dom:[.1,.75], fmt:v=>v.toFixed(2), ip:()=>d3.interpolateViridis},
+  elev:{lbl:'Elevation (m) · SRTM', lblEs:'Elevación (m) · SRTM', dom:[0,4000], fmt:v=>r0(v)+' m', ip:()=>d3.interpolateCividis}
 };
 const layerColor = (key,v) => { const L=LAYERS[key]; return L.ip()(clamp((v-L.dom[0])/(L.dom[1]-L.dom[0]))); };
 
@@ -37,5 +37,5 @@ async function loadWorld(){
       G.ready=true; $('#globeMsg').textContent=''; fillSearch(); drawGlobe(); return;
     }catch(e){ /* intenta la siguiente resolución */ }
   }
-  $('#globeMsg').textContent='Sin mapa base de países (sin conexión): se muestran solo los sitios.';
+  $('#globeMsg').textContent=tr('No country base map (offline): only the sites are shown.','Sin mapa base de países (sin conexión): se muestran solo los sitios.');
 }

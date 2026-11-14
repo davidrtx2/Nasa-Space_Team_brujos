@@ -39,13 +39,13 @@ function growSlots(mo){
   else for (let s0=0;s0<12;s0++){ if (ok[(s0+11)%12]) continue; let n=0; while(n<12 && ok[(s0+n)%12]) n++; if(n>best.n) best={s:s0,n}; }
   if (!trop && best.n>=9){
     const warmStart = s.lat<0 ? 9 : 3;  // oct (sur) / abr (norte)
-    return {slots:[{start:warmStart,len:5,kind:'warm',lbl:'temporada cálida'},{start:(warmStart+7)%12,len:5,kind:'cool',lbl:'temporada fresca'}], n:best.n};
+    return {slots:[{start:warmStart,len:5,kind:'warm',lbl:tr('warm season','temporada cálida')},{start:(warmStart+7)%12,len:5,kind:'cool',lbl:tr('cool season','temporada fresca')}], n:best.n};
   }
   if (best.n===12){ const dri=mo.reduce((a,b)=>b.P<mo[a].P?b.m:a,0); best.s=(dri+1)%12; }
-  if (best.n>=6){ const l1=Math.min(4,Math.floor(best.n/2)), l2=Math.min(4,best.n-l1); return {slots:[{start:best.s,len:l1,kind:'any',lbl:'primera'},{start:(best.s+l1)%12,len:l2,kind:'any',lbl:'postrera'}], n:best.n}; }
-  if (best.n>=4) return {slots:[{start:best.s,len:Math.min(best.n,5),kind:'any',lbl:'temporada de lluvias'}], n:best.n};
+  if (best.n>=6){ const l1=Math.min(4,Math.floor(best.n/2)), l2=Math.min(4,best.n-l1); return {slots:[{start:best.s,len:l1,kind:'any',lbl:tr('first season','primera')},{start:(best.s+l1)%12,len:l2,kind:'any',lbl:tr('second season','postrera')}], n:best.n}; }
+  if (best.n>=4) return {slots:[{start:best.s,len:Math.min(best.n,5),kind:'any',lbl:tr('rainy season','temporada de lluvias')}], n:best.n};
   const wet=mo.reduce((a,b)=>b.P>mo[a].P?b.m:a,0);
-  return {slots:[{start:(wet+10)%12,len:4,kind:'any',lbl:'temporada corta'}], n:best.n, short:true};
+  return {slots:[{start:(wet+10)%12,len:4,kind:'any',lbl:tr('short season','temporada corta')}], n:best.n, short:true};
 }
 
 function schedule(seq, gs){

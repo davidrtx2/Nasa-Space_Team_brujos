@@ -11,16 +11,17 @@
 // Climatología APROXIMADA de referencia por región agrícola (valores redondeados; la versión alojada los reemplaza con NASA POWER en vivo).
 // Columnas: clave, región, país, lat, lon, elevación m (ref. SRTM), Tg temporada °C, Tmax mes cálido °C, lluvia mm/año, CV lluvia,
 //           humedad zona radicular (0–1, tipo SMAP/GWETROOT), radiación kWh/m²/día, viento, lluvias intensas, heladas (índices 0–1), práctica de referencia
+// BASES: [secuencia, nombre ES, nombre EN]
 const BASES = {
-  maiz:[['maiz','maiz','maiz','maiz'],'Monocultivo de maíz'],
-  maizpp:[['maiz','maiz','maiz','maiz'],'Maíz de primera y postrera'],
-  andes:[['papa','papa','cebada','papa'],'Papa intensiva con cebada'],
-  safrinha:[['soya','maiz','soya','maiz'],'Soya + maíz de segunda (safrinha)'],
-  soya:[['soya','soya','maiz','soya'],'Soya casi continua'],
-  soyatrigo:[['soya','trigo','soya','soya'],'Soya dominante con trigo'],
-  trigo:[['trigo','trigo','maiz','trigo'],'Trigo casi continuo'],
-  ogallala:[['trigo','barbecho','maiz','soya'],'Trigo → barbecho → maíz → soya'],
-  sorgo:[['sorgo','maiz','sorgo','maiz'],'Maíz–sorgo de riego']
+  maiz:[['maiz','maiz','maiz','maiz'],'Monocultivo de maíz','Continuous maize (monoculture)'],
+  maizpp:[['maiz','maiz','maiz','maiz'],'Maíz de primera y postrera','Maize in both growing seasons'],
+  andes:[['papa','papa','cebada','papa'],'Papa intensiva con cebada','Intensive potato with barley'],
+  safrinha:[['soya','maiz','soya','maiz'],'Soya + maíz de segunda (safrinha)','Soybean + second-crop maize (safrinha)'],
+  soya:[['soya','soya','maiz','soya'],'Soya casi continua','Near-continuous soybean'],
+  soyatrigo:[['soya','trigo','soya','soya'],'Soya dominante con trigo','Soybean-dominant with wheat'],
+  trigo:[['trigo','trigo','maiz','trigo'],'Trigo casi continuo','Near-continuous wheat'],
+  ogallala:[['trigo','barbecho','maiz','soya'],'Trigo → barbecho → maíz → soya','Wheat → fallow → maize → soybean'],
+  sorgo:[['sorgo','maiz','sorgo','maiz'],'Maíz–sorgo de riego','Irrigated maize–sorghum']
 };
 const SITE_ROWS = [
  ['altiplano','Altiplano occidental · Quetzaltenango','Guatemala',14.84,-91.52,2330,16,23,820,.18,.55,5.4,.35,.4,.35,'maiz'],
@@ -68,12 +69,36 @@ const SITE_ROWS = [
  ['temuco','La Araucanía · Temuco','Chile',-38.74,-72.60,120,15,24,1150,.20,.60,4.2,.35,.45,.5,'trigo'],
  ['ogallala','Llanuras Altas / Ogallala · Texas (ref. del reto)','EE. UU.',33.58,-101.85,990,24,33,480,.30,.35,5.9,.8,.35,.6,'ogallala']
 ];
+const REGION_EN = {
+  altiplano:'Western Altiplano · Quetzaltenango', corredor:'Dry Corridor · Chiquimula', costasur:'Southern Coast · Escuintla',
+  peten:'Petén · Santa Elena', bajio:'Bajío · Celaya, Guanajuato', sinaloa:'Culiacán Valley, Sinaloa',
+  frailesca:'La Frailesca · Villaflores, Chiapas', yucatan:'Peninsula · Mérida, Yucatán', oaxaca:'Central Valleys, Oaxaca',
+  chihuahua:'Delicias, Chihuahua', sanmiguel:'Eastern region · San Miguel', choluteca:'Choluteca (Dry Corridor)',
+  olancho:'Olancho · Juticalpa', esteli:'Estelí (dry zone)', leon:'West · León', guanacaste:'Guanacaste · Liberia',
+  azuero:'Azuero Peninsula · Los Santos', cibao:'Cibao Valley · Santiago', artemisa:'Southern plain · Artemisa',
+  hinche:'Central Plateau · Hinche', valle:'Cauca Valley · Palmira', boyaca:'Cundiboyacense Plateau · Tunja',
+  llanos:'Eastern Plains · Puerto López', portuguesa:'Western plains · Acarigua', manabi:'Manabí · Portoviejo',
+  riobamba:'Central highlands · Riobamba', piura:'North coast · Piura (irrigated)', mantaro:'Mantaro Valley · Huancayo',
+  puno:'Altiplano · Puno', oruro:'Altiplano · Oruro', santacruz:'Santa Cruz plains', sorriso:'Cerrado · Sorriso, Mato Grosso',
+  londrina:'Northern Paraná · Londrina', petrolina:'Semi-arid · Sertão de Pernambuco', passofundo:'Planalto · Passo Fundo, RS',
+  itapua:'Itapúa · Encarnación', chaco:'Central Chaco · Filadelfia', pampa:'Humid Pampa · Pergamino-Junín',
+  cordoba:'Southeast Córdoba · Marcos Juárez', tucuman:'Tucumán plain', paysandu:'Western littoral · Paysandú',
+  talca:'Central Valley · Talca (irrigated)', temuco:'La Araucanía · Temuco',
+  ogallala:'High Plains / Ogallala · Texas (challenge ref.)'
+};
+const COUNTRY_EN = {
+  'Guatemala':'Guatemala','México':'Mexico','El Salvador':'El Salvador','Honduras':'Honduras','Nicaragua':'Nicaragua',
+  'Costa Rica':'Costa Rica','Panamá':'Panama','Rep. Dominicana':'Dominican Republic','Cuba':'Cuba','Haití':'Haiti',
+  'Colombia':'Colombia','Venezuela':'Venezuela','Ecuador':'Ecuador','Perú':'Peru','Bolivia':'Bolivia','Brasil':'Brazil',
+  'Paraguay':'Paraguay','Argentina':'Argentina','Uruguay':'Uruguay','Chile':'Chile','EE. UU.':'USA'
+};
 const SITES = {};
 for (const r of SITE_ROWS){
   const [key,region,country,lat,lon,elev,Tg,Tmax,P,Pcv,GWET,SW,wind,heavy,frost,b] = r;
   const tropical = Math.abs(lat) < 23.5;
-  SITES[key] = {key,name:`${region}, ${country}`,region,country,lat,lon,elev,Tg,Tmax,P,Pcv,GWET,SW,wind,heavy,frost,
-    frac: tropical && P < 1100 ? .72 : 0, base:BASES[b][0], baseName:BASES[b][1]};
+  const regionEn = REGION_EN[key] || region, countryEn = COUNTRY_EN[country] || country;
+  SITES[key] = {key,name:`${region}, ${country}`,nameEn:`${regionEn}, ${countryEn}`,region,regionEn,country,countryEn,lat,lon,elev,Tg,Tmax,P,Pcv,GWET,SW,wind,heavy,frost,
+    frac: tropical && P < 1100 ? .72 : 0, base:BASES[b][0], baseName:BASES[b][1], baseNameEn:BASES[b][2]};
 }
 
 // Coeficientes simplificados y relativos por cultivo.
@@ -81,25 +106,25 @@ for (const r of SITE_ROWS){
 // nfix/ndem: kg N/ha fijado / demandado · cov: protección del suelo · res: residuo · till: perturbación
 // inc: índice relativo de ingreso (0–1) · cool: cultivo de estación fresca · cover: cultivo de cobertura/abono verde
 const CROPS = {
-  maiz:{n:'Maíz',c:'#f2c94c',need:550,To:23,Tr:11,dt:.35,ht:.5,ft:.1,nfix:0,ndem:150,cov:.6,res:.8,till:.4,fam:'Poáceas',inc:.7,ph:[5.5,7.5]},
-  frijol:{n:'Frijol',c:'#e07a5f',need:350,To:21,Tr:7,dt:.4,ht:.35,ft:.05,nfix:50,ndem:30,cov:.5,res:.3,till:.4,fam:'Leguminosas',inc:.75,ph:[5.8,7.5]},
-  sorgo:{n:'Sorgo',c:'#c9733c',need:400,To:28,Tr:9,dt:.8,ht:.85,ft:.05,nfix:0,ndem:100,cov:.6,res:.85,till:.35,fam:'Poáceas',inc:.55,ph:[5.5,8.2]},
-  trigo:{n:'Trigo',c:'#e8d58a',need:450,To:16,Tr:6,dt:.45,ht:.25,ft:.7,nfix:0,ndem:120,cov:.6,res:.7,till:.35,fam:'Poáceas',inc:.6,ph:[6,7.8],cool:1},
-  soya:{n:'Soya',c:'#9bd16b',need:500,To:25,Tr:7,dt:.4,ht:.5,ft:.05,nfix:80,ndem:20,cov:.55,res:.4,till:.3,fam:'Leguminosas',inc:.7,ph:[6,7.5]},
-  girasol:{n:'Girasol',c:'#ffd23f',need:420,To:23,Tr:8,dt:.7,ht:.7,ft:.2,nfix:0,ndem:70,cov:.45,res:.5,till:.35,fam:'Asteráceas',inc:.6,ph:[6,7.8],tex:{arcilloso:.9},wet:.3},
-  papa:{n:'Papa',c:'#a78bfa',need:500,To:16,Tr:5,dt:.25,ht:.15,ft:.2,nfix:0,ndem:160,cov:.4,res:.2,till:.9,fam:'Solanáceas',inc:.95,ph:[5,6.8],cool:1,tex:{arcilloso:.8}},
-  haba:{n:'Haba',c:'#7bc8a4',need:350,To:15,Tr:5,dt:.35,ht:.15,ft:.6,nfix:60,ndem:20,cov:.5,res:.4,till:.4,fam:'Leguminosas',inc:.6,ph:[6,7.8],cool:1},
-  mani:{n:'Maní',c:'#d4a373',need:450,To:27,Tr:6,dt:.6,ht:.7,ft:0,nfix:70,ndem:20,cov:.5,res:.3,till:.7,fam:'Leguminosas',inc:.7,ph:[5.5,7],tex:{arcilloso:.75,arenoso:1.05},wet:.35},
-  ajonjoli:{n:'Ajonjolí',c:'#f4a261',need:350,To:28,Tr:6,dt:.8,ht:.9,ft:0,nfix:0,ndem:50,cov:.35,res:.4,till:.4,fam:'Pedaliáceas',inc:.55,ph:[5.5,8],wet:.4},
-  avena:{n:'Avena (cobertura)',c:'#a3d9a5',need:380,To:15,Tr:6,dt:.45,ht:.2,ft:.7,nfix:0,ndem:50,cov:.85,res:.8,till:.2,fam:'Poáceas',inc:.3,ph:[5,7.5],cool:1,cover:1},
-  mucuna:{n:'Mucuna (abono verde)',c:'#2ec4b6',need:400,To:26,Tr:7,dt:.6,ht:.7,ft:0,nfix:120,ndem:0,cov:.95,res:.9,till:.1,fam:'Leguminosas',inc:.08,ph:[4.8,7.5],cover:1,trop:1},
-  canavalia:{n:'Canavalia (abono verde)',c:'#00b4d8',need:330,To:26,Tr:8,dt:.8,ht:.8,ft:0,nfix:100,ndem:0,cov:.9,res:.8,till:.1,fam:'Leguminosas',inc:.08,ph:[4.5,8],cover:1,trop:1},
-  vicia:{n:'Vicia + centeno (cobertura)',c:'#80ed99',need:300,To:13,Tr:6,dt:.5,ht:.15,ft:.85,nfix:70,ndem:20,cov:.9,res:.85,till:.1,fam:'Mezcla',inc:.1,ph:[5.5,7.8],cool:1,cover:1},
-  quinua:{n:'Quinua',c:'#e9c46a',need:300,To:12,Tr:6,dt:.8,ht:.3,ft:.8,nfix:0,ndem:60,cov:.45,res:.4,till:.4,fam:'Amarantáceas',inc:.85,ph:[5.5,8.5],cool:1,andino:1,wet:.5},
-  cebada:{n:'Cebada',c:'#c8b273',need:350,To:14,Tr:6,dt:.55,ht:.25,ft:.7,nfix:0,ndem:80,cov:.6,res:.7,till:.35,fam:'Poáceas',inc:.55,ph:[6,8.3],cool:1},
-  tarwi:{n:'Tarwi (lupino andino)',c:'#7dd3fc',need:350,To:13,Tr:6,dt:.6,ht:.25,ft:.6,nfix:100,ndem:10,cov:.55,res:.5,till:.4,fam:'Leguminosas',inc:.5,ph:[5,7.5],cool:1,andino:1},
-  caupi:{n:'Caupí (frijol de costa)',c:'#ef8354',need:300,To:28,Tr:7,dt:.85,ht:.85,ft:0,nfix:60,ndem:15,cov:.6,res:.4,till:.4,fam:'Leguminosas',inc:.5,ph:[5.5,7.5],wet:.25},
-  barbecho:{n:'Barbecho',c:'#6b5844',need:0,To:20,Tr:99,dt:1,ht:1,ft:1,nfix:0,ndem:0,cov:.15,res:.1,till:.5,fam:'—',inc:0,ph:[3,10]}
+  maiz:{n:'Maize',nEs:'Maíz',c:'#f2c94c',need:550,To:23,Tr:11,dt:.35,ht:.5,ft:.1,nfix:0,ndem:150,cov:.6,res:.8,till:.4,fam:'Poáceas',inc:.7,ph:[5.5,7.5]},
+  frijol:{n:'Bean',nEs:'Frijol',c:'#e07a5f',need:350,To:21,Tr:7,dt:.4,ht:.35,ft:.05,nfix:50,ndem:30,cov:.5,res:.3,till:.4,fam:'Leguminosas',inc:.75,ph:[5.8,7.5]},
+  sorgo:{n:'Sorghum',nEs:'Sorgo',c:'#c9733c',need:400,To:28,Tr:9,dt:.8,ht:.85,ft:.05,nfix:0,ndem:100,cov:.6,res:.85,till:.35,fam:'Poáceas',inc:.55,ph:[5.5,8.2]},
+  trigo:{n:'Wheat',nEs:'Trigo',c:'#e8d58a',need:450,To:16,Tr:6,dt:.45,ht:.25,ft:.7,nfix:0,ndem:120,cov:.6,res:.7,till:.35,fam:'Poáceas',inc:.6,ph:[6,7.8],cool:1},
+  soya:{n:'Soybean',nEs:'Soya',c:'#9bd16b',need:500,To:25,Tr:7,dt:.4,ht:.5,ft:.05,nfix:80,ndem:20,cov:.55,res:.4,till:.3,fam:'Leguminosas',inc:.7,ph:[6,7.5]},
+  girasol:{n:'Sunflower',nEs:'Girasol',c:'#ffd23f',need:420,To:23,Tr:8,dt:.7,ht:.7,ft:.2,nfix:0,ndem:70,cov:.45,res:.5,till:.35,fam:'Asteráceas',inc:.6,ph:[6,7.8],tex:{arcilloso:.9},wet:.3},
+  papa:{n:'Potato',nEs:'Papa',c:'#a78bfa',need:500,To:16,Tr:5,dt:.25,ht:.15,ft:.2,nfix:0,ndem:160,cov:.4,res:.2,till:.9,fam:'Solanáceas',inc:.95,ph:[5,6.8],cool:1,tex:{arcilloso:.8}},
+  haba:{n:'Faba bean',nEs:'Haba',c:'#7bc8a4',need:350,To:15,Tr:5,dt:.35,ht:.15,ft:.6,nfix:60,ndem:20,cov:.5,res:.4,till:.4,fam:'Leguminosas',inc:.6,ph:[6,7.8],cool:1},
+  mani:{n:'Peanut',nEs:'Maní',c:'#d4a373',need:450,To:27,Tr:6,dt:.6,ht:.7,ft:0,nfix:70,ndem:20,cov:.5,res:.3,till:.7,fam:'Leguminosas',inc:.7,ph:[5.5,7],tex:{arcilloso:.75,arenoso:1.05},wet:.35},
+  ajonjoli:{n:'Sesame',nEs:'Ajonjolí',c:'#f4a261',need:350,To:28,Tr:6,dt:.8,ht:.9,ft:0,nfix:0,ndem:50,cov:.35,res:.4,till:.4,fam:'Pedaliáceas',inc:.55,ph:[5.5,8],wet:.4},
+  avena:{n:'Oats (cover)',nEs:'Avena (cobertura)',c:'#a3d9a5',need:380,To:15,Tr:6,dt:.45,ht:.2,ft:.7,nfix:0,ndem:50,cov:.85,res:.8,till:.2,fam:'Poáceas',inc:.3,ph:[5,7.5],cool:1,cover:1},
+  mucuna:{n:'Mucuna (green manure)',nEs:'Mucuna (abono verde)',c:'#2ec4b6',need:400,To:26,Tr:7,dt:.6,ht:.7,ft:0,nfix:120,ndem:0,cov:.95,res:.9,till:.1,fam:'Leguminosas',inc:.08,ph:[4.8,7.5],cover:1,trop:1},
+  canavalia:{n:'Canavalia (green manure)',nEs:'Canavalia (abono verde)',c:'#00b4d8',need:330,To:26,Tr:8,dt:.8,ht:.8,ft:0,nfix:100,ndem:0,cov:.9,res:.8,till:.1,fam:'Leguminosas',inc:.08,ph:[4.5,8],cover:1,trop:1},
+  vicia:{n:'Vetch + rye (cover)',nEs:'Vicia + centeno (cobertura)',c:'#80ed99',need:300,To:13,Tr:6,dt:.5,ht:.15,ft:.85,nfix:70,ndem:20,cov:.9,res:.85,till:.1,fam:'Mezcla',inc:.1,ph:[5.5,7.8],cool:1,cover:1},
+  quinua:{n:'Quinoa',nEs:'Quinua',c:'#e9c46a',need:300,To:12,Tr:6,dt:.8,ht:.3,ft:.8,nfix:0,ndem:60,cov:.45,res:.4,till:.4,fam:'Amarantáceas',inc:.85,ph:[5.5,8.5],cool:1,andino:1,wet:.5},
+  cebada:{n:'Barley',nEs:'Cebada',c:'#c8b273',need:350,To:14,Tr:6,dt:.55,ht:.25,ft:.7,nfix:0,ndem:80,cov:.6,res:.7,till:.35,fam:'Poáceas',inc:.55,ph:[6,8.3],cool:1},
+  tarwi:{n:'Tarwi (Andean lupin)',nEs:'Tarwi (lupino andino)',c:'#7dd3fc',need:350,To:13,Tr:6,dt:.6,ht:.25,ft:.6,nfix:100,ndem:10,cov:.55,res:.5,till:.4,fam:'Leguminosas',inc:.5,ph:[5,7.5],cool:1,andino:1},
+  caupi:{n:'Cowpea',nEs:'Caupí (frijol de costa)',c:'#ef8354',need:300,To:28,Tr:7,dt:.85,ht:.85,ft:0,nfix:60,ndem:15,cov:.6,res:.4,till:.4,fam:'Leguminosas',inc:.5,ph:[5.5,7.5],wet:.25},
+  barbecho:{n:'Fallow',nEs:'Barbecho',c:'#6b5844',need:0,To:20,Tr:99,dt:1,ht:1,ft:1,nfix:0,ndem:0,cov:.15,res:.1,till:.5,fam:'—',inc:0,ph:[3,10]}
 };
 for (const k in CROPS) CROPS[k].id = k;
 // Patrón mensual típico de lluvia por régimen (fracción del total anual, ene→dic). Aproximación; con NASA POWER en vivo se usan los valores mensuales reales.
@@ -131,36 +156,44 @@ for (const k in SITES){ SITES[k].reg = SITE_REG[k] || 'ca'; SITES[k].gw = SITE_G
 
 // Información complementaria por cultivo: valor forrajero (0–1), profundidad de raíz y riesgos para revisar localmente
 const CROP_EXTRA = {
-  maiz:{fo:.6,root:'media',risk:'gusano cogollero y mancha de asfalto; sensible a sequía en floración'},
-  frijol:{fo:.3,root:'superficial',risk:'mosca blanca (mosaico dorado) y lluvias en cosecha'},
-  sorgo:{fo:.8,root:'profunda',risk:'pulgón amarillo y aves en el grano'},
-  trigo:{fo:.5,root:'media',risk:'royas y fusariosis si llueve en la espigazón'},
-  soya:{fo:.3,root:'media',risk:'roya asiática; necesita inoculante y un comprador de acopio'},
-  girasol:{fo:.3,root:'profunda',risk:'aves y pudrición del capítulo con lluvias en madurez'},
-  papa:{fo:.1,root:'superficial',risk:'tizón tardío y gorgojo; remueve mucho el suelo y usa muchos insumos'},
-  haba:{fo:.5,root:'media',risk:'mancha chocolate con humedad y heladas en floración'},
-  mani:{fo:.6,root:'media',risk:'hay que arrancar y secar la cosecha (mano de obra o equipo); aflatoxinas si se moja'},
-  ajonjoli:{fo:.1,root:'profunda',risk:'mercado de exportación exigente en calidad; las cápsulas se abren si se atrasa la cosecha'},
-  avena:{fo:.9,root:'media',risk:'compite por agua si la temporada viene seca'},
-  mucuna:{fo:.5,root:'media',risk:'puede trepar y volverse invasora; la semilla es tóxica sin procesar'},
-  canavalia:{fo:.3,root:'profunda',risk:'semilla tóxica sin procesar; no sirve como forraje principal'},
-  vicia:{fo:.8,root:'media',risk:'hay que terminarla a tiempo para que no compita con el cultivo siguiente'},
-  quinua:{fo:.3,root:'profunda',risk:'mildiu con humedad; precio variable; requiere quitar la saponina'},
-  cebada:{fo:.7,root:'media',risk:'mancha en red; la cebada maltera tiene exigencias de calidad'},
-  tarwi:{fo:.2,root:'profunda',risk:'el grano es amargo y necesita desamargado; antracnosis'},
-  caupi:{fo:.6,root:'profunda',risk:'gorgojo en almacenamiento; mercado local más pequeño que el del frijol'},
-  barbecho:{fo:.2,root:'—',risk:'suelo expuesto a erosión y malezas'}
+  maiz:{fo:.6,root:'media',risk:'gusano cogollero y mancha de asfalto; sensible a sequía en floración',riskEn:'fall armyworm and tar spot; sensitive to drought at flowering'},
+  frijol:{fo:.3,root:'superficial',risk:'mosca blanca (mosaico dorado) y lluvias en cosecha',riskEn:'whitefly (golden mosaic) and rain at harvest'},
+  sorgo:{fo:.8,root:'profunda',risk:'pulgón amarillo y aves en el grano',riskEn:'sugarcane aphid and birds on the grain'},
+  trigo:{fo:.5,root:'media',risk:'royas y fusariosis si llueve en la espigazón',riskEn:'rusts and fusarium if it rains at heading'},
+  soya:{fo:.3,root:'media',risk:'roya asiática; necesita inoculante y un comprador de acopio',riskEn:'Asian rust; needs inoculant and a collection buyer'},
+  girasol:{fo:.3,root:'profunda',risk:'aves y pudrición del capítulo con lluvias en madurez',riskEn:'birds and head rot with rain at maturity'},
+  papa:{fo:.1,root:'superficial',risk:'tizón tardío y gorgojo; remueve mucho el suelo y usa muchos insumos',riskEn:'late blight and weevil; disturbs the soil a lot and uses many inputs'},
+  haba:{fo:.5,root:'media',risk:'mancha chocolate con humedad y heladas en floración',riskEn:'chocolate spot with humidity and frost at flowering'},
+  mani:{fo:.6,root:'media',risk:'hay que arrancar y secar la cosecha (mano de obra o equipo); aflatoxinas si se moja',riskEn:'harvest must be pulled and dried (labor or equipment); aflatoxins if it gets wet'},
+  ajonjoli:{fo:.1,root:'profunda',risk:'mercado de exportación exigente en calidad; las cápsulas se abren si se atrasa la cosecha',riskEn:'export market is demanding on quality; capsules shatter if harvest is delayed'},
+  avena:{fo:.9,root:'media',risk:'compite por agua si la temporada viene seca',riskEn:'competes for water if the season turns dry'},
+  mucuna:{fo:.5,root:'media',risk:'puede trepar y volverse invasora; la semilla es tóxica sin procesar',riskEn:'can climb and become invasive; seed is toxic unprocessed'},
+  canavalia:{fo:.3,root:'profunda',risk:'semilla tóxica sin procesar; no sirve como forraje principal',riskEn:'seed toxic unprocessed; not suitable as main forage'},
+  vicia:{fo:.8,root:'media',risk:'hay que terminarla a tiempo para que no compita con el cultivo siguiente',riskEn:'must be terminated on time so it does not compete with the next crop'},
+  quinua:{fo:.3,root:'profunda',risk:'mildiu con humedad; precio variable; requiere quitar la saponina',riskEn:'downy mildew with humidity; variable price; saponin must be removed'},
+  cebada:{fo:.7,root:'media',risk:'mancha en red; la cebada maltera tiene exigencias de calidad',riskEn:'net blotch; malting barley has quality requirements'},
+  tarwi:{fo:.2,root:'profunda',risk:'el grano es amargo y necesita desamargado; antracnosis',riskEn:'grain is bitter and needs debittering; anthracnose'},
+  caupi:{fo:.6,root:'profunda',risk:'gorgojo en almacenamiento; mercado local más pequeño que el del frijol',riskEn:'weevil in storage; smaller local market than beans'},
+  barbecho:{fo:.2,root:'—',risk:'suelo expuesto a erosión y malezas',riskEn:'soil exposed to erosion and weeds'}
 };
-for (const k in CROPS) Object.assign(CROPS[k], CROP_EXTRA[k]||{fo:.3,root:'media',risk:''});
+for (const k in CROPS) Object.assign(CROPS[k], CROP_EXTRA[k]||{fo:.3,root:'media',risk:'',riskEn:''});
+const crisk = c => tr(c.riskEn || c.risk, c.risk);
 
 const SCEN = {
-  actual:{dT:0,dP:0,lbl:'Clima actual'},
-  moderado:{dT:1,dP:-5,lbl:'Calentamiento moderado'},
-  severo:{dT:2,dP:-15,lbl:'Calentamiento severo'}
+  actual:{dT:0,dP:0,lbl:'Clima actual',lblEn:'Current climate'},
+  moderado:{dT:1,dP:-5,lbl:'Calentamiento moderado',lblEn:'Moderate warming'},
+  severo:{dT:2,dP:-15,lbl:'Calentamiento severo',lblEn:'Severe warming'}
 };
 function scen(){
   const cv = 1 + .15*S.dT + Math.max(0,-S.dP)/100;
-  const lbl = S.scen==='custom' ? `Personalizado (${S.dT>0?'+':''}${S.dT} °C, ${S.dP>0?'+':''}${S.dP} % lluvia)` : SCEN[S.scen].lbl;
+  const lbl = S.scen==='custom'
+    ? tr(`Custom (${S.dT>0?'+':''}${S.dT} °C, ${S.dP>0?'+':''}${S.dP} % rain)`,
+         `Personalizado (${S.dT>0?'+':''}${S.dT} °C, ${S.dP>0?'+':''}${S.dP} % lluvia)`)
+    : scenLbl(SCEN[S.scen]);
   return {dT:S.dT, dP:S.dP/100, cv, lbl};
 }
 const IRR = {none:0,limited:150,full:400};
+const IRR_EN = {none:'rainfed',limited:'limited',full:'full'}, IRR_ES = {none:'secano',limited:'limitado',full:'completo'};
+const irrLbl = k => tr(IRR_EN[k] || k, IRR_ES[k] || k);
+const TEX_EN = {arenoso:'sandy',franco:'loam',arcilloso:'clay'}, TEX_ES = {arenoso:'arenoso',franco:'franco',arcilloso:'arcilloso'};
+const texLbl = k => tr(TEX_EN[k] || k, TEX_ES[k] || k);
