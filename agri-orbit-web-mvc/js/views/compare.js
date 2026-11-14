@@ -10,18 +10,18 @@ function strategyCard(R){
   const why=rs.filter(r=>r[0]!=='w').map(r=>r[1]);
   uniq.forEach(id=>{ const c=CROPS[id]; if (c.root==='profunda' && id!=='barbecho') why.push(tr(`<b>${cn(c)}</b> has deep roots: it loosens compacted layers, improves infiltration and recovers nutrients from below.`,`<b>${cn(c)}</b> tiene raíz profunda: afloja capas compactadas, mejora la infiltración y recupera nutrientes de abajo.`)); });
   const ev=[
-    tr(`Rainfall ≈ <b>${r0(e.P)} mm/yr</b>, with ${pct(s.Pcv*sc.cv)} year-to-year variation <span class="src">${S.live?'NASA POWER · PRECTOTCORR':'regional reference · cross-check with GPM IMERG / POWER'}</span>`,
-       `Lluvia ≈ <b>${r0(e.P)} mm/año</b>, con ${pct(s.Pcv*sc.cv)} de variación entre años <span class="src">${S.live?'NASA POWER · PRECTOTCORR':'referencia regional · contrastar con GPM IMERG / POWER'}</span>`),
-    tr(`Warmest-month high ≈ <b>${e.Tmax.toFixed(1)} °C</b> in the chosen scenario <span class="src">NASA POWER · T2M_MAX</span>`,
-       `Máxima del mes más cálido ≈ <b>${e.Tmax.toFixed(1)} °C</b> en el escenario elegido <span class="src">NASA POWER · T2M_MAX</span>`),
-    tr(`Root-zone moisture: <b>${s.GWET.toFixed(2)}</b> (0 = dry, 1 = saturated) <span class="src">SMAP L4 · GWETROOT</span>`,
-       `Humedad de la zona de raíces: <b>${s.GWET.toFixed(2)}</b> (0 = seco, 1 = saturado) <span class="src">SMAP L4 · GWETROOT</span>`),
-    tr(`<b>${S.cal.dryMonths} months</b> when rain does not reach half of evapotranspiration <span class="src">water balance</span>`,
-       `<b>${S.cal.dryMonths} meses</b> en que la lluvia no alcanza la mitad de la evapotranspiración <span class="src">balance hídrico</span>`),
-    tr(`Groundwater: <b>${s.gw>=.5?'marked decline':s.gw>=.25?'moderate decline':'no strong decline'}</b> <span class="src">GRACE / GRACE-FO · regional reference</span>`,
-       `Agua subterránea: <b>${s.gw>=.5?'descenso marcado':s.gw>=.25?'descenso moderado':'sin descenso fuerte'}</b> <span class="src">GRACE / GRACE-FO · referencia regional</span>`),
-    tr(`Elevation ${r0(s.elev||0)} m; slope ${S.slope} % (your input) <span class="src">SRTM</span>`,
-       `Elevación ${r0(s.elev||0)} m; pendiente ${S.slope} % (dato tuyo) <span class="src">SRTM</span>`)
+    tr(`Rainfall ≈ <b>${r0(e.P)} mm/yr</b>, with ${pct(s.Pcv*sc.cv)} year-to-year variation ${srcChip(srcKind(),'NASA POWER · PRECTOTCORR · ~50 km · monthly climatology')}`,
+       `Lluvia ≈ <b>${r0(e.P)} mm/año</b>, con ${pct(s.Pcv*sc.cv)} de variación entre años ${srcChip(srcKind(),'NASA POWER · PRECTOTCORR · ~50 km · climatología mensual')}`),
+    tr(`Warmest-month high ≈ <b>${e.Tmax.toFixed(1)} °C</b> in the chosen scenario ${srcChip(srcKind(),'NASA POWER · T2M_MAX')}`,
+       `Máxima del mes más cálido ≈ <b>${e.Tmax.toFixed(1)} °C</b> en el escenario elegido ${srcChip(srcKind(),'NASA POWER · T2M_MAX')}`),
+    tr(`Root-zone moisture: <b>${s.GWET.toFixed(2)}</b> (0 = dry, 1 = saturated) ${srcChip(srcKind(),'NASA POWER · GWETROOT')}`,
+       `Humedad de la zona de raíces: <b>${s.GWET.toFixed(2)}</b> (0 = seco, 1 = saturado) ${srcChip(srcKind(),'NASA POWER · GWETROOT')}`),
+    tr(`<b>${S.cal.dryMonths} months</b> when rain does not reach half of evapotranspiration ${srcChip('model')}`,
+       `<b>${S.cal.dryMonths} meses</b> en que la lluvia no alcanza la mitad de la evapotranspiración ${srcChip('model')}`),
+    tr(`Total water storage anomaly: <b>${s.gw>=.5?'marked decline':s.gw>=.25?'moderate decline':'no strong decline'}</b> (regional, not plot-level) ${srcChip('ref','GRACE / GRACE-FO · monthly mascon anomaly')}`,
+       `Anomalía del agua total almacenada: <b>${s.gw>=.5?'descenso marcado':s.gw>=.25?'descenso moderado':'sin descenso fuerte'}</b> (regional, no a nivel de parcela) ${srcChip('ref','GRACE / GRACE-FO · anomalía mensual mascon')}`),
+    tr(`Elevation ${r0(s.elev||0)} m ${srcChip('ref','SRTM · regional reference')}; slope ${S.slope} % ${srcChip('input')}`,
+       `Elevación ${r0(s.elev||0)} m ${srcChip('ref','SRTM · referencia regional')}; pendiente ${S.slope} % ${srcChip('input')}`)
   ];
   const lst = LIVE.daily ? liveStats() : null;
   if (lst) ev.unshift(tr(`Last 30 days: <b>${r0(lst.rain30)} mm</b> of rain${lst.pct!=null?` (${r0(lst.pct*100)} % of normal)`:''} and root moisture <b>${lst.g.toFixed(2)}</b> <span class="src">${LIVE.mode==='live'?'NASA POWER daily · live':'NASA POWER daily · '+fmtFecha(SNAP.date)}</span>`,
@@ -33,7 +33,8 @@ function strategyCard(R){
     dl('water','Fit to rainfall','Ajuste a la lluvia',false,' pts'); dl('soil','Soil health','Salud del suelo',false,' pts'); dl('resil','Stability under extremes','Estabilidad ante extremos',false,' pts');
     dl('econ','Expected income (index)','Ingreso esperado (índice)',false,' pts'); dl('forage','Forage value','Valor forrajero',false,' pts');
     if (B.m.nFert-R.m.nFert>5) ben.push(tr(`Nitrogen fertilizer: ${r0(R.m.nFert-B.m.nFert)} kg N/ha per cycle`,`Fertilizante nitrogenado: ${r0(R.m.nFert-B.m.nFert)} kg N/ha por ciclo`));
-    if (B.m.irrigation-R.m.irrigation>10) ben.push(tr(`Irrigation needed: ${r0(R.m.irrigation-B.m.irrigation)} mm per cycle`,`Riego necesario: ${r0(R.m.irrigation-B.m.irrigation)} mm por ciclo`));
+    if (B.m.irrigation-R.m.irrigation>10) ben.push(tr(`Applied irrigation: ${r0(R.m.irrigation-B.m.irrigation)} mm per cycle`,`Riego aplicado: ${r0(R.m.irrigation-B.m.irrigation)} mm por ciclo`));
+    else if (B.m.deficitRem-R.m.deficitRem>10) ben.push(tr(`Remaining water deficit: ${r0(R.m.deficitRem-B.m.deficitRem)} mm per cycle`,`Déficit de agua restante: ${r0(R.m.deficitRem-B.m.deficitRem)} mm por ciclo`));
     if (B.m.bareMonths-R.m.bareMonths>.4) ben.push(tr(`Unprotected soil: ${(R.m.bareMonths-B.m.bareMonths).toFixed(1)} months per year`,`Suelo sin protección: ${(R.m.bareMonths-B.m.bareMonths).toFixed(1)} meses por año`));
     if (new Set(R.seq.map(x=>CROPS[x].fam)).size > new Set(B.seq.map(x=>CROPS[x].fam)).size) ben.push(tr('More crop families: it breaks the pest and disease cycle','Más familias de cultivos: interrumpe el ciclo de plagas y enfermedades'));
   }
@@ -60,20 +61,25 @@ function renderCompare(){
   const cols=[S.base, ...S.results.slice(0,3)];
   const best=(k,inv)=>{ const v=cols.map(c=>c.m[k]); return inv?Math.min(...v):Math.max(...v); };
   const rows=[
-    [tr('Score with your priorities','Puntaje con tus prioridades'),'overall',false,v=>r0(v)],
-    [tr('Expected income (index)','Ingreso esperado (índice)'),'econ',false,v=>r0(v)],
-    [tr('Irrigation needed (mm/cycle)','Riego necesario (mm/ciclo)'),'irrigation',true,v=>r0(v)],
-    [tr('Months without soil cover / yr','Meses sin protección del suelo / año'),'bareMonths',true,v=>v.toFixed(1)],
-    [tr('Months in vulnerable period / yr','Meses en época vulnerable / año'),'vulnMonths',true,v=>v.toFixed(1)],
-    [tr('N fertilizer (kg/ha/cycle)','Fertilizante N (kg/ha/ciclo)'),'nFert',true,v=>r0(v)],
-    [tr('Soil health','Salud del suelo'),'soil',false,v=>r0(v)],
-    [tr('Stability under extremes','Estabilidad ante extremos'),'resil',false,v=>r0(v)],
-    [tr('Forage value','Valor forrajero'),'forage',false,v=>r0(v)]
+    [`${tr('Score with your priorities','Puntaje con tus prioridades')} ${srcChip('model')}`,'overall',false,v=>r0(v)],
+    [`${tr('Expected income (relative index 0–100)','Ingreso esperado (índice relativo 0–100)')} ${srcChip('model')}`,'econ',false,v=>r0(v)],
+    [`${tr('Estimated water deficit (mm/cycle)','Déficit de agua estimado (mm/ciclo)')} ${srcChip('model')}`,'deficit',true,v=>r0(v)],
+    [`${tr('Irrigation applied in scenario (mm/cycle)','Riego aplicado en el escenario (mm/ciclo)')} ${srcChip('model')}`,'irrigation',false,v=>r0(v)],
+    [`${tr('Remaining deficit (mm/cycle)','Déficit restante (mm/ciclo)')} ${srcChip('model')}`,'deficitRem',true,v=>r0(v)],
+    [`${tr('Months without soil cover / yr','Meses sin protección del suelo / año')} ${srcChip('model')}`,'bareMonths',true,v=>v.toFixed(1)],
+    [`${tr('Months in vulnerable period / yr','Meses en época vulnerable / año')} ${srcChip('model')}`,'vulnMonths',true,v=>v.toFixed(1)],
+    [`${tr('N fertilizer (kg/ha/cycle)','Fertilizante N (kg/ha/ciclo)')} ${srcChip('model')}`,'nFert',true,v=>r0(v)],
+    [`${tr('Soil health (relative index)','Salud del suelo (índice relativo)')} ${srcChip('model')}`,'soil',false,v=>r0(v)],
+    [`${tr('Stability under extremes (relative index)','Estabilidad ante extremos (índice relativo)')} ${srcChip('model')}`,'resil',false,v=>r0(v)],
+    [`${tr('Forage value (relative index)','Valor forrajero (índice relativo)')} ${srcChip('model')}`,'forage',false,v=>r0(v)]
   ];
   const selName=getSel().name;
   $('#cmpTable').innerHTML = `<table class="cmpt"><thead><tr><th></th>${cols.map((c,i)=>`<th class="${c.name===selName?'on':''}" data-i="${i?i-1:'base'}">${c.isBase?tr('Your current rotation','Tu rotación actual'):c.name}<div class="seqmini">${c.seq.map(id=>`<i style="background:${CROPS[id].c}" title="${cn(CROPS[id])}"></i>`).join('')}</div></th>`).join('')}</tr></thead>
     <tbody>${rows.map(([l,k,inv,f])=>{ const b=best(k,inv); return `<tr><td>${l}</td>${cols.map(c=>`<td class="${Math.abs(c.m[k]-b)<.05?'best':''}">${f(c.m[k])}</td>`).join('')}</tr>`; }).join('')}</tbody></table>`;
-  $('#cmpTable').querySelectorAll('th[data-i]').forEach(th=>th.onclick=()=>{ const i=th.dataset.i; if(i==='base'){ toast(tr('That is your current rotation: pick an option to compare it','Esa es tu rotación actual: elige una opción para compararla')); return; } S.sel=+i; renderDependent(); });
+  $('#cmpTable').querySelectorAll('th[data-i]').forEach(th=>{
+    th.tabIndex=0; th.setAttribute('role','button');
+    th.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); th.click(); } };
+    th.onclick=()=>{ const i=th.dataset.i; if(i==='base'){ toast(tr('That is your current rotation: pick an option to compare it','Esa es tu rotación actual: elige una opción para compararla')); return; } S.sel=+i; renderDependent(); }; });
   $('#ficha').innerHTML = strategyCard(getSel());
 }
 

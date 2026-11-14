@@ -57,13 +57,13 @@ function hazards(e){
     erosion:{n:tr('Erosion (wind and runoff)','Erosión (viento y escorrentía)'), d:tr(`Slope ${S.slope} % · wind ${pct(s.wind)}`,`Pendiente ${S.slope} % · viento ${pct(s.wind)}`), v: clamp(.35*s.wind + .35*s.heavy*(S.slope/12) + .3*clamp(S.slope/25))},
     rain:   {n:tr('Heavy rain / waterlogging','Lluvias intensas / encharcamiento'), d:tr(`${texLbl(S.texture)} soil`,`Suelo ${S.texture}`), v: clamp(s.heavy*(S.texture==='arcilloso'?1.15:.85))},
     frost:  {n:tr('Frost','Heladas'), d: e.frost>0 ? tr('Risk in the cold season','Riesgo en la estación fría') : tr('Not relevant at this site','No relevante en este sitio'), v: e.frost},
-    gw:     {n:tr('Declining groundwater','Agua subterránea en descenso'), d:`GRACE/GRACE-FO (ref.) · ${S.irr==='none'?tr('matters if you irrigate','afecta si usas riego'):tr('your farm uses irrigation','tu finca usa riego')}`, v: s.gw}
+    gw:     {n:tr('Declining total water storage','Agua total almacenada en descenso'), d:`GRACE/GRACE-FO ${tr('regional anomaly (ref.)','anomalía regional (ref.)')} · ${S.irr==='none'?tr('matters if you irrigate','afecta si usas riego'):tr('your farm uses irrigation','tu finca usa riego')}`, v: s.gw}
   };
 }
 
 function evaluate(seq, ctx){
   const L=seq.length, e=ctx.env;
-  let econ=0, wat=0, wn=0, irrNeed=0, fo=0, cov=0, res=0, till=0, nfix=0, ndem=0, cash=0;
+  let econ=0, wat=0, wn=0, irrNeed=0, defRain=0, fo=0, cov=0, res=0, till=0, nfix=0, ndem=0, cash=0;
   const fams=new Set(), exp={heat:0,drought:0,flash:0,erosion:0,rain:0,frost:0,gw:0}, stages=[];
   for (let i=0;i<L;i++){
     const c=CROPS[seq[i]], p=CROPS[seq[(i-1+L)%L]], sc=ctx.cs[c.id];
@@ -71,7 +71,7 @@ function evaluate(seq, ctx){
     const y = clamp(sc.S*(1+mod));
     stages.push({id:c.id, y, mod, sc});
     econ += y*c.inc;
-    if (c.need>0){ wat += 1 - sc.deficitRain/c.need; wn++; irrNeed += Math.min(sc.deficitRain, e.irr); }
+    if (c.need>0){ wat += 1 - sc.deficitRain/c.need; wn++; defRain += sc.deficitRain; irrNeed += Math.min(sc.deficitRain, e.irr); }
     fo += c.fo||0;
     cov+=c.cov; res+=c.res; till+=c.till; nfix+=c.nfix; ndem+=c.ndem;
     if (c.id!=='barbecho') fams.add(c.fam);
@@ -99,7 +99,9 @@ function evaluate(seq, ctx){
   m.resil = 100*clamp(1 - (rs/n)*1.45 + .08*div);
   const w=S.prio, tw=(w.econ+w.soil+w.water+w.risk+w.forage)||1;
   m.overall = (w.econ*m.econ + w.soil*m.soil + w.water*m.water + w.risk*m.resil + w.forage*m.forage)/tw;
-  m.irrigation = irrNeed/L;
+  m.deficit = defRain/L;                    // déficit de agua estimado antes de riego (mm/ciclo)
+  m.irrigation = irrNeed/L;                 // riego aplicado en el escenario, limitado por el riego disponible
+  m.deficitRem = Math.max(0, defRain - irrNeed)/L;  // déficit que queda sin cubrir
   m.nFert = Math.max(0, ndem - .6*nfix)/L;
   m.nFix = nfix/L;
   m.bare = 100*(1 - cov/L);
@@ -161,6 +163,7 @@ function runEngine(){
   S.results = picked; S.base = base; S.customRes = custom; S.ctx = ctx; S.nEval = count;
   if (S.sel >= picked.length && S.sel!=='custom') S.sel = 0;
   computeCalendar();
+  evalCase();
 }
 function curRot(){ const L=S.L, b=(S.current||S.site.base).slice(0,L); while(b.length<L) b.push(b[b.length%Math.max(1,b.length)]||'maiz'); return b; }
 
@@ -204,4 +207,66 @@ function monteCarlo(A, B, N=1000, H=8){
   const stats = curves.map(cv => cv.map(arr => ({p10:q(arr,.1),p25:q(arr,.25),p50:q(arr,.5),p75:q(arr,.75),p90:q(arr,.9)})));
   const cashCycles = R => { let k=0; for(let t=0;t<H;t++) if(CROPS[R.seq[t%R.seq.length]].inc>=.4) k++; return k*N; };
   return {stats, H, pWin: win.n/N, loss:[loss[0]/cashCycles(A), loss[1]/cashCycles(B)]};
+}
+
+/* =========================================================
+   CASO CHIQUIMULA · comparación fija base + dos alternativas
+   ========================================================= */
+// Puntaje global de una métrica ya calculada con otras prioridades
+// (las métricas no dependen de los pesos; solo el puntaje sí).
+function overallWith(m, w){
+  const tw=(w.econ+w.soil+w.water+w.risk+w.forage)||1;
+  return (w.econ*m.econ + w.soil*m.soil + w.water*m.water + w.risk*m.resil + w.forage*m.forage)/tw;
+}
+
+function evalCase(){
+  if (!S.ctx || !S.cal) return;
+  const {mo, gs}=S.cal;
+  const withCal = R => { R.cal=calendarFor(R, mo, gs); R.m.bareMonths=R.cal.bareYr; R.m.vulnMonths=R.cal.vulnYr; return R; };
+  const base = withCal(evaluate(curRot(), S.ctx)); base.isBase = true;
+  base.name = tr('Current practice (prototype reference)','Práctica actual (referencia del prototipo)');
+  const alts = CASE.alts.map(a => ({...a, R: withCal(evaluate(a.seq, S.ctx))}));
+  S.caseRes = {base, alts};
+}
+
+/* =========================================================
+   EXPORTACIÓN · las mismas cifras que muestra la interfaz
+   ========================================================= */
+function provBlock(){
+  const mode = LIVE.mode==='live' ? 'api' : LIVE.mode==='snap' ? 'snapshot' : 'reference';
+  return {
+    climate:{mode, product:'NASA POWER (Agroclimatology)',
+      parameters:'T2M, T2M_MAX, T2M_MIN, PRECTOTCORR, GWETROOT, ALLSKY_SFC_SW_DWN, WS2M',
+      period:'monthly climatology + daily series', resolution:'~0.5° grid (~50 km)',
+      snapshotDate:SNAP.date||null, liveQueryAt:LIVE.at?LIVE.at.toISOString():null},
+    rainWindow: LIVE.imerg || null,
+    imagery:'NASA GIBS (visualization only, not numeric input)',
+    groundwater:'GRACE/GRACE-FO total water storage anomaly · regional reference',
+    soil:'farmer input (texture, O.M., pH, slope) · MAGA/ICTA context suggested',
+    scores:'model estimates · relative indices 0–100'
+  };
+}
+function rotJSON(R){
+  return {seq:R.seq, names:R.seq.map(id=>cn(CROPS[id])), metrics:{
+    overall:r0(R.m.overall), incomeIndex:r0(R.m.econ), soilIndex:r0(R.m.soil),
+    waterIndex:r0(R.m.water), stabilityIndex:r0(R.m.resil),
+    deficitMm:r0(R.m.deficit), irrigationAppliedMm:r0(R.m.irrigation), deficitRemainingMm:r0(R.m.deficitRem),
+    bareSoilMonths:+R.m.bareMonths.toFixed(1), vulnerableMonths:+R.m.vulnMonths.toFixed(1),
+    nFertKgHa:r0(R.m.nFert), nFixedKgHa:r0(R.m.nFix)}};
+}
+function buildPlanJSON(){
+  const R=getSel();
+  const j={
+    generatedBy:'AGRI-ORBIT · Team Brujos · NASA Space Apps Challenge 2026',
+    site:{name:siteName(S.site), lat:+S.site.lat.toFixed(3), lon:+S.site.lon.toFixed(3), live:!!S.live},
+    scenario:{id:S.scen, dT:S.dT, dP:S.dP},
+    soil:{texture:S.texture, om:S.om, ph:S.ph, slope:S.slope, irrigation:S.irr},
+    priorities:{...S.prio},
+    chosen:rotJSON(R), baseline:rotJSON(S.base),
+    provenance:provBlock(),
+    parcels:PARCELS.map(p=>({id:'P-'+String(p.k+1).padStart(2,'0'), plan:Array.from({length:2*R.seq.length},(_,t)=>parcelCrop(R,p.k,t))}))
+  };
+  if (S.caseRes) j.case={site:CASE.siteKey, note:'fixed comparison · same scenario for all three',
+    rotations:[{id:'base',...rotJSON(S.caseRes.base)}, ...S.caseRes.alts.map(a=>({id:a.id, ...rotJSON(a.R)}))]};
+  return j;
 }

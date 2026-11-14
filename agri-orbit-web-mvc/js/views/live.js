@@ -43,6 +43,8 @@ function layoutCrops(){ document.querySelectorAll('.timg[data-crop]').forEach(el
 window.addEventListener('resize',()=>layoutCrops());
 
 function renderLive(state, err){
+  const si=$('#srcImerg');
+  if (si){ si.className='badge '+(LIVE.mode==='live'?'on':'ref'); si.textContent=LIVE.mode==='live'?tr('live','en vivo'):tr('live only','solo en vivo'); }
   const s=S.site, dot=$('#liveDot'), mode = state==='ok' ? LIVE.mode : null;
   dot.className='ldot '+({ok:'on',loading:'wait',blocked:'off',error:'off'}[state]||'');
   const badge=$('#liveBadge');
@@ -80,7 +82,7 @@ function renderLive(state, err){
       const km = T.kind==='site' ? r0(3*111*Math.cos(site.lat*Math.PI/180)) : r0(2*T.half*111*Math.cos(s.lat*Math.PI/180));
       const ends = lx(T,'ends');
       return `<figure class="tool">${media}<div class="xh"></div><span class="tsat">${T.sat}</span><span class="scale">≈ ${km} km</span></div>
-        <figcaption><div class="t">${lx(T,'t')}<span>${mode==='live'?tr('live','en vivo'):lx(T,'when')}</span></div><div class="d">${lx(T,'d')}</div>
+        <figcaption><div class="t">${lx(T,'t')} ${srcChip('gibs')}<span>${mode==='live'?tr('live','en vivo'):lx(T,'when')}</span></div><div class="d">${lx(T,'d')}</div>
         ${T.ramp?`<div class="ramp" style="background:linear-gradient(90deg,${T.ramp.join(',')})"></div><div class="ends"><span>${ends[0]}</span><span>${ends[1]}</span></div>`:''}</figcaption></figure>`;
     }).join('');
     requestAnimationFrame(layoutCrops);
@@ -103,6 +105,10 @@ function renderLive(state, err){
   else if (st.pct!=null && st.pct>1.6) alert=tr(`<div class="livealert">⚠ <b>Much more rain than normal</b> (${r0(st.pct*100)} %): waterlogging and disease risk; watch peanut, sesame or potato.</div>`,`<div class="livealert">⚠ <b>Mucha más lluvia de lo normal</b> (${r0(st.pct*100)} %): riesgo de encharcamiento y enfermedades; cuidado con maní, ajonjolí o papa.</div>`);
   else alert=tr(`<div class="livealert ok">✓ Conditions over recent weeks are within normal for the season.</div>`,`<div class="livealert ok">✓ Las condiciones de las últimas semanas están dentro de lo normal para la época.</div>`);
   $('#livestats').insertAdjacentHTML('afterend', `<div id="liveAlert">${alert}</div>`);
+  const ib=$('#imergBox'), im=LIVE.imerg;
+  if (ib) ib.innerHTML = im
+    ? `<div class="note" style="margin-top:10px">${srcChip('api',im.src)} <b>${tr('Sowing window','Ventana de siembra')} ${im.window} (${im.slot}):</b> <b>${r0(im.mm)} mm</b>${im.pct!=null?` = <b>${r0(im.pct*100)} %</b> ${tr('of the same climatological window','de la misma ventana climatológica')}`:''} · ${im.days} ${tr('days','días')}, ${im.miss} ${tr('missing','faltantes')}</div>`
+    : '';
 }
 
 /* ---------- Ficha del lugar (sin enlaces externos) ---------- */
@@ -120,7 +126,7 @@ function renderPlace(){
       <div><div class="k">${tr('Root moisture','Humedad raíces')}</div><div class="v">${s.GWET.toFixed(2)}</div></div>
       <div><div class="k">${tr('Elevation','Elevación')}</div><div class="v">${r0(s.elev||0)} m</div></div>
       <div><div class="k">${tr('Warmest-month max','Máx. mes cálido')}</div><div class="v">${s.Tmax.toFixed(1)} °C</div></div>
-      <div><div class="k">${tr('Groundwater','Agua subterránea')}</div><div class="v" style="font-size:12.5px">${s.gw>=.5?tr('declining','en descenso'):s.gw>=.25?tr('mild decline','descenso leve'):tr('stable','estable')}</div></div>
+      <div><div class="k">${tr('Water storage anomaly','Anomalía del agua almacenada')}</div><div class="v" style="font-size:12.5px">${s.gw>=.5?tr('declining','en descenso'):s.gw>=.25?tr('mild decline','descenso leve'):tr('stable','estable')}</div></div>
     </div>
     <div class="recbox"><div class="k">${tr('RECOMMENDED ROTATION','ROTACIÓN RECOMENDADA')}</div><div>${S.results&&S.results[0]?seqHTML(S.results[0].seq):'—'}</div><a href="#s-ranking">${tr('See full comparison ↓','Ver comparación completa ↓')}</a></div>
     <a class="toolsjump" href="#livebox">${tr('🛰 See what the satellites see here ↓','🛰 Ver lo que ven los satélites aquí ↓')}</a>`;

@@ -9,7 +9,7 @@ const G = {k:1, rot:[78,10,0], layer:'P', countries:[], ready:false, spin:false,
 const LAYERS = {
   P:{lbl:'Annual rainfall (mm) · ref. GPM IMERG / POWER', lblEs:'Lluvia anual (mm) · ref. GPM IMERG / POWER', dom:[0,2500], fmt:v=>r0(v)+' mm', ip:()=>d3.interpolateYlGnBu},
   Tg:{lbl:'Season temperature (°C) · POWER T2M', lblEs:'Temperatura de temporada (°C) · POWER T2M', dom:[5,30], fmt:v=>v.toFixed(0)+' °C', ip:()=>t=>d3.interpolateRdYlBu(1-t)},
-  GWET:{lbl:'Root-zone moisture (0–1) · SMAP L4', lblEs:'Humedad zona radicular (0–1) · SMAP L4', dom:[.1,.75], fmt:v=>v.toFixed(2), ip:()=>d3.interpolateViridis},
+  GWET:{lbl:'Root-zone moisture (0–1) · NASA POWER GWETROOT', lblEs:'Humedad zona radicular (0–1) · NASA POWER GWETROOT', dom:[.1,.75], fmt:v=>v.toFixed(2), ip:()=>d3.interpolateViridis},
   elev:{lbl:'Elevation (m) · SRTM', lblEs:'Elevación (m) · SRTM', dom:[0,4000], fmt:v=>r0(v)+' m', ip:()=>d3.interpolateCividis}
 };
 const layerColor = (key,v) => { const L=LAYERS[key]; return L.ip()(clamp((v-L.dom[0])/(L.dom[1]-L.dom[0]))); };

@@ -3,6 +3,7 @@
 
 function renderDependent(){
   renderRanking(); renderKPIs(); renderCmpSelect(); renderTrade(); renderRisk(); renderFan(); renderCompare(); renderCalendar(); renderMap(); renderBuilder();
+  if (typeof renderCase==='function') renderCase();
 }
 function renderAll(){
   renderStrip(); renderClimate(); renderDependent(); renderFoot();
@@ -16,6 +17,9 @@ initLang();
 buildParcels();
 initChrome();
 initControls();
+if (matchMedia('(prefers-reduced-motion: reduce)').matches){
+  const cv=document.getElementById('constel'); if (cv && cv.pauseAnimations) cv.pauseAnimations();
+}
 runEngine();
 renderAll();
 renderPlace();

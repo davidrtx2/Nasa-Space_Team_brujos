@@ -19,7 +19,7 @@ const GLAYERS = {
   rain:{lbl:'Rainfall · GPM IMERG, Nov 13, 2026', lblEs:'Lluvia · GPM IMERG, 13 nov 2026', ramp:['#a6e07a','#f4e842','#f2952b','#e0402a'], ends:['light','heavy'], endsEs:['ligera','intensa']},
   smap:{lbl:'Root-zone moisture · SMAP L4', lblEs:'Humedad de raíces · SMAP L4', ramp:['#f1e05a','#93cf55','#36c1b2','#2a72e0','#1a2fb5'], ends:['dry','wet'], endsEs:['seco','húmedo']},
   ndvi:{lbl:'Vegetation vigor · MODIS NDVI 8-day', lblEs:'Vigor vegetal · MODIS NDVI 8 días', ramp:['#cdb894','#dfe6a6','#7dba55','#2b7a2f','#0f4d1c'], ends:['low','high'], endsEs:['poco','mucho']},
-  grace:{lbl:'Groundwater · GRACE-FO', lblEs:'Agua subterránea · GRACE-FO', ramp:['#d7301f','#fc9272','#f7f7f7','#9ecae1','#2166ac'], ends:['less','more'], endsEs:['menos','más']}
+  grace:{lbl:'Total water storage anomaly · GRACE-FO (regional)', lblEs:'Anomalía del agua total almacenada · GRACE-FO (regional)', ramp:['#d7301f','#fc9272','#f7f7f7','#9ecae1','#2166ac'], ends:['less','more'], endsEs:['menos','más']}
 };
 G.tlayer='bm';
 async function loadTextures(){

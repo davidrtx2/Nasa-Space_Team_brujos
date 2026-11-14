@@ -20,6 +20,7 @@ function siteAtPixel(x,y){
 }
 
 function flyTo(lon,lat,k){
+  if (!G.proj || typeof d3==='undefined') return;   // el comparador funciona aunque el globo falle
   const r0=G.rot.slice(), k0=G.k, r1=[-lon,-lat,0], k1=k||Math.max(G.k,2.4);
   if (r1[0]-r0[0] > 180) r1[0]-=360; if (r0[0]-r1[0] > 180) r1[0]+=360;
   const ir=d3.interpolate(r0,r1), t0=performance.now(), dur=1100;
@@ -28,7 +29,7 @@ function flyTo(lon,lat,k){
 
 function selectSite(key, fly=true){
   S.siteKey=key; S.site={...SITES[key]}; S.live=false; S.custom=null; S.current=null; S.sel=0; S.cmp='base';
-  $('#site').value=key; G.sel={country: G.countries.find(f=>f.latam && d3.geoContains(f,[S.site.lon,S.site.lat]))||null};
+  $('#site').value=key; G.sel={country: (typeof d3!=='undefined' && G.countries.find(f=>f.latam && d3.geoContains(f,[S.site.lon,S.site.lat])))||null};
   if (fly) flyTo(S.site.lon,S.site.lat);
   recompute(); renderPlace(); scheduleLive();
 }

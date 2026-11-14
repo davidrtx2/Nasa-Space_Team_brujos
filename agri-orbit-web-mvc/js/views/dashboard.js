@@ -17,15 +17,20 @@ function renderStrip(){
 }
 
 function renderClimate(){
-  const s=S.site;
-  $('#clim').innerHTML = [
-    [tr('Season T','T temporada'), s.Tg.toFixed(1)+' °C','T2M'],
-    [tr('Warmest-month max','Máx. mes cálido'), s.Tmax.toFixed(1)+' °C','T2M_MAX'],
-    [tr('Annual rainfall','Lluvia anual'), r0(s.P)+' mm','PRECTOTCORR'],
-    [tr('Root moisture','Humedad radicular'), s.GWET.toFixed(2),'GWETROOT'],
-    [tr('Radiation','Radiación'), s.SW.toFixed(1)+' kWh/m²','ALLSKY_SFC_SW_DWN'],
-    [tr('Rain variability','Variab. lluvia'), pct(s.Pcv),'CV interanual']
-  ].map(([k,v,src])=>`<div><div class="k">${k}</div><div class="v">${v}</div><div class="s">${src}</div></div>`).join('');
+  const s=S.site, kind=srcKind();
+  const per=tr('monthly climatology','climatología mensual'), res='~0.5° (~50 km)';
+  const last=LIVE.mode==='live' ? tr('live today','en vivo hoy') : LIVE.mode==='snap' ? fmtFecha(SNAP.date) : tr('approximate','aproximado');
+  const items=[
+    [tr('Season T','T temporada'), s.Tg.toFixed(1)+' °C', 'T2M', kind],
+    [tr('Warmest-month max','Máx. mes cálido'), s.Tmax.toFixed(1)+' °C', 'T2M_MAX', kind],
+    [tr('Annual rainfall','Lluvia anual'), r0(s.P)+' mm', 'PRECTOTCORR', kind],
+    [tr('Root moisture','Humedad radicular'), s.GWET.toFixed(2), 'GWETROOT', kind],
+    [tr('Radiation','Radiación'), s.SW.toFixed(1)+' kWh/m²', 'ALLSKY_SFC_SW_DWN', kind],
+    [tr('Rain variability','Variab. lluvia'), pct(s.Pcv), tr('derived','derivado'), 'model']
+  ];
+  $('#clim').innerHTML = items.map(([k,v,src,kd])=>
+    `<div title="NASA POWER · ${src} · ${per} · ${res} · ${tr('latest data','último dato')}: ${last}">
+      <div class="k">${k}</div><div class="v">${v}</div><div class="s">${src} ${srcChip(kd)}</div></div>`).join('');
   $('#climNote').innerHTML = LIVE.mode==='live' ? `<span class="ok">● ${tr('NASA POWER live','NASA POWER en vivo')}</span> ${tr('for','para')} ${s.lat.toFixed(2)}, ${s.lon.toFixed(2)}.`
     : LIVE.mode==='snap' ? `<span class="ok">◆ ${tr('Real NASA POWER data','Datos reales de NASA POWER')}</span> ${tr('downloaded on','descargados el')} ${fmtFecha(SNAP.date)}${s.refKey?` ${tr('for','para')} ${siteRegion(SITES[s.refKey])} (${r0(s.refDist)} km ${tr('from your point','de tu punto')})`:''}. ${tr('Published on the web, the page refreshes them live.','Publicada en la web, la página los actualiza en vivo.')}`
     : `<span class="warn">● ${tr('Querying NASA…','Consultando a la NASA…')}</span>`;
@@ -35,7 +40,7 @@ function renderKPIs(){
   const R=getSel(), B=S.base;
   const d=(a,b,inv)=>{const x=a-b; const good=inv? x<0 : x>0; return `<span class="${Math.abs(x)<1?'':good?'ok':'bad'}">${x>0?'+':''}${r0(x)} ${tr('vs current','vs actual')}</span>`;};
   $('#kpis').innerHTML = `
-    <div class="kpi"><div class="k">${tr('Irrigation needed','Riego necesario')}</div><div class="v" style="color:var(--cyan)">${r0(R.m.irrigation)} mm</div><div class="s">${tr('per cycle','por ciclo')} · ${d(R.m.irrigation,B.m.irrigation,true)}</div></div>
+    <div class="kpi"><div class="k">${tr('Remaining water deficit','Déficit de agua restante')}</div><div class="v" style="color:var(--cyan)">${r0(R.m.deficitRem)} mm</div><div class="s">${tr('of','de')} ${r0(R.m.deficit)} mm ${tr('estimated','estimados')} · ${tr('applied','aplicado')} ${r0(R.m.irrigation)} mm ${tr('per cycle','por ciclo')} ${srcChip('model')}</div></div>
     <div class="kpi"><div class="k">${tr('Exposed soil','Suelo expuesto')}</div><div class="v" style="color:var(--amber)">${r0(R.m.bare)} %</div><div class="s">${d(R.m.bare,B.m.bare,true)}</div></div>
     <div class="kpi"><div class="k">${tr('Biological N','N biológico')}</div><div class="v" style="color:var(--green)">${r0(R.m.nFix)} kg</div><div class="s">${tr('N/ha/cycle fixed','N/ha/ciclo fijado')}</div></div>
     <div class="kpi"><div class="k">${tr('N fertilizer','Fertilizante N')}</div><div class="v">${r0(R.m.nFert)} kg</div><div class="s">${tr('N/ha/cycle','N/ha/ciclo')} · ${d(R.m.nFert,B.m.nFert,true)}</div></div>`;
@@ -48,7 +53,7 @@ function rotRow(R, idx){
     <div class="n">${R.isBase?tr('NOW','HOY'):R.isCustom?'★':(idx+1)}</div>
     <div>
       <div class="seq">${seqHTML(R.seq)}${idx===0?`<span class="topbadge">${tr('BEST FIT','MEJOR AJUSTE')}</span>`:''}</div>
-      <div class="meta">${R.isBase?tr('Your current rotation · ','Tu rotación actual · '):R.isCustom?tr('Your rotation · ','Tu rotación · '):''}${tr('Overall score','Puntaje global')} <b style="color:var(--green)">${r0(R.m.overall)}</b> · ${R.m.cash} ${tr('cash cycles','ciclos comerciales')} · ${tr('diversity','diversidad')} ${pct(R.m.div)}</div>
+      <div class="meta">${R.isBase?tr('Your current rotation · ','Tu rotación actual · '):R.isCustom?tr('Your rotation · ','Tu rotación · '):''}${tr('Overall score (index 0–100)','Puntaje global (índice 0–100)')} <b style="color:var(--green)">${r0(R.m.overall)}</b> · ${R.m.cash} ${tr('cash cycles','ciclos comerciales')} · ${tr('diversity','diversidad')} ${pct(R.m.div)}</div>
     </div>
     <div class="bars">
       ${bar(tr('Econ.','Econ.'),R.m.econ,'var(--amber)')}${bar(tr('Water','Agua'),R.m.water,'var(--cyan)')}${bar(tr('Soil','Suelo'),R.m.soil,'var(--green)')}${bar(tr('Stab.','Estab.'),R.m.resil,'var(--violet)')}

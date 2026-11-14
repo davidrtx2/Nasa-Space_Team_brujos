@@ -6,8 +6,26 @@
    Funciona en cualquier página web normal (GitHub Pages, servidor propio o archivo abierto en el navegador).
    La vista de artefactos de Claude bloquea conexiones externas: ahí se muestra un aviso.
    ========================================================= */
-const LIVE = {blocked:null, token:0, cache:{}, daily:null, at:null, timer:null};
+const LIVE = {blocked:null, token:0, cache:{}, daily:null, at:null, timer:null, imerg:null};
 const GIBS = 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi';
+
+/* ---------- Procedencia de cada cifra ----------
+   api:   consulta en vivo a la API de NASA POWER
+   snap:  instantánea guardada (snap/power.json, descargada de NASA POWER)
+   ref:   referencia regional aproximada (valores precargados del sitio)
+   input: entrada del agricultor (suelo, riego, prioridades)
+   model: estimación del modelo (índices relativos, simulaciones)
+   gibs:  visualización NASA GIBS (no alimenta el motor numérico)      */
+const SRCKIND = {
+  api:  {s:'API',   en:'Live query to the NASA POWER API', es:'Consulta a la API de NASA POWER en vivo'},
+  snap: {s:'Inst.', en:'Saved snapshot (real NASA POWER data)', es:'Instantánea guardada (datos reales de NASA POWER)'},
+  ref:  {s:'Ref.',  en:'Regional reference (approximate values)', es:'Referencia regional (valores aproximados)'},
+  input:{s:'Entrada', en:'Farmer input', es:'Entrada del agricultor'},
+  model:{s:'Modelo', en:'Model estimate (relative index)', es:'Estimación del modelo (índice relativo)'},
+  gibs: {s:'GIBS',  en:'Visualization only · NASA GIBS', es:'Solo visualización · NASA GIBS'}
+};
+const srcKind = () => LIVE.mode==='live' ? 'api' : LIVE.mode==='snap' ? 'snap' : 'ref';
+const srcChip = (kind, extra='') => { const k=SRCKIND[kind]||SRCKIND.ref; return `<span class="srcchip ${kind}" title="${tr(k.en,k.es)}${extra?' · '+extra:''}">${k.s}</span>`; };
 const isoDay = d => d.toISOString().slice(0,10);
 const ymdC = d => isoDay(d).replace(/-/g,'');
 const fmtDia = s => { const d=new Date(s+'T12:00:00Z'), m=MESL[d.getUTCMonth()].slice(0,3); return tr(m+' '+d.getUTCDate(), d.getUTCDate()+' '+m); };
@@ -38,6 +56,42 @@ async function fetchDaily(lat, lon){
     const days=Object.keys(p.PRECTOTCORR).map(k=>({d:`${k.slice(0,4)}-${k.slice(4,6)}-${k.slice(6,8)}`, P:p.PRECTOTCORR[k], Tx:p.T2M_MAX[k], G:p.GWETROOT[k]}))
       .map(x=>({...x, ok: x.P!==fill && x.Tx!==fill && x.G!==fill}));
     return days;
+  } finally { clearTimeout(to); }
+}
+
+/* ---------- GPM IMERG diario vía NASA POWER Daily (IMERG_PRECTOT, UTC) ----------
+   Acumula la lluvia de la ventana de siembra (primer slot del calendario)
+   y la compara con la misma ventana de la climatología (PRECTOTCORR).
+   IMERG en POWER llega con ~2–3 meses de retraso: se usa la ventana más
+   reciente ya cerrada. Los días con valor de relleno (-999) cuentan como
+   faltantes, no como cero.                                                 */
+const IMERG_LAG_DAYS = 90;
+function imergWindowMonths(){
+  const mo=monthly(), gs=growSlots(mo), sl=gs.slots[0];
+  const ms=[]; for (let k=0;k<sl.len;k++) ms.push((sl.start+k)%12);
+  return {ms, lbl:sl.lbl};
+}
+async function fetchImergWindow(lat, lon){
+  const w=imergWindowMonths(); if (!w) return null;
+  const now=new Date();
+  let yr=now.getUTCFullYear();
+  // si el cierre de la ventana es más reciente que (hoy − rezago IMERG), usar el año anterior
+  const lastM=w.ms[w.ms.length-1], endThisYr=new Date(Date.UTC(yr,lastM+1,0));
+  if (endThisYr > new Date(now.getTime()-IMERG_LAG_DAYS*86400000)) yr--;
+  const start=`${yr}${String(w.ms[0]+1).padStart(2,'0')}01`, end=`${yr}${String(lastM+1).padStart(2,'0')}${DIAS[lastM]}`;
+  const url=`https://power.larc.nasa.gov/api/temporal/daily/point?parameters=IMERG_PRECTOT&community=AG&longitude=${lon.toFixed(4)}&latitude=${lat.toFixed(4)}&start=${start}&end=${end}&format=JSON&time-standard=UTC`;
+  const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),15000);
+  try{
+    const r=await fetch(url,{signal:ctl.signal}); if(!r.ok) throw new Error('HTTP '+r.status);
+    const j=await r.json(), v=j.properties.parameter.IMERG_PRECTOT, fill=(j.header&&j.header.fill_value)??-999;
+    let mm=0, ok=0, miss=0, last='';
+    for (const k in v){ const x=v[k]; if (x===fill){ miss++; continue; } mm+=x; ok++; last=k; }
+    if (ok < 10) return null;                       // cobertura insuficiente: no mostrar cifra
+    const s=S.site, norm = s.mP ? w.ms.reduce((a,m)=>a+s.mP[m],0) : null;
+    return {src:'GPM IMERG vía NASA POWER Daily · IMERG_PRECTOT · UTC · malla ~0.1° (~10 km)',
+      window:`${MESL[w.ms[0]].slice(0,3)}–${MESL[lastM].slice(0,3)} ${yr}`, slot:w.lbl,
+      mm, days:ok, miss, last:last?`${last.slice(0,4)}-${last.slice(4,6)}-${last.slice(6,8)}`:null,
+      norm, pct: norm>0 ? mm/norm : null};
   } finally { clearTimeout(to); }
 }
 
@@ -108,9 +162,13 @@ async function loadLive(force=false){
     let c=!force && LIVE.cache[key];
     if (!c){ const [clim,daily]=await Promise.all([fetchPower(s.lat,s.lon), fetchDaily(s.lat,s.lon)]); c={clim,daily,at:new Date()}; LIVE.cache[key]=c; }
     if (tk!==LIVE.token) return;
-    LIVE.blocked=false; LIVE.mode='live'; LIVE.daily=c.daily; LIVE.at=c.at;
+    LIVE.blocked=false; LIVE.mode='live'; LIVE.daily=c.daily; LIVE.at=c.at; LIVE.imerg=null;
     Object.assign(S.site, c.clim, {pending:false}); S.live=true;
     recompute(); renderLive('ok');
+    fetchImergWindow(s.lat,s.lon).then(im=>{
+      if (tk!==LIVE.token) return;
+      LIVE.imerg=im; renderLive('ok'); if (typeof renderCase==='function') renderCase();
+    }).catch(()=>{ LIVE.imerg=null; });
   }catch(e){
     if (tk!==LIVE.token) return;
     if (e && e.name==='TypeError'){ LIVE.blocked=true; useSnapshot(tk); }
@@ -124,7 +182,7 @@ async function useSnapshot(tk){
   if (!c){ LIVE.mode=null; renderLive('blocked'); renderClimate(); renderPlace(); return; }
   Object.assign(S.site, powerToSite(c), {pending:false});
   S.live = !S.site.refKey;            // datos reales de NASA POWER para el punto exacto de la región
-  LIVE.mode='snap'; LIVE.daily=snapDaily(c); LIVE.at=null;
+  LIVE.mode='snap'; LIVE.daily=snapDaily(c); LIVE.at=null; LIVE.imerg=null;
   recompute(); renderLive('ok');
 }
 
@@ -142,7 +200,7 @@ const TOOLS = [
    ramp:['rgba(0,0,0,0)','#a6e07a','#f4e842','#f2952b','#e0402a'], ends:['no rain','heavy'], endsEs:['sin lluvia','intensa'], layer:'IMERG_Precipitation_Rate', ltime:()=>isoDay(new Date(Date.now()-86400000))},
   {id:'smap', t:'Root-zone moisture', tEs:'Humedad de raíces', sat:'SMAP L4', when:'latest analysis', whenEs:'análisis más reciente', kind:'region', half:4, tex:'latam_smap', d:'Water available to roots in the area.', dEs:'Agua disponible para las raíces en la zona.',
    ramp:['#f1e05a','#93cf55','#36c1b2','#2a72e0','#1a2fb5'], ends:['dry','wet'], endsEs:['seco','húmedo'], layer:'SMAP_L4_Analyzed_Root_Zone_Soil_Moisture'},
-  {id:'grace', t:'Groundwater', tEs:'Agua subterránea', sat:'GRACE-FO', when:'monthly anomaly', whenEs:'anomalía mensual', kind:'region', half:12, tex:'latam_grace', d:'Change in water stored underground vs. the historical average.', dEs:'Cambio del agua almacenada bajo tierra respecto al promedio histórico.',
+  {id:'grace', t:'Total water storage anomaly', tEs:'Anomalía del agua total almacenada', sat:'GRACE-FO', when:'monthly regional anomaly', whenEs:'anomalía regional mensual', kind:'region', half:12, tex:'latam_grace', d:'Regional anomaly of ALL water stored (surface, soil and groundwater) vs. the historical average.', dEs:'Anomalía regional de TODA el agua almacenada (superficial, suelo y subterránea) frente al promedio histórico.',
    ramp:['#d7301f','#fc9272','#f7f7f7','#9ecae1','#2166ac'], ends:['less water','more water'], endsEs:['menos agua','más agua'], layer:'GRACE_Tellus_Liquid_Water_Equivalent_Thickness_Mascon_CRI', opaque:true}
 ];
 function regionBox(lat,lon,half){ return [lon-half,lat-half,lon+half,lat+half].map(v=>v.toFixed(3)).join(','); }

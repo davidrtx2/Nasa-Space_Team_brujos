@@ -197,3 +197,48 @@ const IRR_EN = {none:'rainfed',limited:'limited',full:'full'}, IRR_ES = {none:'s
 const irrLbl = k => tr(IRR_EN[k] || k, IRR_ES[k] || k);
 const TEX_EN = {arenoso:'sandy',franco:'loam',arcilloso:'clay'}, TEX_ES = {arenoso:'arenoso',franco:'franco',arcilloso:'arcilloso'};
 const texLbl = k => tr(TEX_EN[k] || k, TEX_ES[k] || k);
+
+/* =========================================================
+   CASO DE DEMOSTRACIÓN · Corredor Seco de Chiquimula, Guatemala
+   La decisión: seguir sembrando maíz de primera y postrera, o
+   diversificar la rotación bajo el mismo clima y el mismo suelo.
+   Las alternativas son plausibles para la zona (granos básicos,
+   leguminosas de grano, sorgo y abono verde) y sus supuestos se
+   documentan para revisión con extensionistas (MAGA / ICTA).
+   ========================================================= */
+const CASE = {
+  siteKey:'corredor',
+  // Escenario de la finca de referencia del prototipo (entrada del agricultor, no medición)
+  farm:{texture:'franco',om:2.5,ph:6.2,slope:8,irr:'none',L:4,scen:'moderado'},
+  prio:{econ:55,soil:60,water:60,risk:65,forage:15},
+  base:{seq:['maiz','maiz','maiz','maiz'],
+    note:'Maíz de primera y postrera: la práctica predominante del Corredor Seco guatemalteco. Es la referencia del prototipo; los valores salen del modelo, no de una finca medida.',
+    noteEn:'Maize in both growing seasons: the predominant practice in Guatemala’s Dry Corridor. It is the prototype’s reference; values come from the model, not from a measured farm.'},
+  alts:[
+    {id:'legum', seq:['maiz','frijol','maiz','caupi'],
+      title:'Maíz + leguminosas de grano', titleEn:'Maize + grain legumes',
+      assume:'Frijol y caupí tienen mercado local y autoconsumo; la semilla se consigue en la zona; se siembra en las mismas ventanas de primera y postrera.',
+      assumeEn:'Bean and cowpea have a local market and home use; seed is available in the area; sown in the same first- and second-season windows.',
+      benefit:'El frijol y el caupí fijan nitrógeno (menos fertilizante), diversifican el ingreso y aguantan mejor la canícula que el maíz.',
+      benefitEn:'Bean and cowpea fix nitrogen (less fertilizer), diversify income and tolerate the mid-season dry spell better than maize.',
+      sacrifice:'Algo más de suelo descubierto entre ciclos (residuos más bajos) y dependencia del precio del frijol.',
+      sacrificeEn:'Slightly more uncovered soil between cycles (lower residues) and dependence on the bean price.',
+      missing:'Precio real del frijol y del caupí en el mercado de Chiquimula, y costo de la semilla.',
+      missingEn:'Real bean and cowpea prices in the Chiquimula market, and the seed cost.'},
+    {id:'cover', seq:['maiz','canavalia','sorgo','caupi'],
+      title:'Maíz + abono verde + sorgo', titleEn:'Maize + green manure + sorghum',
+      assume:'La canavalia se usa como abono verde (se termina antes de la siguiente siembra); el sorgo sirve para grano o forraje; hay semilla regional.',
+      assumeEn:'Canavalia is used as green manure (terminated before the next sowing); sorghum serves for grain or forage; regional seed exists.',
+      benefit:'Mejor salud del suelo (más materia orgánica y cobertura) y la mayor estabilidad ante años secos y calurosos.',
+      benefitEn:'Better soil health (more organic matter and cover) and the highest stability under dry, hot years.',
+      sacrifice:'Un ciclo sin cosecha comercial (el abono verde) y menor ingreso del ciclo mientras el suelo se recupera.',
+      sacrificeEn:'One cycle without a marketable harvest (the green manure) and lower per-cycle income while the soil recovers.',
+      missing:'Disponibilidad de semilla de canavalia, mano de obra para terminarla y salida para el sorgo (grano o forraje).',
+      missingEn:'Availability of canavalia seed, labor to terminate it and an outlet for sorghum (grain or forage).'}
+  ]
+};
+// Prioridades rápidas del caso: dos prioridades del agricultor para comparar puntajes
+const CASE_PRIO = {
+  water:{prio:{econ:35,soil:40,water:95,risk:60,forage:10}, lbl:'Ahorrar agua', lblEn:'Save water'},
+  soil:{prio:{econ:35,soil:95,water:40,risk:60,forage:10}, lbl:'Proteger el suelo', lblEn:'Protect the soil'}
+};

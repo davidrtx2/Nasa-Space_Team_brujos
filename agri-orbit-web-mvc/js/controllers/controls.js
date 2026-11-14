@@ -9,8 +9,33 @@ function buildSiteSelect(){
   $('#site').innerHTML = `<option value="globe" disabled>${tr('📍 Point picked on the globe','📍 Punto elegido en el globo')}</option>` + Object.keys(byC).map(c=>`<optgroup label="${c}">${byC[c].map(v=>`<option value="${v.key}">${siteRegion(v)}</option>`).join('')}</optgroup>`).join('');
   $('#site').value = S.siteKey;
 }
+/* Sincroniza los controles del panel con el estado S (tras cargar el caso) */
+function setSeg(id,v){ $(id).querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v==String(v))); }
+function syncControlsUI(){
+  setSeg('#texture',S.texture); setSeg('#irr',S.irr); setSeg('#len',S.L);
+  $('#om').value=S.om; $('#ph').value=S.ph; $('#slope').value=S.slope;
+  $('#scen').value=SCEN[S.scen]?S.scen:'custom'; $('#s-dT').value=S.dT; $('#s-dP').value=S.dP;
+  ['econ','soil','water','risk','forage'].forEach(k=>{ $('#p-'+k).value=S.prio[k]; });
+  $('#lat').value=S.site.lat.toFixed(2); $('#lon').value=S.site.lon.toFixed(2);
+}
+/* Caso de demostración: Corredor Seco de Chiquimula, Guatemala */
+function runChiquimula(){
+  const f=CASE.farm;
+  Object.assign(S,{texture:f.texture,om:f.om,ph:f.ph,slope:f.slope,irr:f.irr,L:f.L,
+    scen:f.scen,dT:SCEN[f.scen].dT,dP:SCEN[f.scen].dP,prio:{...CASE.prio},casePrio:'water',
+    excluded:new Set(),custom:null,current:null,sel:0,cmp:'base'});
+  if (S.siteKey!==CASE.siteKey) selectSite(CASE.siteKey,false);
+  else recompute();
+  if (G.proj) flyTo(S.site.lon,S.site.lat);
+  syncControlsUI();
+  const rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.getElementById('s-caso').scrollIntoView({behavior:rm?'auto':'smooth'});
+  toast(tr('Chiquimula case loaded: compare the base rotation with two alternatives','Caso Chiquimula cargado: compara la rotación base con dos alternativas'));
+}
+
 function initControls(){
   buildSiteSelect();
+  const cb=$('#caseBtn'); if (cb) cb.onclick=runChiquimula;
   $('#site').onchange=e=>selectSite(e.target.value);
   $('#goCoord').onclick=()=>{ const lat=+$('#lat').value, lon=+$('#lon').value;
     if (!isFinite(lat)||!isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180){ toast(tr('Invalid coordinates','Coordenadas no válidas')); return; }
@@ -47,8 +72,8 @@ Soil: ${texLbl(S.texture)}, O.M. ${S.om} %, pH ${S.ph}, slope ${S.slope} %, irri
 Priorities: profit ${S.prio.econ}, soil ${S.prio.soil}, water ${S.prio.water}, stability ${S.prio.risk}
 
 Chosen rotation: ${seqTxt(R.seq)}
-Scores — economics ${r0(R.m.econ)}, water ${r0(R.m.water)}, soil ${r0(R.m.soil)}, stability ${r0(R.m.resil)}
-Irrigation needed: ${r0(R.m.irrigation)} mm/cycle · N fertilizer: ${r0(R.m.nFert)} kg/ha/cycle
+Scores (relative indices 0–100) — economics ${r0(R.m.econ)}, water ${r0(R.m.water)}, soil ${r0(R.m.soil)}, stability ${r0(R.m.resil)}
+Water deficit: ${r0(R.m.deficit)} mm/cycle estimated · irrigation applied ${r0(R.m.irrigation)} mm · remaining ${r0(R.m.deficitRem)} mm · N fertilizer: ${r0(R.m.nFert)} kg/ha/cycle
 
 Why:
 `,
@@ -59,8 +84,8 @@ Suelo: ${texLbl(S.texture)}, M.O. ${S.om} %, pH ${S.ph}, pendiente ${S.slope} %,
 Prioridades: ganancia ${S.prio.econ}, suelo ${S.prio.soil}, agua ${S.prio.water}, estabilidad ${S.prio.risk}
 
 Rotación elegida: ${seqTxt(R.seq)}
-Puntajes — economía ${r0(R.m.econ)}, agua ${r0(R.m.water)}, suelo ${r0(R.m.soil)}, estabilidad ${r0(R.m.resil)}
-Riego necesario: ${r0(R.m.irrigation)} mm/ciclo · Fertilizante N: ${r0(R.m.nFert)} kg/ha/ciclo
+Puntajes (índices relativos 0–100) — economía ${r0(R.m.econ)}, agua ${r0(R.m.water)}, suelo ${r0(R.m.soil)}, estabilidad ${r0(R.m.resil)}
+Déficit de agua: ${r0(R.m.deficit)} mm/ciclo estimado · riego aplicado ${r0(R.m.irrigation)} mm · restante ${r0(R.m.deficitRem)} mm · Fertilizante N: ${r0(R.m.nFert)} kg/ha/ciclo
 
 Por qué:
 `) + reasons(R).map(r=>'- '+r[1].replace(/<[^>]+>/g,'')).join('\n');
@@ -70,6 +95,6 @@ Por qué:
     catch(e){ const box=$('#exportBox'); box.style.display='block'; box.value=text; box.focus(); box.select(); toast(tr('Select and copy the text','Selecciona y copia el texto')); }
   };
   $('#copyTxt').onclick=()=>copy(exportTxt());
-  $('#copyJson').onclick=()=>{ const R=getSel(); copy(JSON.stringify({site:{name:siteName(S.site),lat:S.site.lat,lon:S.site.lon,live:S.live},scenario:S.scen,soil:{texture:S.texture,om:S.om,ph:S.ph,slope:S.slope,irrigation:S.irr},priorities:S.prio,rotation:R.seq,metrics:Object.fromEntries(Object.entries(R.m).map(([k,v])=>[k,typeof v==='number'?+v.toFixed(1):v])),parcels:PARCELS.map(p=>({id:'P-'+String(p.k+1).padStart(2,'0'),plan:Array.from({length:2*R.seq.length},(_,t)=>parcelCrop(R,p.k,t))}))},null,2)); };
+  $('#copyJson').onclick=()=>copy(JSON.stringify(buildPlanJSON(),null,2));
   window.addEventListener('resize',()=>renderTrade());
 }
