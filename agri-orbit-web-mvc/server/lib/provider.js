@@ -22,7 +22,7 @@ async function chatCompletion(cfg, messages){
     throw new ProviderError(502, 'AI provider unreachable');
   }
   try {
-    const j = await r.json().catch(() => null);
+    const j = await r.json().catch(e => { if (ctl.signal.aborted || (e && e.name === 'AbortError')) throw new ProviderError(504, 'AI provider timed out'); return null; });
     if (!r.ok) {
       if (r.status === 429) throw new ProviderError(429, 'AI provider rate limit');
       throw new ProviderError(502, 'AI provider error (' + r.status + ')');
