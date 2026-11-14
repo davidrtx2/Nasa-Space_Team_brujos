@@ -10,7 +10,7 @@ const AI_TOPICS = {
   recent:   /[uú]ltim|reciente|90 d|30 d|ahora|hoy|actual|last|recent|now|today|current/i,
   nasa:     /nasa|power|imerg|gpm|smap|modis|ndvi|gibs|grace|srtm|aster|sat[eé]lit|satellite|fuente|source|dato|data/i,
   results:  /rotaci|estrategi|alternativ|opci[oó]n|puntaj|puntuaci|[ií]ndice|compar|mejor|peor|econ|ingreso|rendim|nitr[oó]geno|fertiliz|forraje|cobertura|estabilidad|resilien|riesgo|d[eé]ficit|monte ?carlo|rotation|strateg|option|score|index|compare|better|best|income|yield|nitrogen|forage|cover|stabil|resilien|risk|deficit|recomien|recommend|sembrar|plant|cultivo|crop/i,
-  calendar: /calendario|mes|temporada|siembra|primera|postrera|ventana|calendar|month|season|sowing|window/i,
+  calendar: /calendario|mes|temporada|balance h[ií]drico|water balance|evapotransp|siembra|primera|postrera|ventana|calendar|month|season|sowing|window/i,
   priorities:/prioridad|ponderaci|peso|ahorrar agua|proteger el suelo|priorit|weight|save water|protect the soil/i
 };
 
@@ -162,7 +162,7 @@ function buildAIContext(question){
     priorities: aiPriorities(),
     includedSections: [...t]
   };
-  if (t.has('climate') || t.has('terrain') || t.has('nasa')) ctx.climate = aiClimate(t.has('climate') || t.has('calendar'));
+  if (t.has('climate') || t.has('terrain') || t.has('nasa') || t.has('calendar')) ctx.climate = aiClimate(t.has('climate') || t.has('calendar'));
   if (t.has('recent') || t.has('climate') || t.has('nasa')) ctx.recent = aiRecent();
   if (t.has('climate') || t.has('results') || t.has('terrain')) ctx.hazards = aiHazards();
   if (t.has('calendar') || t.has('climate')) ctx.calendar = aiCalendar();
