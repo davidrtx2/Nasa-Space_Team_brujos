@@ -52,6 +52,7 @@ cp .env.example .env        # pon OPENAI_API_KEY (y opcional OPENAI_MODEL / OPEN
 node index.js               # http://localhost:8787 sirve la web + /api/agri-ai
 ```
 
+- Desarrollo local: si abres la web con Live Server o `http.server` (p. ej. `127.0.0.1:5501`), el chat usa automáticamente el backend en `http://<host>:8787/api/agri-ai`, y el backend acepta orígenes `localhost`/`127.0.0.1` cuando corre en local. Si el backend está apagado o sin API key, el chat lo indica.
 - Endpoints: `GET /api/agri-ai/health`, `POST /api/agri-ai/chat` (`{messages, context, lang, questionLang}` → `{reply}`).
 - Proveedor: cualquier API compatible con OpenAI Chat Completions (OpenAI, Groq, OpenRouter, Together, Ollama…) vía `OPENAI_BASE_URL` y `OPENAI_MODEL`.
 - La clave solo vive en variables de entorno del servidor; el JavaScript público no contiene claves. El prompt del sistema está en `server/lib/prompt.js`.

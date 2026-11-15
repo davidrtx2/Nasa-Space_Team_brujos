@@ -53,8 +53,9 @@ function aiStatusInfo(){
   if (st === 'online') return { cls: 'on', txt: tr('Online · uses your current AGRI-ORBIT data', 'En línea · usa tus datos actuales de AGRI-ORBIT') };
   if (st === 'checking' || st === 'unknown') return { cls: 'wait', txt: tr('Checking connection…', 'Comprobando conexión…') };
   if (st === 'noconn') return { cls: 'off', txt: tr('No connection · needs internet to answer', 'Sin conexión · necesita internet para responder') };
-  if (st === 'unconfigured') return { cls: 'off', txt: tr('Not configured on this deployment', 'No configurado en este despliegue') };
-  return { cls: 'off', txt: tr('Unavailable right now', 'No disponible en este momento') };
+  const dev = aiIsLocalDev() && AGRI_AI.endpoint;
+  if (st === 'unconfigured') return { cls: 'off', txt: dev ? tr('Backend without API key (server/.env)', 'Backend sin API key (server/.env)') : tr('Not configured on this deployment', 'No configurado en este despliegue') };
+  return { cls: 'off', txt: dev ? tr('Backend not running (node server/index.js)', 'Backend apagado (node server/index.js)') : tr('Unavailable right now', 'No disponible en este momento') };
 }
 
 function renderAgriAIStatus(){
