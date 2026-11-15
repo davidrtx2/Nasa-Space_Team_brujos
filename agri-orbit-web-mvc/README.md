@@ -24,6 +24,7 @@ js/controllers/         Controladores: eventos y orquestación
   agriAI.js             AGRI-AI: abrir/cerrar, envío de preguntas
 server/                 Backend de AGRI-AI (Node ≥ 18, sin dependencias)
 snap/                   Datos e imágenes NASA descargados para uso sin conexión
+                        (hero_santacruz_hls*.webp: imagen de portada, NASA HLS S30 vía GIBS, 10 jul 2025)
 tests/
   model.test.js         Arnés Node del modelo (métricas de agua, caso, exportación)
   render.smoke.js       Render del caso con DOM mínimo (ambos idiomas y prioridades)

@@ -54,7 +54,7 @@ function strategyCard(R){
   if (s.gw>=.5 && S.irr!=='none') risks.push(tr('The local aquifer shows decline: irrigation may not be sustainable long term.','El acuífero de la zona muestra descenso: el riego puede no ser sostenible a largo plazo.'));
   const box=(cls,t,items)=>`<div class="fbox ${cls}"><h4>${t}</h4><ul>${items.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
   return `<div class="fichahd"><div><span style="color:var(--muted);font-size:12.5px;font-weight:500">${R.name}</span><div class="seq" style="margin-top:4px">${seqHTML(R.seq)}</div></div></div>
-    <div class="fgrid">${box('why',tr('Why is it suggested?','¿Por qué se sugiere?'),why.slice(0,5))}${box('ev',tr('Evidence and data used','Evidencia y datos usados'),ev)}${box('ben',tr('Expected benefits','Beneficios esperados'),ben.slice(0,6))}${box('gap',tr('Information gaps','Vacíos de información'),gaps)}${box('risk',tr('Risks to review with your extension agent','Riesgos para revisar con tu extensionista'),risks.slice(0,6).length?risks.slice(0,6):[tr('No specific risks detected; still validate in the field.','No se detectaron riesgos específicos; igual valídalo en campo.')])}</div>`;
+    <div class="fgrid">${box('why',tr('Why is it suggested?','¿Por qué se sugiere?'),why.slice(0,5))}${box('ben',tr('Expected benefits','Beneficios esperados'),ben.slice(0,6))}<details class="more fwide"><summary>${tr('Evidence used and what is missing','Evidencia usada y lo que falta')}</summary><div class="fgrid">${box('ev',tr('Evidence and data used','Evidencia y datos usados'),ev)}${box('gap',tr('Information gaps','Vacíos de información'),gaps)}</div></details>${box('risk',tr('Risks to review with your extension agent','Riesgos para revisar con tu extensionista'),risks.slice(0,6).length?risks.slice(0,6):[tr('No specific risks detected; still validate in the field.','No se detectaron riesgos específicos; igual valídalo en campo.')])}</div>`;
 }
 
 function renderCompare(){
@@ -62,20 +62,24 @@ function renderCompare(){
   const best=(k,inv)=>{ const v=cols.map(c=>c.m[k]); return inv?Math.min(...v):Math.max(...v); };
   const rows=[
     [`${tr('Score with your priorities','Puntaje con tus prioridades')} ${srcChip('model')}`,'overall',false,v=>r0(v)],
-    [`${tr('Expected income (relative index 0–100)','Ingreso esperado (índice relativo 0–100)')} ${srcChip('model')}`,'econ',false,v=>r0(v)],
+    [`${tr('Remaining water deficit (mm/cycle)','Déficit de agua restante (mm/ciclo)')} ${srcChip('model')}`,'deficitRem',true,v=>r0(v)],
     [`${tr('Estimated water deficit (mm/cycle)','Déficit de agua estimado (mm/ciclo)')} ${srcChip('model')}`,'deficit',true,v=>r0(v)],
     [`${tr('Irrigation applied in scenario (mm/cycle)','Riego aplicado en el escenario (mm/ciclo)')} ${srcChip('model')}`,'irrigation',false,v=>r0(v)],
-    [`${tr('Remaining deficit (mm/cycle)','Déficit restante (mm/ciclo)')} ${srcChip('model')}`,'deficitRem',true,v=>r0(v)],
     [`${tr('Months without soil cover / yr','Meses sin protección del suelo / año')} ${srcChip('model')}`,'bareMonths',true,v=>v.toFixed(1)],
+    [`${tr('Stability under extremes (relative index)','Estabilidad ante extremos (índice relativo)')} ${srcChip('model')}`,'resil',false,v=>r0(v)]
+  ];
+  const more=[
+    [`${tr('Expected income (relative index 0–100)','Ingreso esperado (índice relativo 0–100)')} ${srcChip('model')}`,'econ',false,v=>r0(v)],
     [`${tr('Months in vulnerable period / yr','Meses en época vulnerable / año')} ${srcChip('model')}`,'vulnMonths',true,v=>v.toFixed(1)],
     [`${tr('N fertilizer (kg/ha/cycle)','Fertilizante N (kg/ha/ciclo)')} ${srcChip('model')}`,'nFert',true,v=>r0(v)],
     [`${tr('Soil health (relative index)','Salud del suelo (índice relativo)')} ${srcChip('model')}`,'soil',false,v=>r0(v)],
-    [`${tr('Stability under extremes (relative index)','Estabilidad ante extremos (índice relativo)')} ${srcChip('model')}`,'resil',false,v=>r0(v)],
     [`${tr('Forage value (relative index)','Valor forrajero (índice relativo)')} ${srcChip('model')}`,'forage',false,v=>r0(v)]
   ];
   const selName=getSel().name;
-  $('#cmpTable').innerHTML = `<table class="cmpt"><thead><tr><th></th>${cols.map((c,i)=>`<th class="${c.name===selName?'on':''}" data-i="${i?i-1:'base'}">${c.isBase?tr('Your current rotation','Tu rotación actual'):c.name}<div class="seqmini">${c.seq.map(id=>`<i style="background:${CROPS[id].c}" title="${cn(CROPS[id])}"></i>`).join('')}</div></th>`).join('')}</tr></thead>
-    <tbody>${rows.map(([l,k,inv,f])=>{ const b=best(k,inv); return `<tr><td>${l}</td>${cols.map(c=>`<td class="${Math.abs(c.m[k]-b)<.05?'best':''}">${f(c.m[k])}</td>`).join('')}</tr>`; }).join('')}</tbody></table>`;
+  const head=`<thead><tr><th scope="col"><span class="sr">${tr('Metric','Métrica')}</span></th>${cols.map((c,i)=>`<th scope="col" class="${c.name===selName?'on':''}" data-i="${i?i-1:'base'}">${c.isBase?tr('Your current rotation','Tu rotación actual'):c.name}<div class="seqmini">${c.seq.map(id=>`<i style="background:${CROPS[id].c}" title="${cn(CROPS[id])}"></i>`).join('')}</div></th>`).join('')}</tr></thead>`;
+  const body=rs=>`<tbody>${rs.map(([l,k,inv,f])=>{ const b=best(k,inv); return `<tr><th scope="row">${l}</th>${cols.map(c=>{ const isB=Math.abs(c.m[k]-b)<.05; return `<td class="${isB?'best':''}">${f(c.m[k])}${isB?`<span class="bestmark" aria-label="${tr('best value','mejor valor')}">✓</span>`:''}</td>`; }).join('')}</tr>`; }).join('')}</tbody>`;
+  $('#cmpTable').innerHTML = `<div class="tscroll"><table class="cmpt">${head}${body(rows)}</table></div>
+    <details class="more"><summary>${tr('More metrics','Más métricas')}</summary><div class="tscroll"><table class="cmpt">${head.replace(/ data-i="[^"]*"/g,'')}${body(more)}</table></div></details>`;
   $('#cmpTable').querySelectorAll('th[data-i]').forEach(th=>{
     th.tabIndex=0; th.setAttribute('role','button');
     th.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); th.click(); } };

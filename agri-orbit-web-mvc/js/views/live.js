@@ -12,9 +12,9 @@ function renderSeries(){
   rows.forEach(r=>{ h+=`<rect x="${ml}" y="${r.y}" width="${W-ml-mr}" height="${rowH}" fill="rgba(255,255,255,.02)" stroke="#1f2a3d"/>`; });
   // lluvia
   const r1=rows[0];
-  ds.forEach((x,i)=>{ if(!x.ok){ h+=`<rect x="${X(i)}" y="${r1.y}" width="${cw}" height="${rowH*3+gap*2}" fill="rgba(107,122,144,.12)"/>`; return; } const bh=(x.P/maxP)*rowH; h+=`<rect x="${X(i)+cw*.15}" y="${r1.y+rowH-bh}" width="${cw*.7}" height="${bh}" fill="#2dd4bf"><title>${fmtDia(x.d)}: ${x.P.toFixed(1)} mm</title></rect>`; });
+  ds.forEach((x,i)=>{ if(!x.ok){ h+=`<rect x="${X(i)}" y="${r1.y}" width="${cw}" height="${rowH*3+gap*2}" fill="rgba(107,122,144,.12)"/>`; return; } const bh=(x.P/maxP)*rowH; h+=`<rect x="${X(i)+cw*.15}" y="${r1.y+rowH-bh}" width="${cw*.7}" height="${bh}" fill="#79c2ef"><title>${fmtDia(x.d)}: ${x.P.toFixed(1)} mm</title></rect>`; });
   const last=okd[okd.length-1];
-  h+=lbl(r1,tr('Daily rain','Lluvia diaria'),'mm · NASA POWER',`${last.P.toFixed(1)}`,'#2dd4bf');
+  h+=lbl(r1,tr('Daily rain','Lluvia diaria'),'mm · NASA POWER',`${last.P.toFixed(1)}`,'#79c2ef');
   // temperatura
   const r2=rows[1], YT=v=>r2.y+rowH-(v-minT)/(maxT-minT)*rowH;
   if (34>minT && 34<maxT) h+=`<line x1="${ml}" x2="${W-mr}" y1="${YT(34)}" y2="${YT(34)}" stroke="#f87171" stroke-dasharray="3 3" opacity=".7"/><text x="${ml+4}" y="${YT(34)-3}" font-size="8.5" fill="#f87171">${tr('34 °C heat stress','34 °C estrés por calor')}</text>`;

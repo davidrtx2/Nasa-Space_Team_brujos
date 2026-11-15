@@ -23,15 +23,15 @@ function caseTable(){
   const prioLbl = match ? tr(CASE_PRIO[S.casePrio].lblEn,CASE_PRIO[S.casePrio].lbl) : tr('Custom','Personalizada');
   const rows=[
     [`${tr('Score with priority','Puntaje con prioridad')} “${prioLbl}” ${srcChip('model')}`, 'overall', false, v=>r0(v)],
-    [`${tr('Estimated water deficit (mm/cycle)','Déficit de agua estimado (mm/ciclo)')} ${srcChip('model')}`, 'deficit', true, v=>r0(v)],
-    [`${tr('Irrigation applied in scenario (mm/cycle)','Riego aplicado en el escenario (mm/ciclo)')} ${srcChip('model')}`, 'irrigation', false, v=>r0(v)],
-    [`${tr('Remaining deficit (mm/cycle)','Déficit restante (mm/ciclo)')} ${srcChip('model')}`, 'deficitRem', true, v=>r0(v)],
-    [`${tr('Bare-soil months (per year)','Meses de suelo descubierto (por año)')} ${srcChip('model')}`, 'bareMonths', true, v=>v.toFixed(1)],
-    [`${tr('Simulated stability (index 0–100)','Estabilidad simulada (índice 0–100)')} ${srcChip('model')}`, 'resil', false, v=>r0(v)],
-    [`${tr('N fertilizer (kg/ha/cycle)','Fertilizante N (kg/ha/ciclo)')} ${srcChip('model')}`, 'nFert', true, v=>r0(v)]
+    [`${tr('Remaining water deficit (mm/cycle)','Déficit de agua restante (mm/ciclo)')} ${srcChip('model')}`, 'deficitRem', true, v=>r0(v), 'key'],
+    [`${tr('Bare-soil months (per year)','Meses de suelo descubierto (por año)')} ${srcChip('model')}`, 'bareMonths', true, v=>v.toFixed(1), 'key'],
+    [`${tr('Simulated stability (index 0–100)','Estabilidad simulada (índice 0–100)')} ${srcChip('model')}`, 'resil', false, v=>r0(v), 'key'],
+    [`${tr('Estimated water deficit (mm/cycle)','Déficit de agua estimado (mm/ciclo)')} ${srcChip('model')}`, 'deficit', true, v=>r0(v), 'sub'],
+    [`${tr('Irrigation applied in scenario (mm/cycle)','Riego aplicado en el escenario (mm/ciclo)')} ${srcChip('model')}`, 'irrigation', false, v=>r0(v), 'sub'],
+    [`${tr('N fertilizer (kg/ha/cycle)','Fertilizante N (kg/ha/ciclo)')} ${srcChip('model')}`, 'nFert', true, v=>r0(v), 'sub']
   ];
   return `<div style="overflow-x:auto"><table class="cmpt caset"><thead><tr><th></th>${cols.map(x=>`<th>${x.hdr}<div class="seqmini">${x.R.seq.map(id=>`<i style="background:${CROPS[id].c}" title="${cn(CROPS[id])}"></i>`).join('')}</div><div class="thsub">${x.sub}</div></th>`).join('')}</tr></thead>
-    <tbody>${rows.map(([l,k,inv,f])=>{ const b=best(k,inv); return `<tr><td>${l}</td>${cols.map(x=>`<td class="${Math.abs(x.R.m[k]-b)<.05?'best':''}">${f(x.R.m[k])}</td>`).join('')}</tr>`; }).join('')}</tbody></table></div>`;
+    <tbody>${rows.map(([l,k,inv,f,cls])=>{ const b=best(k,inv); return `<tr class="${cls||'score'}"><th scope="row">${l}</th>${cols.map(x=>{ const isB=Math.abs(x.R.m[k]-b)<.05; return `<td class="${isB?'best':''}">${f(x.R.m[k])}${isB?`<span class="bestmark" aria-label="${tr('best value','mejor valor')}">✓</span>`:''}</td>`; }).join('')}</tr>`; }).join('')}</tbody></table></div>`;
 }
 
 function caseAlts(){
@@ -41,26 +41,29 @@ function caseAlts(){
     const R=a.R;
     return `<div class="casealt">
       <div class="cah"><b>${tr('Alternative','Alternativa')} ${i+1} · ${tr(a.titleEn,a.title)}</b><div class="seq">${seqHTML(a.seq)}</div></div>
-      <div class="cag"><h5>${tr('Assumptions','Supuestos')}</h5><p>${tr(a.assumeEn,a.assume)}</p></div>
-      <div class="cag ben"><h5>${tr('Benefit','Beneficio')}</h5><p>${tr(a.benefitEn,a.benefit)} <span class="mono">(${tr('vs base','vs base')}: suelo ${dd(R,'soil')>=0?'+':''}${dd(R,'soil')}, estab. ${dd(R,'resil')>=0?'+':''}${dd(R,'resil')})</span></p></div>
-      <div class="cag sac"><h5>${tr('What it gives up','Qué se sacrifica')}</h5><p>${tr(a.sacrificeEn,a.sacrifice)} <span class="mono">(${tr('income idx','índ. ingreso')} ${dd(R,'econ')>=0?'+':''}${dd(R,'econ')})</span></p></div>
-      <div class="cag mis"><h5>${tr('Data still to validate','Dato que falta validar')}</h5><p>${tr(a.missingEn,a.missing)}</p></div>
+      <div class="cag ben"><h5>${tr('Main advantage','Principal ventaja')}</h5><p>${tr(a.benefitEn,a.benefit)} <span class="mono">(${tr('vs base','vs base')}: ${tr('soil','suelo')} ${dd(R,'soil')>=0?'+':''}${dd(R,'soil')}, ${tr('stab.','estab.')} ${dd(R,'resil')>=0?'+':''}${dd(R,'resil')})</span></p></div>
+      <div class="cag sac"><h5>${tr('Cost or trade-off','Costo o sacrificio')}</h5><p>${tr(a.sacrificeEn,a.sacrifice)} <span class="mono">(${tr('income idx','índ. ingreso')} ${dd(R,'econ')>=0?'+':''}${dd(R,'econ')})</span></p></div>
+      <details class="cadet"><summary>${tr('Assumptions and data to validate','Supuestos y datos por validar')}</summary>
+        <div class="cag"><h5>${tr('Assumptions','Supuestos')}</h5><p>${tr(a.assumeEn,a.assume)}</p></div>
+        <div class="cag mis"><h5>${tr('Data still to validate','Dato que falta validar')}</h5><p>${tr(a.missingEn,a.missing)}</p></div>
+      </details>
     </div>`;
   }).join('');
 }
 
 function casePrioCtl(){
   const match = k => S.casePrio===k && ['econ','soil','water','risk','forage'].every(q=>S.prio[q]===CASE_PRIO[k].prio[q]);
-  const opts=Object.keys(CASE_PRIO).map(k=>`<button data-k="${k}" class="${match(k)?'on':''}">${tr(CASE_PRIO[k].lblEn,CASE_PRIO[k].lbl)}</button>`).join('');
+  const opts=Object.keys(CASE_PRIO).map(k=>`<button type="button" data-k="${k}" class="${match(k)?'on':''}" aria-pressed="${match(k)}">${tr(CASE_PRIO[k].lblEn,CASE_PRIO[k].lbl)}</button>`).join('');
   // puntajes bajo cada prioridad, para explicar el cambio aunque el orden se mantenga
-  const rots=[{R:S.caseRes.base,lbl:tr('Base','Base')},...S.caseRes.alts.map(a=>({R:a.R,lbl:tr(a.titleEn,a.title).split(' +')[0]}))];
+  const rots=[{R:S.caseRes.base,lbl:tr('Base','Base')},...S.caseRes.alts.map((a,i)=>({R:a.R,lbl:tr('Alt. ','Alt. ')+(i+1)}))];
   const sets=Object.keys(CASE_PRIO).map(k=>({lbl:tr(CASE_PRIO[k].lblEn,CASE_PRIO[k].lbl),vals:rots.map(x=>r0(overallWith(x.R.m,CASE_PRIO[k].prio)))}));
-  const names=rots.map(x=>x.lbl).join(' · ');
-  const expl=sets.map(s=>`«${s.lbl}»: ${s.vals.join(' / ')}`).join('  →  ');
+  const active=Object.keys(CASE_PRIO).find(match);
+  const grid=`<table class="prioscores"><thead><tr><th scope="col">${tr('Priority','Prioridad')}</th>${rots.map(x=>`<th scope="col">${x.lbl}</th>`).join('')}</tr></thead><tbody>${Object.keys(CASE_PRIO).map((k,i)=>`<tr class="${k===active?'on':''}"><th scope="row">${sets[i].lbl}${k===active?` <span class="activetag">${tr('active','activa')}</span>`:''}</th>${sets[i].vals.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}${active?'':`<tr class="on"><th scope="row">${tr('Current weights','Pesos actuales')} <span class="activetag">${tr('active','activa')}</span></th>${rots.map(x=>`<td>${r0(overallWith(x.R.m,S.prio))}</td>`).join('')}</tr>`}</tbody></table>`;
   return `<div class="caseprio">
-    <div><b>${tr('Farmer priority','Prioridad del agricultor')}</b><div class="sub">${tr('Same three rotations, same scenario — only the weights change.','Mismas tres rotaciones, mismo escenario: solo cambian los pesos.')}</div></div>
-    <div class="seg" id="casePrio">${opts}</div>
-    <div class="note">${tr('Scores (base / alt. 1 / alt. 2) — ','Puntajes (base / alt. 1 / alt. 2) — ')}${expl}. ${tr('The order can hold while the gap between options changes; that is what the score shows.','El orden puede mantenerse aunque cambie la distancia entre opciones: eso es lo que muestra el puntaje.')}</div>
+    <div class="cp-hd"><div><b>${tr('Farmer priority','Prioridad del agricultor')}</b><div class="sub">${tr('Same rotations and scenario; only the score weights change.','Mismas rotaciones y escenario; solo cambian los pesos del puntaje.')}</div></div>
+    <div class="seg" id="casePrio" role="group" aria-label="${tr('Farmer priority','Prioridad del agricultor')}">${opts}</div></div>
+    ${grid}
+    <div class="note">${tr('The order can hold while the gap between options changes.','El orden puede mantenerse aunque cambie la distancia entre opciones.')}</div>
   </div>`;
 }
 
@@ -87,8 +90,8 @@ function renderCase(){
   el.innerHTML = `
     ${offCase?`<div class="note warn" style="margin-top:0">⚠ ${tr('You are viewing another site. The case is meant for Chiquimula:','Estás viendo otro sitio. El caso está pensado para Chiquimula:')} <a href="#s-caso" id="caseReload">${tr('load the case','cargar el caso')}</a>.</div>`:''}
     ${caseBaseEditor()}
-    ${caseTable()}
     ${casePrioCtl()}
+    ${caseTable()}
     <div class="casealts">${caseAlts()}</div>
     ${caseImerg()}
     <div class="note">${tr('All figures are model estimates under the same scenario; indices are relative (0–100), not yield forecasts. “Irrigation applied” is capped by the irrigation you marked as available — it is 0 mm in rainfed even when a deficit remains.','Todas las cifras son estimaciones del modelo bajo el mismo escenario; los índices son relativos (0–100), no pronósticos de rendimiento. «Riego aplicado» se limita al riego que marcaste como disponible: en secano es 0 mm aunque quede déficit.')}</div>`;

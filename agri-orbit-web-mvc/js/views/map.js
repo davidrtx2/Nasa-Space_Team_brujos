@@ -44,8 +44,8 @@ function renderMap(){
     h += `<text x="${p.cx}" y="${p.cy-4}" text-anchor="middle" font-size="11" fill="#0a0f1a" font-weight="700" pointer-events="none">P-${String(p.k+1).padStart(2,'0')}</text>`;
     h += `<text x="${p.cx}" y="${p.cy+10}" text-anchor="middle" font-size="9.5" fill="#0a0f1a" pointer-events="none">${S.layer==='crop'?cn(c).split(' ')[0]:val}</text>`;
   });
-  h += `<line x1="30" y1="22" x2="630" y2="22" stroke="#2dd4bf" stroke-dasharray="3 3" opacity=".5"/>`;
-  h += `<text x="30" y="16" fill="#2dd4bf" font-size="9.5">${tr('Demo farm · 8 plots ·','Finca demo · 8 parcelas ·')} ${siteName(s)}</text>`;
+  h += `<line x1="30" y1="22" x2="630" y2="22" stroke="#c9a074" stroke-dasharray="3 3" opacity=".5"/>`;
+  h += `<text x="30" y="16" fill="#c9a074" font-size="9.5">${tr('Demo farm · 8 plots ·','Finca demo · 8 parcelas ·')} ${siteName(s)}</text>`;
   svg.innerHTML=h;
   svg.querySelectorAll('.parcel').forEach(el=>{
     el.onclick=()=>{S.parcel=+el.dataset.k; renderMap();};

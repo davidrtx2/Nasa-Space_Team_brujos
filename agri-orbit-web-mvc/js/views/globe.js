@@ -107,5 +107,5 @@ function drawGlobe(){
 }
 function renderLegend(){
   const L=GLAYERS[G.tlayer], ends=lx(L,'ends');
-  $('#glegend').innerHTML = `<div class="lg-t">${lx(L,'lbl')}</div>${L.ramp?`<div class="ramp" style="background:linear-gradient(90deg,${L.ramp.join(',')})"></div><div class="ends"><span>${ends[0]}</span><span>${ends[1]}</span></div>`:''}<div class="lg-s"><i></i> ${Object.keys(SITES).length} ${tr('reference regions · NASA GIBS imagery','regiones de referencia · imágenes NASA GIBS')}</div>`;
+  $('#glegend').innerHTML = `<div class="lg-t">${lx(L,'lbl')}</div>${L.ramp?`<div class="ramp" style="background:linear-gradient(90deg,${L.ramp.join(',')})"></div><div class="ends"><span>${ends[0]}</span><span>${ends[1]}</span></div>`:''}<div class="lg-s">${srcChip('gibs')} ${tr('NASA GIBS · local snapshot · visualization only','NASA GIBS · instantánea local · solo visualización')}</div><div class="lg-s"><i></i> ${Object.keys(SITES).length} ${tr('reference regions','regiones de referencia')}</div>`;
 }
