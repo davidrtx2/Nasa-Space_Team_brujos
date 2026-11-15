@@ -14,8 +14,9 @@ const AGRI_AI = {
 
 const AGRI_AI_DEV_PORT = '8787';
 function aiIsLocalDev(){
-  return typeof location !== 'undefined' && /^https?:$/.test(location.protocol) &&
-    /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname || '');
+  if (typeof location === 'undefined') return false;
+  if (location.protocol === 'file:') return true;    // index.html abierto con doble clic
+  return /^https?:$/.test(location.protocol) && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname || '');
 }
 
 /* Resuelve el endpoint: window.AGRI_AI_ENDPOINT > <meta name="agri-ai-endpoint"> > mismo origen /api/agri-ai.
@@ -26,6 +27,7 @@ function aiResolveEndpoint(){
     const m = document.querySelector('meta[name="agri-ai-endpoint"]');
     ep = (m && m.content) || '';
   }
+  if (!ep && aiIsLocalDev() && location.protocol === 'file:') ep = 'http://localhost:' + AGRI_AI_DEV_PORT + '/api/agri-ai';
   if (!ep && aiIsLocalDev() && location.port !== AGRI_AI_DEV_PORT) ep = 'http://' + location.hostname + ':' + AGRI_AI_DEV_PORT + '/api/agri-ai';
   if (!ep && typeof location !== 'undefined' && /^https?:$/.test(location.protocol)) ep = '/api/agri-ai';
   return ep ? ep.replace(/\/+$/, '') : null;
