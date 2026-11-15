@@ -26,7 +26,7 @@ async function loadTextures(){
   const load=n=>new Promise(res=>{ const im=new Image(); im.onload=()=>{ try{ const c=document.createElement('canvas'); c.width=im.naturalWidth; c.height=im.naturalHeight; const x=c.getContext('2d',{willReadFrequently:true}); x.drawImage(im,0,0); const d=x.getImageData(0,0,c.width,c.height); res([n,{w:c.width,h:c.height,px:new Uint32Array(d.data.buffer)}]); }catch(e){ res([n,null]); } }; im.onerror=()=>res([n,null]); im.src=SNAP_DIR+n+'.webp'; });
   const first=await Promise.all(['world_bm','latam_bm'].map(load)); first.forEach(([n,v])=>{ if(v) TEX.list[n]=v; });
   TEX.ready=!!TEX.list.world_bm; G.texKey=null;
-  if (TEX.ready){ $('#globeMsg').textContent=''; document.getElementById('globebox').classList.add('textured'); }
+  if (TEX.ready){ if (window.d3) $('#globeMsg').textContent=''; document.getElementById('globebox').classList.add('textured'); }
   const rest=await Promise.all(['latam_tc','latam_rain','latam_smap','latam_ndvi','latam_grace'].map(load)); rest.forEach(([n,v])=>{ if(v) TEX.list[n]=v; });
   G.texKey=null;
 }

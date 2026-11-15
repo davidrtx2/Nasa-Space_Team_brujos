@@ -260,6 +260,8 @@ table.src tbody tr:hover td{background:rgba(148,163,184,.03)}
 .glegend .ends{display:flex;justify-content:space-between;font-size:10.5px}
 .gmsg{position:absolute;top:12px;right:12px;font-size:12px;color:var(--amber);background:rgba(10,15,26,.88);padding:5px 10px;border:1px solid var(--line2);border-radius:8px}
 .gmsg:empty{display:none}
+.globebox.nod3 .gctl,.globebox.nod3 .ghelp{display:none}
+.gtools.off{opacity:.5;pointer-events:none}
 .ghelp{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:11.5px;color:var(--dim)}
 #glayer{flex-wrap:wrap}
 .place{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rad);padding:16px;display:flex;flex-direction:column;gap:10px;max-height:540px;overflow:auto}
@@ -658,7 +660,7 @@ footer{max-width:var(--maxw)}
   .wrap{grid-template-columns:1fr}
   #editFarm{display:inline-flex}
   #closeFarm{display:inline-flex}
-  aside.controls{position:fixed;top:0;right:0;bottom:0;z-index:70;width:min(420px,100%);max-height:none;padding:14px;background:var(--bg);border-left:1px solid var(--line2);transform:translateX(100%);visibility:hidden;transition:transform .2s ease,visibility 0s .2s;overflow-y:auto;overscroll-behavior:contain}
+  aside.controls{position:fixed;top:0;right:0;bottom:0;z-index:70;width:min(420px,100%);align-self:stretch;height:100vh;height:100dvh;max-height:none;padding:14px;background:var(--bg);border-left:1px solid var(--line2);transform:translateX(100%);visibility:hidden;transition:transform .2s ease,visibility 0s .2s;overflow-y:auto;overscroll-behavior:contain}
   aside.controls.open{transform:none;visibility:visible;transition:transform .2s ease}
   body.farm-open{overflow:hidden}
   .globewrap{grid-template-columns:1fr}
@@ -699,3 +701,4 @@ footer{max-width:var(--maxw)}
   header .langbtn{grid-column:2;grid-row:1}
   nav.top{grid-column:1/-1;grid-row:2;width:100%;margin:0}
 }
+.globebox.nod3 .gmsg{left:12px;right:12px;top:45%;text-align:center;font-size:13px;padding:10px 14px}

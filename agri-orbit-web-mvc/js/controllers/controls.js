@@ -48,7 +48,17 @@ function initFarmPanel(){
   b.onclick=()=>setFarmOpen(true);
   $('#closeFarm').onclick=()=>setFarmOpen(false);
   $('#farmScrim').onclick=()=>setFarmOpen(false);
-  document.addEventListener('keydown',e=>{ if (e.key==='Escape' && $('#s-config').classList.contains('open')) setFarmOpen(false); });
+  document.addEventListener('keydown',e=>{
+    const a=$('#s-config'); if (!a.classList.contains('open')) return;
+    if (e.key==='Escape'){ setFarmOpen(false); return; }
+    if (e.key!=='Tab') return;
+    const f=[...a.querySelectorAll('button,select,input,textarea,a[href],[tabindex]:not([tabindex="-1"])')].filter(x=>!x.disabled && x.offsetParent!==null);
+    if (!f.length) return;
+    const first=f[0], last=f[f.length-1];
+    if (!a.contains(document.activeElement)){ e.preventDefault(); first.focus(); }
+    else if (e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+  });
   document.querySelectorAll('a[href="#s-config"]').forEach(a=>a.addEventListener('click',e=>{ if (farmDrawer()){ e.preventDefault(); setFarmOpen(true); } }));
   matchMedia('(max-width:1180px)').addEventListener('change',m=>{ if (!m.matches) setFarmOpen(false,false); });
 }
