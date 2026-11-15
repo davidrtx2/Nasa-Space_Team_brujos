@@ -1,86 +1,86 @@
-# AGRI-ORBIT · Decide qué sembrar después
+# AGRI-ORBIT · Decide what to plant next
 
-![Parcelas agrícolas al este del río Grande, Santa Cruz, Bolivia · NASA HLS S30 vía NASA GIBS, 10 jul 2025](agri-orbit-web-mvc/snap/hero_santacruz_hls_900.webp)
+![Farmland east of the Río Grande, Santa Cruz, Bolivia · NASA HLS S30 via NASA GIBS, 10 Jul 2025](agri-orbit-web-mvc/snap/hero_santacruz_hls_900.webp)
 
-**AGRI-ORBIT** es una herramienta web de apoyo a decisiones que compara **rotaciones de cultivos** para fincas de Latinoamérica usando **datos de la NASA** (clima, lluvia, humedad del suelo, vegetación y agua almacenada) junto con las condiciones y prioridades de cada agricultor.
+**AGRI-ORBIT** is a decision-support web tool that compares **crop rotations** for Latin American farms using **NASA data** (climate, rainfall, soil moisture, vegetation and water storage) together with each farmer's conditions and priorities.
 
-Proyecto de **Team Brujos** para el NASA Space Apps Challenge, reto *“Cambio de rumbo: adaptando las granjas con datos de la NASA”*.
+A **Team Brujos** project for the NASA Space Apps Challenge, *“Changing Course: adapting farms with NASA data”*.
 
-> AGRI-ORBIT entrega los datos y hace los cálculos agronómicos. AGRI-AI los interpreta y explica. Ninguno reemplaza al extensionista: valida siempre en campo.
-
----
-
-## ¿Qué hace?
-
-1. **Explora tu finca.** Eliges una región (44 regiones de referencia en 20 países de Latinoamérica, más una de EE. UU.) o un punto en el globo. Luego ajustas textura, materia orgánica, pH, pendiente, riego y tu rotación actual.
-2. **Compara rotaciones.** El motor evalúa más de mil combinaciones de 18 cultivos y coberturas. Las ordena según tus prioridades: ganancia, salud del suelo, ahorro de agua, estabilidad y forraje.
-3. **Entiende el resultado.** Para cada opción muestra:
-   - déficit de agua (estimado, riego aplicado y restante);
-   - meses con suelo descubierto, estabilidad y nitrógeno;
-   - ventajas y costos;
-   - qué datos falta validar;
-   - una simulación Monte Carlo con 1 000 años de clima.
-4. **Mira tu zona desde el espacio.** Un globo interactivo con capas NASA GIBS: color real, lluvia, humedad, vegetación y agua total.
-
-### Caso de demostración: Corredor Seco de Chiquimula, Guatemala
-El botón **«Probar caso Chiquimula»** carga una finca de secano con rotación de maíz de primera y postrera (editable). La compara con dos alternativas bajo el mismo escenario climático:
-- **Maíz + leguminosas de grano**
-- **Maíz + abono verde + sorgo**
-
-Puedes alternar entre **«Ahorrar agua»** y **«Proteger el suelo»** para ver cómo cambian los puntajes.
+> AGRI-ORBIT provides the data and runs the agronomic calculations. AGRI-AI interprets and explains them. Neither replaces the extension agent: always validate in the field.
 
 ---
 
-## Datos que usa
+## What it does
 
-| Uso | Fuente | Nota |
+1. **Explore your farm.** Pick a region (44 reference regions in 20 Latin American countries, plus one in the US) or a point on the globe. Then set soil texture, organic matter, pH, slope, irrigation and your current rotation.
+2. **Compare rotations.** The engine scores more than a thousand combinations of 18 crops and cover crops. It ranks them by your priorities: profit, soil health, water saving, stability and forage.
+3. **Understand the result.** For each option it shows:
+   - water deficit (estimated, irrigation applied and remaining);
+   - bare-soil months, stability and nitrogen;
+   - benefits and trade-offs;
+   - which data still needs validation;
+   - a Monte Carlo simulation over 1,000 climate years.
+4. **See your area from space.** An interactive globe with NASA GIBS layers: true color, rainfall, soil moisture, vegetation and total water storage.
+
+### Demo case: Dry Corridor of Chiquimula, Guatemala
+The **“Try the Chiquimula case”** button loads a rain-fed farm with a first-season + second-season maize rotation (editable). It compares that rotation with two alternatives under the same climate scenario:
+- **Maize + grain legumes**
+- **Maize + green manure + sorghum**
+
+You can switch between **“Save water”** and **“Protect the soil”** to see how the scores change.
+
+---
+
+## Data sources
+
+| Use | Source | Note |
 |---|---|---|
-| Clima del motor | **NASA POWER** (Agroclimatology API) | Temperatura, lluvia, humedad de raíces y radiación. Climatología mensual y series diarias, malla de ~0.5° |
-| Lluvia de la ventana de siembra | **GPM IMERG** vía NASA POWER Daily | Solo con conexión. Un día faltante no se cuenta como cero |
-| Capas del globo y del mapa | **NASA GIBS** | VIIRS, MODIS NDVI, SMAP L4, IMERG, SRTM y GRACE-FO. **Solo visualización**: no alimentan el motor |
-| Contexto de agua subterránea | **GRACE / GRACE-FO** | Anomalía regional del agua total almacenada, no un dato de la parcela |
-| Suelo y pendiente | Entrada del agricultor | Referencias nacionales sugeridas: MAGA/ICTA e INSIVUMEH |
-| Sin conexión | `snap/` | Copia local de NASA POWER y GIBS, límites de países y D3 |
+| Engine climate | **NASA POWER** (Agroclimatology API) | Temperature, rainfall, root-zone moisture and radiation. Monthly climatology and daily series, ~0.5° grid |
+| Sowing-window rainfall | **GPM IMERG** via NASA POWER Daily | Online only. A missing day is not counted as zero |
+| Globe and map layers | **NASA GIBS** | VIIRS, MODIS NDVI, SMAP L4, IMERG, SRTM and GRACE-FO. **Visualization only**: they do not feed the engine |
+| Groundwater context | **GRACE / GRACE-FO** | Regional anomaly of total water storage, not a plot-level value |
+| Soil and slope | Farmer input | Suggested national references: MAGA/ICTA and INSIVUMEH |
+| Offline | `snap/` | Local copy of NASA POWER and GIBS, country boundaries and D3 |
 
-Cada cifra lleva una etiqueta de procedencia: **En vivo**, **Instantánea**, **Referencia**, **Agricultor**, **Modelo** o **GIBS**. Los índices de 0 a 100 son estimaciones relativas del modelo, no pronósticos de rendimiento.
-
----
-
-## AGRI-AI · asistente agrícola
-
-Es el botón flotante de abajo a la derecha. Responde en español e inglés sobre tu terreno, los datos NASA y las rotaciones, usando el estado actual de la app como contexto. No inventa datos y avisa cuando falta información.
-
-Funciona con cualquier proveedor compatible con OpenAI Chat Completions (OpenAI, Google Gemini, Groq, OpenRouter, Ollama…). La clave vive **solo** en el servidor (`server/.env`) y nunca en el JavaScript público. Si el backend no está, la app sigue funcionando y el chat lo indica.
+Every figure carries a provenance tag: **Live**, **Snapshot**, **Reference**, **Farmer**, **Model** or **GIBS**. The 0–100 indices are relative model estimates, not yield forecasts.
 
 ---
 
-## Cómo correrlo
+## AGRI-AI · farming assistant
 
-No necesita build: es HTML, CSS y JavaScript nativo (patrón MVC).
+It is the floating button at the bottom right. It answers in Spanish and English about your land, the NASA data and the rotations, using the app's current state as context. It does not invent data and says when information is missing.
 
-**Solo la web** (sin chat):
+It works with any provider compatible with OpenAI Chat Completions (OpenAI, Google Gemini, Groq, OpenRouter, Ollama…). The key lives **only** on the server (`server/.env`), never in public JavaScript. If the backend is not running, the app keeps working and the chat says so.
+
+---
+
+## How to run it
+
+No build step: plain HTML, CSS and JavaScript (MVC pattern).
+
+**Web only** (no chat):
 ```bash
 cd agri-orbit-web-mvc
-python3 -m http.server 8080      # o Live Server en VS Code
-# abre http://localhost:8080
+python3 -m http.server 8080      # or Live Server in VS Code
+# open http://localhost:8080
 ```
 
-**Con AGRI-AI** (Node ≥ 18, sin dependencias):
+**With AGRI-AI** (Node ≥ 18, no dependencies):
 ```bash
 cd agri-orbit-web-mvc/server
-cp .env.example .env             # pon OPENAI_API_KEY (y OPENAI_MODEL / OPENAI_BASE_URL)
-node index.js                    # http://localhost:8787 sirve la web + /api/agri-ai
+cp .env.example .env             # set OPENAI_API_KEY (and OPENAI_MODEL / OPENAI_BASE_URL)
+node index.js                    # http://localhost:8787 serves the web + /api/agri-ai
 ```
-Si usas Live Server (`127.0.0.1:5501`), la página usa sola el backend de `:8787`.
+If you use Live Server (`127.0.0.1:5501`), the page automatically uses the backend on `:8787`.
 
-Ejemplo con Google Gemini (clave gratis en https://aistudio.google.com/apikey):
+Example with Google Gemini (free key at https://aistudio.google.com/apikey):
 ```env
-OPENAI_API_KEY=tu_clave
+OPENAI_API_KEY=your_key
 OPENAI_MODEL=gemini-flash-lite-latest
 OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
 ```
 
-**Pruebas:**
+**Tests:**
 ```bash
 cd agri-orbit-web-mvc
 node tests/model.test.js && node tests/render.smoke.js
@@ -89,30 +89,30 @@ node tests/agri-ai.test.js && node tests/agri-ai.server.test.js
 
 ---
 
-## Estructura
+## Structure
 
 ```
 agri-orbit-web-mvc/
-  index.html, css/style.css     interfaz
-  js/models/                    datos, motor agronómico, NASA, globo, AGRI-AI
-  js/views/                     funciones render* de cada sección
-  js/controllers/               eventos y arranque
-  js/vendor/d3.min.js           D3 local (el globo funciona sin internet)
-  snap/                         instantánea NASA (POWER, GIBS), límites de países, imagen de portada
-  server/                       backend Node: AGRI-AI (/api/agri-ai)
-  tests/                        pruebas en Node
+  index.html, css/style.css     interface
+  js/models/                    data, agronomic engine, NASA, globe, AGRI-AI
+  js/views/                     render* functions for each section
+  js/controllers/               events and startup
+  js/vendor/d3.min.js           local D3 (the globe works without internet)
+  snap/                         NASA snapshot (POWER, GIBS), country boundaries, cover image
+  server/                       Node backend: AGRI-AI (/api/agri-ai)
+  tests/                        Node tests
 ```
 
-La documentación técnica detallada está en [`agri-orbit-web-mvc/README.md`](agri-orbit-web-mvc/README.md).
+Detailed technical documentation is in [`agri-orbit-web-mvc/README.md`](agri-orbit-web-mvc/README.md).
 
 ---
 
-## Limitaciones
+## Limitations
 
-- Es un modelo de reglas y puntajes, no un simulador fisiológico como DSSAT o AquaCrop. Los coeficientes de cultivo son simplificados y genéricos.
-- NASA POWER describe celdas de unos 50 km, así que tu parcela puede ser distinta. Textura, pH y materia orgánica son los que ingresas tú.
-- Los escenarios a futuro son ilustrativos; las proyecciones NEX-GDDP-CMIP6 aún no están integradas.
-- No incluye precios ni costos: confirma el mercado antes de cambiar de cultivo.
-- Es un prototipo demostrativo. Conversa el resultado con extensionistas locales (p. ej., ICTA o MAGA en Guatemala).
+- It is a rules-and-scores model, not a physiological simulator like DSSAT or AquaCrop. Crop coefficients are simplified and generic.
+- NASA POWER describes cells of about 50 km, so your plot may differ. Texture, pH and organic matter are the values you enter.
+- Future scenarios are illustrative; NEX-GDDP-CMIP6 projections are not integrated yet.
+- It does not include prices or costs: check the market before switching crops.
+- It is a demonstration prototype. Discuss the result with local extension agents (e.g., ICTA or MAGA in Guatemala).
 
-NASA no respalda a entidades que no sean del Gobierno de EE. UU. Límites de países: Natural Earth (world-atlas).
+NASA does not endorse any non-U.S. Government entity. Country boundaries: Natural Earth (world-atlas).

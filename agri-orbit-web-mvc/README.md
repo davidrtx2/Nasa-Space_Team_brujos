@@ -1,94 +1,94 @@
 # AGRI-ORBIT
 
-Sitio estático (sin build) organizado con el patrón MVC.
+Static site (no build step) organized with the MVC pattern.
 
 ```
-index.html              Vista principal (estructura HTML)
-css/style.css           Hoja de estilos unificada
-js/utils.js             Utilidades compartidas
-js/models/              Modelo: datos, estado y lógica
-  data.js               Regiones, cultivos, regímenes de lluvia, escenarios
-  state.js              Estado global (S)
-  engine.js             Modelo agronómico, ranking y Monte Carlo
-  calendar.js           Balance hídrico y calendario mensual
-  nasa.js               NASA POWER / GIBS en vivo, instantánea local (snap/)
-  globe.js              Países, capas y geometría del globo
-  aiContext.js          AGRI-AI: contexto agrícola estructurado (solo lectura de S/LIVE)
-  aiClient.js           AGRI-AI: conversación y comunicación con el backend (sin claves)
-js/views/               Vistas: funciones render* que pintan el DOM
+index.html              Main view (HTML structure)
+css/style.css           Unified stylesheet
+js/utils.js             Shared utilities
+js/models/              Model: data, state and logic
+  data.js               Regions, crops, rainfall regimes, scenarios
+  state.js              Global state (S)
+  engine.js             Agronomic model, ranking and Monte Carlo
+  calendar.js           Water balance and monthly calendar
+  nasa.js               Live NASA POWER / GIBS, local snapshot (snap/)
+  globe.js              Countries, layers and globe geometry
+  aiContext.js          AGRI-AI: structured farm context (reads S/LIVE only)
+  aiClient.js           AGRI-AI: conversation and backend communication (no keys)
+js/views/               Views: render* functions that paint the DOM
   dashboard.js  map.js  analysis.js  calendar.js  compare.js  live.js  globe.js  chrome.js  agriAI.js
-js/controllers/         Controladores: eventos y orquestación
-  controls.js           Panel de controles
-  globe.js              Interacción con el globo y búsqueda
-  app.js                recompute(), renderAll() y arranque
-  agriAI.js             AGRI-AI: abrir/cerrar, envío de preguntas
-server/                 Backend de AGRI-AI (Node ≥ 18, sin dependencias)
-snap/                   Datos e imágenes NASA descargados para uso sin conexión
-                        (hero_santacruz_hls*.webp: imagen de portada, NASA HLS S30 vía GIBS, 10 jul 2025;
-                         countries-50m.json: límites de países world-atlas/Natural Earth para el globo sin conexión)
-js/vendor/d3.min.js     D3 v7.9.0 local (el globo funciona sin CDN ni internet)
+js/controllers/         Controllers: events and orchestration
+  controls.js           Control panel
+  globe.js              Globe interaction and search
+  app.js                recompute(), renderAll() and startup
+  agriAI.js             AGRI-AI: open/close, sending questions
+server/                 AGRI-AI backend (Node ≥ 18, no dependencies)
+snap/                   NASA data and images downloaded for offline use
+                        (hero_santacruz_hls*.webp: cover image, NASA HLS S30 via GIBS, 10 Jul 2025;
+                         countries-50m.json: world-atlas/Natural Earth country boundaries for the offline globe)
+js/vendor/d3.min.js     Local D3 v7.9.0 (the globe works without a CDN or internet)
 tests/
-  model.test.js         Arnés Node del modelo (métricas de agua, caso, exportación)
-  render.smoke.js       Render del caso con DOM mínimo (ambos idiomas y prioridades)
-  agri-ai.test.js       AGRI-AI frontend + integración frontend → backend → proveedor
-  agri-ai.server.test.js AGRI-AI backend: validación, seguridad, rate limit, errores
+  model.test.js         Node harness for the model (water metrics, case, export)
+  render.smoke.js       Case render with a minimal DOM (both languages and priorities)
+  agri-ai.test.js       AGRI-AI frontend + frontend → backend → provider integration
+  agri-ai.server.test.js AGRI-AI backend: validation, security, rate limit, errors
 ```
 
-La vista del caso está en `js/views/case.js`. Los scripts se cargan en orden (modelos → vistas → controladores) desde `index.html`.
+The case view is in `js/views/case.js`. Scripts are loaded in order (models → views → controllers) from `index.html`.
 
-## Ejecutar
+## Run
 
 ```bash
-python3 -m http.server 8080    # en esta carpeta
-# abrir http://localhost:8080
+python3 -m http.server 8080    # in this folder
+# open http://localhost:8080
 ```
 
-Sin build. Sin conexión usa la instantánea `snap/power.json` (datos reales de NASA POWER, nov-2026) y las imágenes `snap/*.webp`. Pruebas del modelo: `node tests/model.test.js` y `node tests/render.smoke.js`. Pruebas de AGRI-AI: `node tests/agri-ai.test.js` y `node tests/agri-ai.server.test.js`.
+No build. Offline it uses the `snap/power.json` snapshot (real NASA POWER data, Nov 2026) and the `snap/*.webp` images. Model tests: `node tests/model.test.js` and `node tests/render.smoke.js`. AGRI-AI tests: `node tests/agri-ai.test.js` and `node tests/agri-ai.server.test.js`.
 
-## AGRI-AI · asistente agrícola
+## AGRI-AI · farming assistant
 
-Botón flotante **AGRI-AI** (abajo a la derecha). AGRI-ORBIT proporciona los datos y realiza los cálculos agronómicos; AGRI-AI interpreta, explica y ayuda a decidir. En cada pregunta el navegador envía al backend solo las secciones relevantes del estado actual (región, suelo, riego, escenario, prioridades, clima NASA POWER con su procedencia, últimos 90 días, IMERG, riesgos, calendario, rotaciones y caso Chiquimula), generadas por `buildAIContext()` sin modificar el estado. Si el backend no está configurado o no hay internet, el chat lo indica y el resto de la app sigue funcionando (incluida la instantánea offline); nunca muestra respuestas simuladas.
+Floating **AGRI-AI** button (bottom right). AGRI-ORBIT provides the data and runs the agronomic calculations; AGRI-AI interprets, explains and helps decide. With each question the browser sends the backend only the relevant sections of the current state (region, soil, irrigation, scenario, priorities, NASA POWER climate with its provenance, last 90 days, IMERG, risks, calendar, rotations and the Chiquimula case), built by `buildAIContext()` without modifying the state. If the backend is not configured or there is no internet, the chat says so and the rest of the app keeps working (including the offline snapshot); it never shows simulated answers.
 
 ```bash
 cd server
-cp .env.example .env        # pon OPENAI_API_KEY (y opcional OPENAI_MODEL / OPENAI_BASE_URL)
-node index.js               # http://localhost:8787 sirve la web + /api/agri-ai
+cp .env.example .env        # set OPENAI_API_KEY (and optionally OPENAI_MODEL / OPENAI_BASE_URL)
+node index.js               # http://localhost:8787 serves the web + /api/agri-ai
 ```
 
-- Desarrollo local: si abres la web con Live Server o `http.server` (p. ej. `127.0.0.1:5501`), el chat usa automáticamente el backend en `http://<host>:8787/api/agri-ai`, y el backend acepta orígenes `localhost`/`127.0.0.1` cuando corre en local. Si el backend está apagado o sin API key, el chat lo indica.
+- Local development: if you open the site with Live Server or `http.server` (e.g. `127.0.0.1:5501`), the chat automatically uses the backend at `http://<host>:8787/api/agri-ai`, and the backend accepts `localhost`/`127.0.0.1` origins when it runs locally. If the backend is down or has no API key, the chat says so.
 - Endpoints: `GET /api/agri-ai/health`, `POST /api/agri-ai/chat` (`{messages, context, lang, questionLang}` → `{reply}`).
-- Proveedor: cualquier API compatible con OpenAI Chat Completions (OpenAI, Groq, OpenRouter, Together, Ollama…) vía `OPENAI_BASE_URL` y `OPENAI_MODEL`.
-- La clave solo vive en variables de entorno del servidor; el JavaScript público no contiene claves. El prompt del sistema está en `server/lib/prompt.js`.
-- Seguridad: validación de mensajes (solo roles `user`/`assistant`, 1.200 caracteres por pregunta), contexto saneado y limitado (16 KB), cuerpo máx. 64 KB, rate limit por IP (`RATE_LIMIT_MAX`/`RATE_LIMIT_WINDOW_MS`), timeout al proveedor, CORS por lista (`ALLOWED_ORIGINS`), sin ejecución de código.
-- Web estática en otro dominio (p. ej. GitHub Pages): despliega `server/` (Render, Railway, Fly…) con `SERVE_STATIC=0`, `TRUST_PROXY=1` y `ALLOWED_ORIGINS=https://tu-sitio`, y apunta el frontend con `<meta name="agri-ai-endpoint" content="https://tu-backend/api/agri-ai">` en `index.html` (o `window.AGRI_AI_ENDPOINT`). Con `python3 -m http.server` y sin backend, el chat muestra "no disponible".
+- Provider: any API compatible with OpenAI Chat Completions (OpenAI, Groq, OpenRouter, Together, Ollama…) via `OPENAI_BASE_URL` and `OPENAI_MODEL`.
+- The key lives only in the server's environment variables; public JavaScript contains no keys. The system prompt is in `server/lib/prompt.js`.
+- Security: message validation (only `user`/`assistant` roles, 1,200 characters per question), sanitized and capped context (16 KB), max body 64 KB, per-IP rate limit (`RATE_LIMIT_MAX`/`RATE_LIMIT_WINDOW_MS`), provider timeout, CORS allow-list (`ALLOWED_ORIGINS`), no code execution.
+- Static site on another domain (e.g. GitHub Pages): deploy `server/` (Render, Railway, Fly…) with `SERVE_STATIC=0`, `TRUST_PROXY=1` and `ALLOWED_ORIGINS=https://your-site`, and point the frontend to it with `<meta name="agri-ai-endpoint" content="https://your-backend/api/agri-ai">` in `index.html` (or `window.AGRI_AI_ENDPOINT`). With `python3 -m http.server` and no backend, the chat shows "unavailable".
 
-## El caso: Corredor Seco de Chiquimula, Guatemala
+## The case: Dry Corridor of Chiquimula, Guatemala
 
-«Probar caso Chiquimula» carga la finca de referencia del prototipo (14.80, −89.54): secano, suelo franco, rotación maíz de primera y postrera (editable). La compara con dos alternativas bajo el mismo escenario de calentamiento moderado:
+“Try the Chiquimula case” loads the prototype's reference farm (14.80, −89.54): rain-fed, loam soil, first-season + second-season maize rotation (editable). It compares it with two alternatives under the same moderate-warming scenario:
 
-1. **Maíz + leguminosas de grano** (maíz, frijol, maíz, caupí): fija N, diversifica el ingreso; sacrifica algo de cobertura y depende del precio del frijol.
-2. **Maíz + abono verde + sorgo** (maíz, canavalia, sorgo, caupí): máxima salud del suelo y estabilidad; sacrifica un ciclo de ingreso comercial.
+1. **Maize + grain legumes** (maize, bean, maize, cowpea): fixes N and diversifies income; gives up some cover and depends on the bean price.
+2. **Maize + green manure + sorghum** (maize, jack bean, sorghum, cowpea): maximum soil health and stability; gives up one commercial income cycle.
 
-Cada alternativa documenta supuestos, beneficio, sacrificio y el dato que falta validar. El toggle «Ahorrar agua / Proteger el suelo» cambia solo los pesos del puntaje: el orden puede mantenerse pero se ve cómo cambia la distancia entre opciones.
+Each alternative documents assumptions, benefit, trade-off and the data still to be validated. The “Save water / Protect the soil” toggle only changes the score weights: the order may hold, but you can see how the gap between options changes.
 
-## Fuentes efectivamente utilizadas
+## Sources actually used
 
-| Uso | Fuente | Detalle |
+| Use | Source | Detail |
 |---|---|---|
-| Clima numérico | **NASA POWER** (Agroclimatology API) | T2M, T2M_MAX, T2M_MIN, PRECTOTCORR, GWETROOT, ALLSKY_SFC_SW_DWN, WS2M · climatología mensual + series diarias · malla ~0.5° |
-| Lluvia de la ventana de siembra | **GPM IMERG vía NASA POWER Daily** | `IMERG_PRECTOT` (mm/día) · UTC · ~0.1° · acumulado de la ventana vs. misma ventana climatológica; fill −999 = faltante, no cero |
-| Capas del mapa y globo | **NASA GIBS** (WMS) | VIIRS, MODIS NDVI, SMAP L4, GPM IMERG, SRTM/ASTER GDEM, GRACE-FO · **solo visualización**, no alimenta el motor |
-| Contexto regional | **GRACE/GRACE-FO** | Anomalía regional del almacenamiento *total* de agua (mascon mensual); referencia, no dato de parcela |
-| Suelo y pendiente | Entrada del agricultor | Contexto sugerido: MAGA/ICTA (suelos del Corredor Seco) e INSIVUMEH (estaciones) — referencias nacionales, aún sin integración numérica |
-| Instantánea | `snap/power.json` + `snap/*.webp` | Réplica local de POWER y GIBS para la demo sin conexión |
+| Numeric climate | **NASA POWER** (Agroclimatology API) | T2M, T2M_MAX, T2M_MIN, PRECTOTCORR, GWETROOT, ALLSKY_SFC_SW_DWN, WS2M · monthly climatology + daily series · ~0.5° grid |
+| Sowing-window rainfall | **GPM IMERG via NASA POWER Daily** | `IMERG_PRECTOT` (mm/day) · UTC · ~0.1° · window total vs. the same climatological window; fill −999 = missing, not zero |
+| Map and globe layers | **NASA GIBS** (WMS) | VIIRS, MODIS NDVI, SMAP L4, GPM IMERG, SRTM/ASTER GDEM, GRACE-FO · **visualization only**, does not feed the engine |
+| Regional context | **GRACE/GRACE-FO** | Regional anomaly of *total* water storage (monthly mascon); reference, not a plot value |
+| Soil and slope | Farmer input | Suggested context: MAGA/ICTA (Dry Corridor soils) and INSIVUMEH (stations) — national references, not yet numerically integrated |
+| Snapshot | `snap/power.json` + `snap/*.webp` | Local replica of POWER and GIBS for the offline demo |
 
-Procedencia de cada cifra en la interfaz: **API** (consulta en vivo), **Inst.** (instantánea), **Ref.** (referencia regional), **Entrada** (agricultor), **Modelo** (índice relativo 0–100 o simulación), **GIBS** (visualización).
+Provenance of every figure in the interface: **API** (live query), **Snap.** (snapshot), **Ref.** (regional reference), **Input** (farmer), **Model** (0–100 relative index or simulation), **GIBS** (visualization).
 
-## Métricas corregidas
+## Corrected metrics
 
-«Riego necesario» se reemplazó por tres cifras: **déficit estimado** (mm/ciclo, antes de riego), **riego aplicado** (limitado por el riego disponible: 0 mm en secano) y **déficit restante**. Economía, suelo, agua, estabilidad y forraje son **índices relativos 0–100**, no pronósticos de rendimiento. La «estabilidad» sale de 1 000 simulaciones climáticas Monte Carlo (mismas extracciones para todas las rotaciones comparadas).
+“Irrigation needed” was replaced by three figures: **estimated deficit** (mm/cycle, before irrigation), **irrigation applied** (limited by available irrigation: 0 mm when rain-fed) and **remaining deficit**. Economy, soil, water, stability and forage are **0–100 relative indices**, not yield forecasts. “Stability” comes from 1,000 Monte Carlo climate simulations (the same draws for every compared rotation).
 
-## English description (for the jury)
+## Description for the jury
 
 AGRI-ORBIT helps a smallholder in Guatemala's Dry Corridor decide what to plant next. It combines NASA POWER agroclimatology (rainfall, temperature, root-zone moisture GWETROOT, radiation) and GPM IMERG daily rainfall over the sowing window with farmer-entered soil data to compare crop rotations under a shared climate-change scenario. Scores are transparent, provenance-tagged relative indices — not yield forecasts — and every figure states its product, variable, unit, period, resolution and provenance class. The app is bilingual (Spanish-first for farmers, full English for judges), works offline from a real NASA data snapshot, and keeps the globe and GIBS satellite layers as visualization only.
 
@@ -96,19 +96,19 @@ AGRI-ORBIT helps a smallholder in Guatemala's Dry Corridor decide what to plant 
 
 EN voice-over (subtitles if recorded in Spanish):
 
-1. (0–5 s) "A maize farmer in Chiquimula faces hotter, drier years. One click: *Probar caso Chiquimula*." — click the hero CTA.
+1. (0–5 s) "A maize farmer in Chiquimula faces hotter, drier years. One click: *Try the Chiquimula case*." — click the hero CTA.
 2. (5–15 s) "His maize–maize rotation vs. two alternatives, same scenario: estimated water deficit, bare-soil months, simulated stability — every figure shows its NASA source." — point at the comparison table and provenance chips.
-3. (15–25 s) "Change his priority: *Ahorrar agua* → *Proteger el suelo*. The order holds, but the scores move — the model only re-weights the same evidence." — toggle and show the score line.
+3. (15–25 s) "Change his priority: *Save water* → *Protect the soil*. The order holds, but the scores move — the model only re-weights the same evidence." — toggle and show the score line.
 4. (25–30 s) "Offline? The same figures come from a real NASA POWER snapshot. AGRI-ORBIT: decide what to plant next, with NASA's eyes on the field."
 
-## Uso de IA
+## Use of AI
 
-El código de la vista del caso, la corrección de métricas, la integración IMERG, las pruebas y esta documentación fueron redactados con asistencia de IA (Devin, Cognition) y revisados por el equipo. Las cifras que se muestran provienen del modelo del repositorio y de las APIs NASA citadas; la IA no generó datos climáticos. El asistente AGRI-AI (en tiempo de ejecución) solo interpreta el contexto que le envía la app; no calcula puntajes ni reemplaza el motor agronómico.
+The case view code, the metric corrections, the IMERG integration, the tests and this documentation were written with AI assistance (Devin, Cognition) and reviewed by the team. The figures shown come from the repository's model and the cited NASA APIs; the AI did not generate climate data. The AGRI-AI assistant (at runtime) only interprets the context the app sends it; it does not compute scores or replace the agronomic engine.
 
-## Limitaciones pendientes
+## Open limitations
 
-- Índices relativos del modelo, calibrados con referencias regionales; no son rendimientos predichos ni validados en campo.
-- IMERG en POWER llega con ~2–3 meses de rezago: la ventana de siembra mostrada es la más reciente ya cerrada.
-- MAGA/ICTA e INSIVUMEH figuran como contexto nacional; la contrastación numérica con estaciones queda pendiente.
-- La malla de POWER (~50 km) suaviza microclimas; el déficit hídrico es una estimación simplificada por ciclo.
-- El mapa de parcelas es ilustrativo (no un predio real).
+- Relative model indices calibrated with regional references; they are not predicted yields and have not been validated in the field.
+- IMERG in POWER arrives with a ~2–3 month lag: the sowing window shown is the most recent closed one.
+- MAGA/ICTA and INSIVUMEH appear as national context; numeric comparison against stations is still pending.
+- The POWER grid (~50 km) smooths microclimates; the water deficit is a simplified per-cycle estimate.
+- The plot map is illustrative (not a real property).
