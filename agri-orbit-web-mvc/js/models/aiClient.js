@@ -12,13 +12,21 @@ const AGRI_AI = {
   MAX_TURNS: 10, MAX_CHARS: 1200, MAX_HISTORY_CHARS: 12000
 };
 
-/* Resuelve el endpoint: window.AGRI_AI_ENDPOINT > <meta name="agri-ai-endpoint"> > mismo origen /api/agri-ai */
+const AGRI_AI_DEV_PORT = '8787';
+function aiIsLocalDev(){
+  return typeof location !== 'undefined' && /^https?:$/.test(location.protocol) &&
+    /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname || '');
+}
+
+/* Resuelve el endpoint: window.AGRI_AI_ENDPOINT > <meta name="agri-ai-endpoint"> > mismo origen /api/agri-ai.
+   En local con otro servidor (Live Server, http.server) apunta al backend de desarrollo en :8787. */
 function aiResolveEndpoint(){
   let ep = (typeof window !== 'undefined' && window.AGRI_AI_ENDPOINT) || '';
   if (!ep && typeof document !== 'undefined' && document.querySelector) {
     const m = document.querySelector('meta[name="agri-ai-endpoint"]');
     ep = (m && m.content) || '';
   }
+  if (!ep && aiIsLocalDev() && location.port !== AGRI_AI_DEV_PORT) ep = 'http://' + location.hostname + ':' + AGRI_AI_DEV_PORT + '/api/agri-ai';
   if (!ep && typeof location !== 'undefined' && /^https?:$/.test(location.protocol)) ep = '/api/agri-ai';
   return ep ? ep.replace(/\/+$/, '') : null;
 }
@@ -105,6 +113,11 @@ function aiErrorText(code){
     invalid:      ['The question could not be processed (too long or invalid).', 'No se pudo procesar la pregunta (demasiado larga o no válida).'],
     server:       ['The AI service returned an error. Please try again later.', 'El servicio de IA devolvió un error. Inténtalo más tarde.']
   };
-  const m = M[code] || M.server;
+  const dev = {
+    network:      ['The AGRI-AI backend is not running. In agri-orbit-web-mvc/server run: node index.js', 'El backend de AGRI-AI no está corriendo. En agri-orbit-web-mvc/server ejecuta: node index.js'],
+    offline:      ['The AGRI-AI backend is not running. In agri-orbit-web-mvc/server run: node index.js', 'El backend de AGRI-AI no está corriendo. En agri-orbit-web-mvc/server ejecuta: node index.js'],
+    unconfigured: ['The backend has no API key. Copy server/.env.example to server/.env, add your API key and restart node index.js.', 'El backend no tiene API key. Copia server/.env.example a server/.env, pon tu API key y reinicia node index.js.']
+  };
+  const m = (aiIsLocalDev() && AGRI_AI.endpoint && dev[code]) || M[code] || M.server;
   return tr(m[0], m[1]);
 }

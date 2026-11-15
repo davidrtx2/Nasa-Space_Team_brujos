@@ -70,6 +70,11 @@ const chat = (q = '¿Cómo puedo ahorrar agua?', extra = {}) => ({ messages: [{ 
   r = await req(u1, '/api/agri-ai/chat', { method: 'OPTIONS', headers: { Origin: 'https://davidrtx2.github.io' } });
   ok(r.status === 204 && r.h.get('access-control-allow-origin') === 'https://davidrtx2.github.io', 'preflight de origen permitido (GitHub Pages)');
 
+  r = await req(u1, '/api/agri-ai/health', { headers: { Origin: 'http://127.0.0.1:5501' } });
+  ok(r.status === 200 && r.h.get('access-control-allow-origin') === 'http://127.0.0.1:5501', 'backend local acepta Live Server (127.0.0.1:5501)');
+  r = await req(u1, '/api/agri-ai/health', { headers: { Origin: 'http://localhost.evil.example' } });
+  ok(r.status === 403, 'origen que solo empieza por "localhost" → 403');
+
   console.log('AGRI-AI backend · rate limit');
   let last;
   for (let i = 0; i < 6; i++) last = await req(u1, '/api/agri-ai/chat', { method: 'POST', body: chat() });

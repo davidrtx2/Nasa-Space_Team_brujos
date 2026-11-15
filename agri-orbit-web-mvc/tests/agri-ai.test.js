@@ -87,6 +87,22 @@ const sameShape = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   ok(run(`buildAIContext('x').app.uiLanguage`) === 'en', 'el contexto informa el idioma de la interfaz');
   run(`setLang('es',false)`);
 
+  console.log('AGRI-AI · desarrollo local');
+  sandbox.location = { protocol: 'http:', hostname: '127.0.0.1', port: '5501' };
+  ok(run(`aiResolveEndpoint()`) === 'http://127.0.0.1:8787/api/agri-ai', 'Live Server (127.0.0.1:5501) → backend local :8787');
+  sandbox.location = { protocol: 'http:', hostname: 'localhost', port: '8787' };
+  ok(run(`aiResolveEndpoint()`) === '/api/agri-ai', 'servido por el backend (:8787) → mismo origen');
+  sandbox.location = { protocol: 'https:', hostname: 'davidrtx2.github.io', port: '' };
+  ok(run(`aiResolveEndpoint()`) === '/api/agri-ai', 'dominio público → mismo origen (o <meta>)');
+  sandbox.location = { protocol: 'http:', hostname: '127.0.0.1', port: '5501' };
+  run(`AGRI_AI.endpoint='http://127.0.0.1:8787/api/agri-ai'; AGRI_AI.status='offline'`);
+  ok(/node index\.js/.test(run(`aiErrorText('network')`)) && /Backend apagado/.test(run(`aiStatusInfo().txt`)), 'en local indica cómo arrancar el backend');
+  run(`AGRI_AI.status='unconfigured'`);
+  ok(/server\/\.env/.test(run(`aiErrorText('unconfigured')`)) && /sin API key/.test(run(`aiStatusInfo().txt`)), 'en local indica que falta la API key');
+  delete sandbox.location;
+  run(`AGRI_AI.endpoint=null; AGRI_AI.status='unknown'`);
+  ok(!/node index/.test(run(`aiErrorText('network')`)), 'fuera de local no muestra instrucciones de desarrollo');
+
   console.log('AGRI-AI · idioma');
   ok(run(`aiDetectLang('¿Cómo puedo ahorrar agua?')`) === 'es', 'detecta español');
   ok(run(`aiDetectLang('How can I improve the soil?')`) === 'en', 'detecta inglés');

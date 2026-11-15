@@ -32,7 +32,9 @@ function createServer(cfg = getConfig(), deps = {}){
     if (!o) return true;                                   // misma página / herramientas sin Origin
     const host = req.headers.host;
     const same = host && (o === 'http://' + host || o === 'https://' + host);
-    if (same || cfg.allowedOrigins.includes(o) || cfg.allowedOrigins.includes('*')) {
+    const loop = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
+    const localDev = loop.test(host || '') && /^http:\/\//.test(o) && loop.test(o.slice(7));
+    if (same || localDev || cfg.allowedOrigins.includes(o) || cfg.allowedOrigins.includes('*')) {
       res.setHeader('Access-Control-Allow-Origin', o);
       res.setHeader('Vary', 'Origin');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
