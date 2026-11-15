@@ -40,10 +40,9 @@ Puedes alternar entre **«Ahorrar agua»** y **«Proteger el suelo»** para ver 
 | Capas del globo y del mapa | **NASA GIBS** | VIIRS, MODIS NDVI, SMAP L4, IMERG, SRTM y GRACE-FO. **Solo visualización**: no alimentan el motor |
 | Contexto de agua subterránea | **GRACE / GRACE-FO** | Anomalía regional del agua total almacenada, no un dato de la parcela |
 | Suelo y pendiente | Entrada del agricultor | Referencias nacionales sugeridas: MAGA/ICTA e INSIVUMEH |
-| Parcelas de El Salvador | **CNR · IGCN** (catastro oficial) | Requiere convenio con el CNR. Sin él, la tarjeta muestra «pendiente de conexión» |
 | Sin conexión | `snap/` | Copia local de NASA POWER y GIBS, límites de países y D3 |
 
-Cada cifra lleva una etiqueta de procedencia: **En vivo**, **Instantánea**, **Referencia**, **Agricultor**, **Modelo**, **GIBS** o **CNR**. Los índices de 0 a 100 son estimaciones relativas del modelo, no pronósticos de rendimiento.
+Cada cifra lleva una etiqueta de procedencia: **En vivo**, **Instantánea**, **Referencia**, **Agricultor**, **Modelo** o **GIBS**. Los índices de 0 a 100 son estimaciones relativas del modelo, no pronósticos de rendimiento.
 
 ---
 
@@ -59,18 +58,18 @@ Funciona con cualquier proveedor compatible con OpenAI Chat Completions (OpenAI,
 
 No necesita build: es HTML, CSS y JavaScript nativo (patrón MVC).
 
-**Solo la web** (sin chat ni catastro):
+**Solo la web** (sin chat):
 ```bash
 cd agri-orbit-web-mvc
 python3 -m http.server 8080      # o Live Server en VS Code
 # abre http://localhost:8080
 ```
 
-**Con AGRI-AI y el catastro** (Node ≥ 18, sin dependencias):
+**Con AGRI-AI** (Node ≥ 18, sin dependencias):
 ```bash
 cd agri-orbit-web-mvc/server
 cp .env.example .env             # pon OPENAI_API_KEY (y OPENAI_MODEL / OPENAI_BASE_URL)
-node index.js                    # http://localhost:8787 sirve la web + /api/agri-ai + /api/cadastre
+node index.js                    # http://localhost:8787 sirve la web + /api/agri-ai
 ```
 Si usas Live Server (`127.0.0.1:5501`), la página usa sola el backend de `:8787`.
 
@@ -86,7 +85,6 @@ OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
 cd agri-orbit-web-mvc
 node tests/model.test.js && node tests/render.smoke.js
 node tests/agri-ai.test.js && node tests/agri-ai.server.test.js
-node tests/cadastre.test.js
 ```
 
 ---
@@ -96,12 +94,12 @@ node tests/cadastre.test.js
 ```
 agri-orbit-web-mvc/
   index.html, css/style.css     interfaz
-  js/models/                    datos, motor agronómico, NASA, globo, AGRI-AI, catastro
+  js/models/                    datos, motor agronómico, NASA, globo, AGRI-AI
   js/views/                     funciones render* de cada sección
   js/controllers/               eventos y arranque
   js/vendor/d3.min.js           D3 local (el globo funciona sin internet)
   snap/                         instantánea NASA (POWER, GIBS), límites de países, imagen de portada
-  server/                       backend Node: AGRI-AI (/api/agri-ai) y catastro CNR (/api/cadastre)
+  server/                       backend Node: AGRI-AI (/api/agri-ai)
   tests/                        pruebas en Node
 ```
 
