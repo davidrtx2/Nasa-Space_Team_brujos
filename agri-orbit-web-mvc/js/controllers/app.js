@@ -11,6 +11,7 @@ function renderAll(){
   $('#v-dT').textContent=(S.dT>0?'+':'')+S.dT+' °C'; $('#v-dP').textContent=(S.dP>0?'+':'')+S.dP+' %';
   $('#srcPower').textContent = LIVE.mode==='live' ? tr('live','en vivo') : tr('built-in','integrado');
   if (typeof renderAgriAI==='function') renderAgriAI();
+  if (typeof renderCadastre==='function') renderCadastre();
 }
 let tmr; function recompute(){ clearTimeout(tmr); tmr=setTimeout(()=>{ runEngine(); renderAll(); if (G.proj) renderPlace(); },90); }
 
@@ -28,3 +29,4 @@ initGlobe();
 loadTextures(); initConstellation(); decorateSections();
 scheduleLive();
 if (typeof initAgriAI==='function') initAgriAI();
+if (typeof initCadastre==='function') initCadastre();

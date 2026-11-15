@@ -30,7 +30,7 @@
   </a>
   <nav class="top" aria-label="Sections" data-es-aria="Secciones">
     <a href="#s-config" data-secs="s-config" data-es="Explorar finca">Explore farm</a>
-    <a href="#s-caso" data-secs="s-caso s-ranking s-why s-cal s-mapa s-tradeoff s-riesgo s-incert" data-es="Comparar rotaciones">Compare rotations</a>
+    <a href="#s-caso" data-secs="s-caso s-ranking s-why s-cal s-mapa s-cnr s-tradeoff s-riesgo s-incert" data-es="Comparar rotaciones">Compare rotations</a>
     <a href="#s-globo" data-secs="s-globo" data-es="Datos satelitales">Satellite data</a>
     <a href="#s-fuentes" data-secs="s-fuentes s-glosario" data-es="Fuentes">Sources</a>
   </nav>
@@ -193,6 +193,12 @@
         <div class="detail" id="pdetail"></div>
       </div>
       <div class="note" data-es="Cada parcela empieza la rotación en un punto distinto, así cada ciclo hay varios cultivos en la finca (diversifica ingresos y riesgo). Pendiente y humedad por parcela son ilustrativas a partir de tus datos.">Each plot starts the rotation at a different point, so every cycle several crops grow on the farm (diversifying income and risk). Per-plot slope and moisture are illustrative from your data.</div>
+    </section>
+
+    <section class="card" id="s-cnr">
+      <div class="hd"><h2><span data-es="Parcelas de El Salvador · catastro del CNR">El Salvador parcels · CNR cadastre</span></h2><span class="tag" id="cadTag">CNR · IGCN</span></div>
+      <p class="lead" data-es="Linderos oficiales de parcelas del Centro Nacional de Registros (CNR), consultados a través del backend.">Official parcel boundaries from El Salvador’s National Registry Center (CNR), queried through the backend.</p>
+      <div id="cadBody"></div>
     </section>
 
     <div class="grid2">
@@ -408,6 +414,7 @@
 <script src="js/models/globe.js"></script>
 <script src="js/models/aiContext.js"></script>
 <script src="js/models/aiClient.js"></script>
+<script src="js/models/cadastre.js"></script>
 <script src="js/views/dashboard.js"></script>
 <script src="js/views/map.js"></script>
 <script src="js/views/analysis.js"></script>
@@ -418,9 +425,11 @@
 <script src="js/views/globe.js"></script>
 <script src="js/views/chrome.js"></script>
 <script src="js/views/agriAI.js"></script>
+<script src="js/views/cadastre.js"></script>
 <script src="js/controllers/controls.js"></script>
 <script src="js/controllers/globe.js"></script>
 <script src="js/controllers/agriAI.js"></script>
+<script src="js/controllers/cadastre.js"></script>
 <script src="js/controllers/app.js"></script>
 </body>
 </html>

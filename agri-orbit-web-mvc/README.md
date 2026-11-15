@@ -32,6 +32,7 @@ tests/
   render.smoke.js       Render del caso con DOM mínimo (ambos idiomas y prioridades)
   agri-ai.test.js       AGRI-AI frontend + integración frontend → backend → proveedor
   agri-ai.server.test.js AGRI-AI backend: validación, seguridad, rate limit, errores
+  cadastre.test.js      Catastro CNR: tarjeta (estados, escape) y backend pendiente
 ```
 
 La vista del caso está en `js/views/case.js`. Los scripts se cargan en orden (modelos → vistas → controladores) desde `index.html`.
@@ -112,3 +113,7 @@ El código de la vista del caso, la corrección de métricas, la integración IM
 - MAGA/ICTA e INSIVUMEH figuran como contexto nacional; la contrastación numérica con estaciones queda pendiente.
 - La malla de POWER (~50 km) suaviza microclimas; el déficit hídrico es una estimación simplificada por ciclo.
 - El mapa de parcelas es ilustrativo (no un predio real).
+
+## Parcelas de El Salvador · catastro del CNR
+
+Tarjeta «Parcelas de El Salvador» (después de la finca ilustrativa). El navegador pide al backend `GET /api/cadastre/status|map|identify` (`server/lib/cadastre.js`); el backend consulta el servicio oficial del CNR configurado con las variables `CNR_CADASTRE_*` de `server/.env` (ver `.env.example`). Sin convenio/URL configurados la tarjeta muestra «Capa catastral pendiente de conexión» y las variables que faltan; fuera de El Salvador ofrece ir a San Miguel; sin backend indica cómo arrancarlo. Los atributos de propietario/registro se ocultan salvo autorización.
