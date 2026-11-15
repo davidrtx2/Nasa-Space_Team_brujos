@@ -43,7 +43,7 @@ function caseAlts(){
       <div class="cah"><b>${tr('Alternative','Alternativa')} ${i+1} · ${tr(a.titleEn,a.title)}</b><div class="seq">${seqHTML(a.seq)}</div></div>
       <div class="cag ben"><h5>${tr('Main advantage','Principal ventaja')}</h5><p>${tr(a.benefitEn,a.benefit)} <span class="mono">(${tr('vs base','vs base')}: ${tr('soil','suelo')} ${dd(R,'soil')>=0?'+':''}${dd(R,'soil')}, ${tr('stab.','estab.')} ${dd(R,'resil')>=0?'+':''}${dd(R,'resil')})</span></p></div>
       <div class="cag sac"><h5>${tr('Cost or trade-off','Costo o sacrificio')}</h5><p>${tr(a.sacrificeEn,a.sacrifice)} <span class="mono">(${tr('income idx','índ. ingreso')} ${dd(R,'econ')>=0?'+':''}${dd(R,'econ')})</span></p></div>
-      <details class="cadet"><summary>${tr('Assumptions and data to validate','Supuestos y datos por validar')}</summary>
+      <details class="cadet" ${keepOpen('caseAlt'+i)}><summary>${tr('Assumptions and data to validate','Supuestos y datos por validar')}</summary>
         <div class="cag"><h5>${tr('Assumptions','Supuestos')}</h5><p>${tr(a.assumeEn,a.assume)}</p></div>
         <div class="cag mis"><h5>${tr('Data still to validate','Dato que falta validar')}</h5><p>${tr(a.missingEn,a.missing)}</p></div>
       </details>

@@ -13,6 +13,10 @@ function gauss(rand){ let u=0,v=0; while(!u)u=rand(); while(!v)v=rand(); return 
 const pill = id => `<span class="pill"><i style="background:${CROPS[id].c}"></i>${cn(CROPS[id])}</span>`;
 const seqHTML = seq => seq.map(pill).join('<span class="arrow">→</span>');
 const seqTxt = seq => seq.map(id=>cn(CROPS[id])).join(' → ');
+/* Conserva abiertos los <details data-keep> aunque la vista se vuelva a pintar */
+const KEEP_OPEN = {};
+const keepOpen = k => `data-keep="${k}"${KEEP_OPEN[k]?' open':''}`;
+if (typeof document!=='undefined' && document.addEventListener) document.addEventListener('toggle', e=>{ const d=e.target; if (d && d.dataset && d.dataset.keep) KEEP_OPEN[d.dataset.keep]=d.open; }, true);
 function toast(msg){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(toast._t); toast._t=setTimeout(()=>t.style.display='none',2200); }
 
 const DIAS=[31,28,31,30,31,30,31,31,30,31,30,31];
