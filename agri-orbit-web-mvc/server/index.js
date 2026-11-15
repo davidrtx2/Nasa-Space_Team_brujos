@@ -37,7 +37,7 @@ function createServer(cfg = getConfig(), deps = {}){
     const host = req.headers.host;
     const same = host && (o === 'http://' + host || o === 'https://' + host);
     const loop = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
-    const localDev = loop.test(host || '') && ((/^http:\/\//.test(o) && loop.test(o.slice(7))) || o === 'null');   // 'null' = página abierta como file://
+    const localDev = loop.test(host || '') && /^http:\/\//.test(o) && loop.test(o.slice(7));
     if (same || localDev || cfg.allowedOrigins.includes(o) || cfg.allowedOrigins.includes('*')) {
       res.setHeader('Access-Control-Allow-Origin', o);
       res.setHeader('Vary', 'Origin');

@@ -14,9 +14,8 @@ const AGRI_AI = {
 
 const AGRI_AI_DEV_PORT = '8787';
 function aiIsLocalDev(){
-  if (typeof location === 'undefined') return false;
-  if (location.protocol === 'file:') return true;    // index.html abierto con doble clic
-  return /^https?:$/.test(location.protocol) && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname || '');
+  return typeof location !== 'undefined' && /^https?:$/.test(location.protocol) &&
+    /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname || '');
 }
 
 /* Resuelve el endpoint: window.AGRI_AI_ENDPOINT > <meta name="agri-ai-endpoint"> > mismo origen /api/agri-ai.
@@ -27,7 +26,6 @@ function aiResolveEndpoint(){
     const m = document.querySelector('meta[name="agri-ai-endpoint"]');
     ep = (m && m.content) || '';
   }
-  if (!ep && aiIsLocalDev() && location.protocol === 'file:') ep = 'http://localhost:' + AGRI_AI_DEV_PORT + '/api/agri-ai';
   if (!ep && aiIsLocalDev() && location.port !== AGRI_AI_DEV_PORT) ep = 'http://' + location.hostname + ':' + AGRI_AI_DEV_PORT + '/api/agri-ai';
   if (!ep && typeof location !== 'undefined' && /^https?:$/.test(location.protocol)) ep = '/api/agri-ai';
   return ep ? ep.replace(/\/+$/, '') : null;
@@ -103,6 +101,11 @@ async function aiAsk(question){
   return j.reply;
 }
 
+/* index.html abierto como archivo: el navegador no puede usar el backend de forma segura */
+const aiIsFile = () => typeof location !== 'undefined' && location.protocol === 'file:';
+const AI_FILE_MSG = ['Open the page with Live Server or at http://localhost:8787 to use AGRI-AI (it does not work with index.html opened as a file).',
+  'Abre la página con Live Server o en http://localhost:8787 para usar AGRI-AI (no funciona abriendo index.html como archivo).'];
+
 /* Mensaje de error legible (bilingüe) */
 function aiErrorText(code){
   const M = {
@@ -120,6 +123,7 @@ function aiErrorText(code){
     offline:      ['The AGRI-AI backend is not running. In agri-orbit-web-mvc/server run: node index.js', 'El backend de AGRI-AI no está corriendo. En agri-orbit-web-mvc/server ejecuta: node index.js'],
     unconfigured: ['The backend has no API key. Copy server/.env.example to server/.env, add your API key and restart node index.js.', 'El backend no tiene API key. Copia server/.env.example a server/.env, pon tu API key y reinicia node index.js.']
   };
+  if (aiIsFile() && (code === 'unconfigured' || code === 'network' || code === 'offline')) return tr(AI_FILE_MSG[0], AI_FILE_MSG[1]);
   const m = (aiIsLocalDev() && AGRI_AI.endpoint && dev[code]) || M[code] || M.server;
   return tr(m[0], m[1]);
 }
