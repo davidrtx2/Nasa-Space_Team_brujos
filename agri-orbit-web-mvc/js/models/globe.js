@@ -29,10 +29,11 @@ function topoFeatures(topo, name){
 }
 
 async function loadWorld(){
-  const urls=['https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json/+esm','https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json/+esm'];
+  // primero la copia local (snap/), así el mapa del mundo funciona sin conexión
+  const urls=['snap/countries-50m.json','https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json/+esm','https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json/+esm'];
   for (const u of urls){
     try{
-      const m = await import(u); const topo = m.default || m;
+      const topo = u.startsWith('snap/') ? await (await fetch(u)).json() : await import(u).then(m=>m.default||m);
       G.countries = topoFeatures(topo,'countries').map(f=>{ f.bounds=d3.geoBounds(f); f.latam=LATAM.has(String(f.id).padStart(3,'0')); f.centroid=d3.geoCentroid(f); return f; });
       G.ready=true; $('#globeMsg').textContent=''; fillSearch(); drawGlobe(); return;
     }catch(e){ /* intenta la siguiente resolución */ }

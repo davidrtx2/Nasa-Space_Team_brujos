@@ -24,7 +24,9 @@ js/controllers/         Controladores: eventos y orquestación
   agriAI.js             AGRI-AI: abrir/cerrar, envío de preguntas
 server/                 Backend de AGRI-AI (Node ≥ 18, sin dependencias)
 snap/                   Datos e imágenes NASA descargados para uso sin conexión
-                        (hero_santacruz_hls*.webp: imagen de portada, NASA HLS S30 vía GIBS, 10 jul 2025)
+                        (hero_santacruz_hls*.webp: imagen de portada, NASA HLS S30 vía GIBS, 10 jul 2025;
+                         countries-50m.json: límites de países world-atlas/Natural Earth para el globo sin conexión)
+js/vendor/d3.min.js     D3 v7.9.0 local (el globo funciona sin CDN ni internet)
 tests/
   model.test.js         Arnés Node del modelo (métricas de agua, caso, exportación)
   render.smoke.js       Render del caso con DOM mínimo (ambos idiomas y prioridades)
