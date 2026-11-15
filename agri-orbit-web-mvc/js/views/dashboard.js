@@ -7,10 +7,11 @@
 function renderStrip(){
   const s=S.site, e=envFrom();
   $('#strip').innerHTML = `
-    <span><span class="live ${LIVE.mode?'':'off'}"></span> ${tr('Climate:','Clima:')} <b>${dataLabel()}</b></span>
-    <span>${tr('Site:','Sitio:')} <b>${siteName(s)}</b></span>
-    <span>${tr('Coordinates:','Coordenadas:')} <b>${s.lat.toFixed(2)}, ${s.lon.toFixed(2)}</b></span>
+    <span class="fb-site"><b>${siteName(s)}</b> <span class="mono">${s.lat.toFixed(2)}, ${s.lon.toFixed(2)}</span></span>
+    <span>${tr('Soil:','Suelo:')} <b>${texLbl(S.texture)} · pH ${S.ph} · ${tr('slope','pendiente')} ${S.slope} %</b></span>
+    <span>${tr('Irrigation:','Riego:')} <b>${irrLbl(S.irr)}</b></span>
     <span>${tr('Scenario:','Escenario:')} <b>${scen().lbl}</b></span>
+    <span><span class="live ${LIVE.mode?'':'off'}"></span> ${tr('Climate:','Clima:')} <b>${dataLabel()}</b></span>
     <span class="chip"><span class="k">${tr('Season T','T temporada')}</span> ${e.Tg.toFixed(1)} °C</span>
     <span class="chip"><span class="k">${tr('Rainfall','Lluvia')}</span> ${r0(e.P)} mm</span>
     <span class="chip"><span class="k">${tr('Root moisture','Humedad radicular')}</span> ${s.GWET.toFixed(2)}</span>`;
@@ -40,8 +41,8 @@ function renderKPIs(){
   const R=getSel(), B=S.base;
   const d=(a,b,inv)=>{const x=a-b; const good=inv? x<0 : x>0; return `<span class="${Math.abs(x)<1?'':good?'ok':'bad'}">${x>0?'+':''}${r0(x)} ${tr('vs current','vs actual')}</span>`;};
   $('#kpis').innerHTML = `
-    <div class="kpi"><div class="k">${tr('Remaining water deficit','Déficit de agua restante')}</div><div class="v" style="color:var(--cyan)">${r0(R.m.deficitRem)} mm</div><div class="s">${tr('of','de')} ${r0(R.m.deficit)} mm ${tr('estimated','estimados')} · ${tr('applied','aplicado')} ${r0(R.m.irrigation)} mm ${tr('per cycle','por ciclo')} ${srcChip('model')}</div></div>
-    <div class="kpi"><div class="k">${tr('Exposed soil','Suelo expuesto')}</div><div class="v" style="color:var(--amber)">${r0(R.m.bare)} %</div><div class="s">${d(R.m.bare,B.m.bare,true)}</div></div>
+    <div class="kpi"><div class="k">${tr('Remaining water deficit','Déficit de agua restante')}</div><div class="v" style="color:var(--water)">${r0(R.m.deficitRem)} mm</div><div class="s">${tr('of','de')} ${r0(R.m.deficit)} mm ${tr('estimated','estimados')} · ${tr('applied','aplicado')} ${r0(R.m.irrigation)} mm ${tr('per cycle','por ciclo')} ${srcChip('model')}</div></div>
+    <div class="kpi"><div class="k">${tr('Exposed soil','Suelo expuesto')}</div><div class="v" style="color:var(--earth)">${r0(R.m.bare)} %</div><div class="s">${d(R.m.bare,B.m.bare,true)}</div></div>
     <div class="kpi"><div class="k">${tr('Biological N','N biológico')}</div><div class="v" style="color:var(--green)">${r0(R.m.nFix)} kg</div><div class="s">${tr('N/ha/cycle fixed','N/ha/ciclo fijado')}</div></div>
     <div class="kpi"><div class="k">${tr('N fertilizer','Fertilizante N')}</div><div class="v">${r0(R.m.nFert)} kg</div><div class="s">${tr('N/ha/cycle','N/ha/ciclo')} · ${d(R.m.nFert,B.m.nFert,true)}</div></div>`;
 }
@@ -56,7 +57,7 @@ function rotRow(R, idx){
       <div class="meta">${R.isBase?tr('Your current rotation · ','Tu rotación actual · '):R.isCustom?tr('Your rotation · ','Tu rotación · '):''}${tr('Overall score (index 0–100)','Puntaje global (índice 0–100)')} <b style="color:var(--green)">${r0(R.m.overall)}</b> · ${R.m.cash} ${tr('cash cycles','ciclos comerciales')} · ${tr('diversity','diversidad')} ${pct(R.m.div)}</div>
     </div>
     <div class="bars">
-      ${bar(tr('Econ.','Econ.'),R.m.econ,'var(--amber)')}${bar(tr('Water','Agua'),R.m.water,'var(--cyan)')}${bar(tr('Soil','Suelo'),R.m.soil,'var(--green)')}${bar(tr('Stab.','Estab.'),R.m.resil,'var(--violet)')}
+      ${bar(tr('Econ.','Econ.'),R.m.econ,'var(--earth)')}${bar(tr('Water','Agua'),R.m.water,'var(--water)')}${bar(tr('Soil','Suelo'),R.m.soil,'var(--green)')}${bar(tr('Stab.','Estab.'),R.m.resil,'var(--violet)')}
     </div></button>`;
 }
 

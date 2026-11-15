@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AGRI-ORBIT · Resilient rotations with NASA data</title>
+<title>AGRI-ORBIT · Decide what to plant next</title>
 <meta name="description" content="AGRI-ORBIT compares crop rotations for Latin America with NASA satellite data: rainfall, soil moisture, vegetation, heat and groundwater.">
-<meta name="theme-color" content="#0a0f1a">
+<meta name="theme-color" content="#0b1626">
 <meta property="og:title" content="AGRI-ORBIT · Resilient rotations with NASA data">
 <meta property="og:description" content="Decide what to plant next with NASA satellite data.">
 <meta property="og:type" content="website">
@@ -25,36 +25,246 @@
     <svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><defs><radialGradient id="lg" cx="40%" cy="35%" r="65%"><stop offset="0" stop-color="#5fd0ff"/><stop offset="1" stop-color="#0b3d91"/></radialGradient></defs><circle cx="20" cy="20" r="11" fill="url(#lg)"/><path d="M15 23c3-1 6-4 7-9 1 4-1 8-5 10" fill="#4ade80" opacity=".9"/><ellipse cx="20" cy="20" rx="18" ry="6.5" fill="none" stroke="#99f6e4" stroke-width="1.4" transform="rotate(-24 20 20)"/><circle cx="35.5" cy="13" r="2.2" fill="#fff"/></svg>
     <div>
       <h1>AGRI<b>·</b>ORBIT</h1>
-      <small data-es="Rotaciones resilientes con datos NASA">Resilient rotations with NASA data</small>
+      <small data-es="Rotaciones de cultivos con datos NASA">Crop rotations with NASA data</small>
     </div>
   </a>
   <nav class="top" aria-label="Sections" data-es-aria="Secciones">
-    <a href="#s-caso" data-es="Caso">Case</a>
-    <a href="#s-config" data-es="1 · Finca">1 · Farm</a>
-    <a href="#s-ranking" data-es="2 · Rotaciones">2 · Rotations</a>
-    <a href="#s-fuentes" data-es="3 · Evidencia">3 · Evidence</a>
-    <a href="#s-globo" data-es="Explorar datos">Explore data</a>
-    <a href="#s-cal" data-es="Calendario">Calendar</a>
-    <a href="#s-mapa" data-es="Parcelas">Plots</a>
-    <a href="#s-glosario" data-es="Glosario">Glossary</a>
+    <a href="#s-config" data-secs="s-config" data-es="Explorar finca">Explore farm</a>
+    <a href="#s-caso" data-secs="s-caso s-ranking s-why s-cal s-mapa s-tradeoff s-riesgo s-incert" data-es="Comparar rotaciones">Compare rotations</a>
+    <a href="#s-globo" data-secs="s-globo" data-es="Datos satelitales">Satellite data</a>
+    <a href="#s-fuentes" data-secs="s-fuentes s-glosario" data-es="Fuentes">Sources</a>
   </nav>
   <button class="btn langbtn" id="langBtn" aria-label="Switch language to Spanish">ES</button>
 </header>
 <div id="scrollbar" aria-hidden="true"></div>
 
-<div class="strip" id="strip"></div>
-<section class="hero2" aria-label="Introduction" data-es-aria="Presentación">
-  <div class="h2-left">
-    <div class="eyebrow"><span class="live"></span> <span data-es="Team Brujos · NASA Space Apps Challenge · Reto “Cambio de rumbo”">Team Brujos · NASA Space Apps Challenge · “Changing Course” challenge</span></div>
-    <h2 class="hero-t" data-es-html="Decide qué sembrar después,<br><span>con los ojos de la NASA sobre tu campo.</span>">Decide what to plant next,<br><span>with NASA's eyes on your field.</span></h2>
-    <p class="hero-p" data-es="AGRI-ORBIT une lo que miden los satélites de la NASA (lluvia, humedad del suelo, vegetación y agua almacenada) con el suelo y las prioridades de cada agricultor. Así compara rotaciones de cultivos que cuidan el agua, protegen el suelo y resisten el clima que viene.">AGRI-ORBIT combines what NASA satellites measure (rainfall, soil moisture, vegetation and stored water) with each farmer's soil and priorities. It compares crop rotations that save water, protect the soil and withstand the climate ahead.</p>
+<section class="hero3" aria-labelledby="heroTitle">
+  <figure class="hero-media">
+    <img src="snap/hero_santacruz_hls_900.webp" srcset="snap/hero_santacruz_hls_900.webp 900w, snap/hero_santacruz_hls.webp 1800w" sizes="100vw" width="1800" height="1200" fetchpriority="high"
+      alt="Satellite image of farmland east of the Río Grande in Santa Cruz, Bolivia: rectangular plots and fan-shaped fields around rural settlements."
+      data-es-alt="Imagen satelital de tierras agrícolas al este del río Grande en Santa Cruz, Bolivia: parcelas rectangulares y campos en abanico alrededor de comunidades rurales.">
+    <figcaption><span data-es="Santa Cruz, Bolivia · parcelas agrícolas al este del río Grande">Santa Cruz, Bolivia · farm plots east of the Río Grande</span><span class="hero-credit" data-es="NASA HLS S30 (Copernicus Sentinel-2 armonizado) · 10 jul 2025 · NASA GIBS">NASA HLS S30 (harmonized Copernicus Sentinel-2) · Jul 10, 2025 · NASA GIBS</span></figcaption>
+  </figure>
+  <svg class="hero-orbit" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true"><ellipse cx="760" cy="300" rx="520" ry="150" transform="rotate(-14 760 300)"/><ellipse cx="760" cy="300" rx="400" ry="105" transform="rotate(-14 760 300)"/></svg>
+  <div class="hero-body">
+    <h2 class="hero-t" id="heroTitle" data-es="Decide qué sembrar después">Decide what to plant next</h2>
+    <p class="hero-p" data-es="Compara rotaciones con datos climáticos de la NASA y las condiciones de tu finca.">Compare rotations with NASA climate data and your farm’s conditions.</p>
     <div class="hero-cta">
-      <button class="btn solid" id="caseBtn" data-es="▶ Probar caso Chiquimula">▶ Try the Chiquimula case</button>
-      <a class="btn" href="#s-globo" data-es="Explorar datos">Explore the data</a>
+      <button class="btn solid lg" id="caseBtn" type="button" data-es="Probar caso Chiquimula">Try the Chiquimula case</button>
+      <a class="btn lg" href="#s-globo" data-es="Explorar datos satelitales">Explore satellite data</a>
     </div>
-    <div class="stats" id="heroStats"></div>
+    <p class="hero-how" data-es-html="El clima de &lt;b&gt;NASA POWER&lt;/b&gt; y la lluvia de &lt;b&gt;GPM IMERG&lt;/b&gt; alimentan los cálculos; las imágenes de &lt;b&gt;NASA GIBS&lt;/b&gt; te dejan ver tu zona.">Climate from <b>NASA POWER</b> and rainfall from <b>GPM IMERG</b> feed the calculations; <b>NASA GIBS</b> imagery lets you see your area.</p>
   </div>
-  <div class="h2-right">
+</section>
+
+<div class="farmbar">
+  <div class="strip" id="strip" aria-live="polite"></div>
+  <button class="btn" id="editFarm" type="button" aria-controls="s-config" aria-expanded="false" data-es="Editar finca">Edit farm</button>
+</div>
+
+
+<div class="wrap">
+  <!-- ============ CONTROLS ============ -->
+  <aside class="controls" id="s-config" aria-labelledby="cfgTitle">
+    <div class="cfg-hd"><h2 id="cfgTitle" data-es="Tu finca">Your farm</h2><button class="btn icon" id="closeFarm" type="button" aria-label="Close farm settings" data-es-aria="Cerrar datos de la finca">×</button></div>
+    <div class="card">
+      <div class="hd"><h3 data-es="Ubicación y clima">Location and climate</h3></div>
+      <label class="f" for="site" data-es="Región de referencia (o elige en el globo)">Reference region (or pick on the globe)</label>
+      <select id="site"></select>
+      <div class="row3" style="grid-template-columns:1fr 1fr auto;align-items:end">
+        <div><label class="f" for="lat" data-es="Latitud">Latitude</label><input id="lat" type="number" step="0.01" value="14.80"></div>
+        <div><label class="f" for="lon" data-es="Longitud">Longitude</label><input id="lon" type="number" step="0.01" value="-89.54"></div>
+        <button class="btn" id="goCoord" style="height:34px" data-es="Ir">Go</button>
+      </div>
+      <button class="btn" id="fetchBtn" style="width:100%;margin-top:10px" data-es="⟳ Actualizar datos NASA">⟳ Refresh NASA data</button>
+      <div class="clim" id="clim"></div>
+      <div class="note" id="climNote"></div>
+      <label class="f" for="scen" data-es="Escenario climático a futuro">Future climate scenario</label>
+      <select id="scen">
+        <option value="actual" data-es="Clima actual">Current climate</option>
+        <option value="moderado" selected data-es="Calentamiento moderado">Moderate warming</option>
+        <option value="severo" data-es="Calentamiento severo">Severe warming</option>
+        <option value="custom" data-es="Personalizado">Custom</option>
+      </select>
+      <div class="slider"><div class="top"><span data-es="Cambio de temperatura">Temperature change</span><b id="v-dT"></b></div><input type="range" id="s-dT" min="0" max="3" step="0.5" value="1" aria-label="Temperature change" data-es-aria="Cambio de temperatura"></div>
+      <div class="slider"><div class="top"><span data-es="Cambio de lluvia">Rainfall change</span><b id="v-dP"></b></div><input type="range" id="s-dP" min="-30" max="20" step="5" value="-5" aria-label="Rainfall change" data-es-aria="Cambio de lluvia"></div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h3 data-es="Suelo y riego">Soil and irrigation</h3></div>
+      <label class="f" data-es="Textura del suelo">Soil texture</label>
+      <div class="seg" id="texture">
+        <button data-v="arenoso" data-es="Arenoso">Sandy</button><button data-v="franco" class="on" data-es="Franco">Loam</button><button data-v="arcilloso" data-es="Arcilloso">Clay</button>
+      </div>
+      <div class="row3">
+        <div><label class="f" for="om" data-es="M.O. %">O.M. %</label><input id="om" type="number" step="0.1" min="0.3" max="10" value="2.5"></div>
+        <div><label class="f" for="ph">pH</label><input id="ph" type="number" step="0.1" min="4" max="9" value="6.2"></div>
+        <div><label class="f" for="slope" data-es="Pendiente %">Slope %</label><input id="slope" type="number" step="1" min="0" max="60" value="8"></div>
+      </div>
+      <label class="f" data-es="Riego disponible">Irrigation available</label>
+      <div class="seg" id="irr">
+        <button data-v="none" class="on" data-es="Secano">Rainfed</button><button data-v="limited" data-es="Limitado">Limited</button><button data-v="full" data-es="Completo">Full</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h3 data-es="Rotación actual">Current rotation</h3></div>
+      <label class="f" data-es="Ciclos en la rotación">Cycles in the rotation</label>
+      <div class="seg" id="len">
+        <button data-v="3" data-es="3 ciclos">3 cycles</button><button data-v="4" class="on" data-es="4 ciclos">4 cycles</button>
+      </div>
+      <label class="f" data-es="Ajústala si tu rotación es distinta">Adjust it if your rotation is different</label>
+      <div class="currot" id="currot"></div>
+    </div>
+
+    <div class="card">
+      <div class="hd"><h3 data-es="Prioridades">Priorities</h3><span class="tag" data-es="pesos del puntaje">score weights</span></div>
+      <div class="slider"><div class="top"><span data-es="Ganancia del ciclo">Profit per cycle</span><b id="v-econ"></b></div><input type="range" id="p-econ" min="0" max="100" value="35" aria-label="Profit weight" data-es-aria="Peso de la ganancia"></div>
+      <div class="slider"><div class="top"><span data-es="Salud del suelo a 10 años">Soil health over 10 years</span><b id="v-soil"></b></div><input type="range" id="p-soil" min="0" max="100" value="40" aria-label="Soil health weight" data-es-aria="Peso de la salud del suelo"></div>
+      <div class="slider"><div class="top"><span data-es="Ahorro de agua">Water savings</span><b id="v-water"></b></div><input type="range" id="p-water" min="0" max="100" value="95" aria-label="Water savings weight" data-es-aria="Peso del ahorro de agua"></div>
+      <div class="slider"><div class="top"><span data-es="Estabilidad ante extremos">Stability under extremes</span><b id="v-risk"></b></div><input type="range" id="p-risk" min="0" max="100" value="60" aria-label="Stability weight" data-es-aria="Peso de la estabilidad"></div>
+      <div class="slider"><div class="top"><span data-es="Forraje para animales">Forage for animals</span><b id="v-forage"></b></div><input type="range" id="p-forage" min="0" max="100" value="10" aria-label="Forage weight" data-es-aria="Peso del forraje"></div>
+      <label class="f" data-es="Cultivos que puedes vender o usar">Crops you can sell or use</label>
+      <div class="chips" id="mkt"></div>
+      <div class="note" data-es="Toca un cultivo para quitarlo si no tienes mercado, semilla o equipo.">Tap a crop to remove it if you lack a market, seed or equipment.</div>
+    </div>
+  </aside>
+
+  <!-- ============ RESULTS ============ -->
+  <main id="contenido">
+    <section class="card feature" id="s-caso">
+      <div class="hd"><h2><span data-es="Compara tus rotaciones">Compare your rotations</span></h2><span class="tag" id="caseTag"></span></div>
+      <p class="lead" data-es="Rotación base de maíz del Corredor Seco de Chiquimula, Guatemala, frente a dos alternativas bajo el mismo escenario.">Maize base rotation from the Dry Corridor of Chiquimula, Guatemala, against two alternatives under the same scenario.</p>
+      <div id="caseBody"></div>
+    </section>
+
+    <section class="card accent" id="s-ranking">
+      <div class="hd"><h2><span data-es="Rotaciones para tu finca">Rotations for your farm</span></h2><span class="tag" id="nEval"></span></div>
+      <div class="kpis" id="kpis"></div>
+      <div style="height:12px"></div>
+      <div class="rank" id="rank"></div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+        <label class="f" style="margin-top:0" data-es="Arma tu propia rotación y compárala">Build your own rotation and compare it</label>
+        <div class="builder" id="builder"></div>
+      </div>
+    </section>
+
+    <section class="card" id="s-why">
+      <div class="hd"><h2><span data-es="Compara estrategias">Compare strategies</span></h2>
+        <div style="display:flex;gap:6px"><button class="btn" id="copyTxt" data-es="Copiar plan">Copy plan</button><button class="btn" id="copyJson" data-es="Copiar JSON">Copy JSON</button></div></div>
+      <div class="support" data-es-html="&lt;b&gt;Herramienta de apoyo:&lt;/b&gt; revisa los riesgos con tu extensionista antes de cambiar la rotación."><b>Decision support:</b> review the risks with your local extension agent before changing the rotation.</div>
+      <div style="overflow-x:auto" id="cmpTable"></div>
+      <div class="note" style="margin-bottom:12px" data-es="Toca el nombre de una opción para ver su ficha. ✓ marca el mejor valor de cada fila.">Tap an option’s name to see its profile. ✓ marks the best value in each row.</div>
+      <div id="ficha"></div>
+      <textarea id="exportBox" style="display:none;margin-top:10px" readonly aria-label="Text to copy" data-es-aria="Texto para copiar"></textarea>
+    </section>
+
+    <section class="card" id="s-cal">
+      <div class="hd"><h2><span data-es="Calendario de cultivos">Crop calendar</span></h2><span class="tag" id="calTag"></span></div>
+      <svg id="climChart" viewBox="0 0 760 150" style="width:100%" role="img" aria-label="Rainfall and evapotranspiration by month" data-es-aria="Lluvia y evapotranspiración por mes"></svg>
+      <div class="calwrap"><div id="calRows"></div></div>
+      <div class="legend">
+        <span class="pill"><i style="background:#2a3446;border:1px dashed #64748b"></i><span data-es="suelo sin protección">unprotected soil</span></span>
+        <span class="pill"><i class="lg-res"></i><span data-es="rastrojo (protección parcial)">crop residue (partial protection)</span></span>
+        <span class="pill"><i class="lg-fal"></i><span data-es="barbecho">fallow</span></span>
+        <span class="pill"><i class="vf heat" style="position:static"></i><span data-es="calor">heat</span></span>
+        <span class="pill"><i class="vf dry" style="position:static"></i><span data-es="falta de agua / canícula">water stress / dry spell</span></span>
+        <span class="pill"><i class="vf frost" style="position:static"></i><span data-es="helada">frost</span></span>
+        <span class="pill"><i class="vf wet" style="position:static"></i><span data-es="exceso de lluvia">excess rain</span></span>
+      </div>
+      <div class="statgrid" id="calStats"></div>
+      <div class="note" id="calNote"></div>
+    </section>
+
+    <section class="card" id="s-mapa">
+      <div class="hd"><h2><span data-es="Finca ilustrativa · parcelas en el tiempo">Illustrative farm · plots over time</span></h2>
+        <div class="seg" id="layer"><button data-v="crop" class="on" data-es="Cultivo">Crop</button><button data-v="erosion" data-es="Riesgo erosión">Erosion risk</button><button data-v="moist" data-es="Humedad suelo">Soil moisture</button><button data-v="frost" data-es="Heladas">Frost</button></div></div>
+      <div class="mapwrap">
+        <div>
+          <svg id="farm" viewBox="0 0 660 330" style="width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px" role="img" aria-label="Map of the farm's plots" data-es-aria="Mapa de parcelas de la finca"></svg>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:8px">
+            <button class="btn" id="play" aria-label="Play" data-es-aria="Reproducir">▶</button>
+            <input type="range" id="year" min="0" max="7" value="0" style="flex:1" aria-label="Cycle" data-es-aria="Ciclo">
+            <span class="mono" id="yearLbl" style="min-width:80px;text-align:right"></span>
+          </div>
+          <div class="mapcap" data-es="Finca ilustrativa: parcelas generadas a partir de tus datos, no tu terreno real.">Illustrative farm: plots generated from your inputs, not your actual land.</div>
+          <div class="legend" id="legend"></div>
+        </div>
+        <div class="detail" id="pdetail"></div>
+      </div>
+      <div class="note" data-es="Cada parcela empieza la rotación en un punto distinto, así cada ciclo hay varios cultivos en la finca (diversifica ingresos y riesgo). Pendiente y humedad por parcela son ilustrativas a partir de tus datos.">Each plot starts the rotation at a different point, so every cycle several crops grow on the farm (diversifying income and risk). Per-plot slope and moisture are illustrative from your data.</div>
+    </section>
+
+    <div class="grid2">
+      <section class="card" id="s-tradeoff">
+        <div class="hd"><h2><span data-es="Ventajas y desventajas">Pros and cons</span></h2>
+          <select id="cmp" style="width:auto" aria-label="Compare with" data-es-aria="Comparar con"></select></div>
+        <div style="display:grid;grid-template-columns:220px 1fr;gap:14px;align-items:center" id="tradeGrid">
+          <svg id="radar" viewBox="0 0 240 230" style="width:100%"></svg>
+          <div id="tbars"></div>
+        </div>
+        <div class="note" id="tradeNote"></div>
+      </section>
+
+      <section class="card" id="s-riesgo">
+        <div class="hd"><h2><span data-es="Riesgo en el sitio">Risk at the site</span></h2><span class="tag" id="riskTag"></span></div>
+        <div class="hzh"><span data-es="Amenaza en el sitio">Hazard at the site</span><span data-es="Elegida">Selected</span><span id="hzCmpLbl" data-es="Comparada">Compared</span></div>
+        <div id="hz"></div>
+        <div class="note" data-es="Nivel de amenaza = clima del sitio + escenario. Riesgo residual = amenaza × exposición de los cultivos (tolerancia, cobertura del suelo, labranza).">Hazard level = site climate + scenario. Residual risk = hazard × crop exposure (tolerance, soil cover, tillage).</div>
+      </section>
+    </div>
+
+    <section class="card" id="s-incert">
+      <div class="hd"><h2><span data-es="Incertidumbre">Uncertainty</span></h2><span class="tag" data-es="1 000 simulaciones · mismo clima para ambas rotaciones">1,000 simulations · same climate for both rotations</span></div>
+      <svg id="fan" viewBox="0 0 720 260" style="width:100%" role="img" aria-label="Fan of cumulative outcomes" data-es-aria="Abanico de resultados acumulados"></svg>
+      <div class="statgrid" id="mcStats"></div>
+      <div class="note" data-es="Cada simulación sortea la lluvia (según su variabilidad entre años), la anomalía de temperatura y olas de calor, y arrastra el estado del suelo de un ciclo al siguiente. Las bandas muestran el rango donde cae el 50 % y el 80 % de los resultados.">Each simulation draws rainfall (from its year-to-year variability), temperature anomaly and heat waves, and carries soil state from one cycle to the next. The bands show the range covering 50% and 80% of outcomes.</div>
+    </section>
+
+  </main>
+</div>
+
+<div class="page">
+    <section class="card" id="s-globo">
+      <div class="hd"><h2><span data-es="Datos satelitales">Satellite data</span></h2><span class="tag" data-es="Imágenes NASA GIBS · solo visualización">NASA GIBS imagery · visualization only</span></div>
+      <p class="lead" data-es="Mira tu zona desde el espacio. Las capas ayudan a interpretar; los cálculos usan NASA POWER.">Look at your area from space. Layers help interpretation; the calculations use NASA POWER.</p>
+      <div class="gtools">
+          <input id="gsearch" type="text" list="gsearchList" placeholder="Search country or region…" data-es-ph="Buscar país o región…" aria-label="Search country or region" data-es-aria="Buscar país o región">
+          <datalist id="gsearchList"></datalist>
+          <div class="seg" id="glayer" aria-label="Globe satellite layer" data-es-aria="Capa satelital del globo">
+            <button data-v="bm" class="on" data-es="Tierra">Earth</button><button data-v="tc" data-es="Nubes">Clouds</button><button data-v="rain" data-es="Lluvia">Rain</button><button data-v="smap" data-es="Humedad">Moisture</button><button data-v="ndvi" data-es="Vegetación">Vegetation</button><button data-v="grace" data-es="Agua total">Water storage</button>
+          </div>
+      </div>
+      <div class="globewrap">
+        <div class="globebox" id="globebox">
+          <canvas id="globe" aria-label="Interactive globe: drag to spin, scroll to zoom, click to pick a place" data-es-aria="Globo interactivo: arrastra para girar, rueda para acercar, clic para elegir un lugar" role="img"></canvas>
+          <div class="gctl">
+            <button class="btn" id="gzin" aria-label="Zoom in" data-es-aria="Acercar">+</button>
+            <button class="btn" id="gzout" aria-label="Zoom out" data-es-aria="Alejar">−</button>
+            <button class="btn" id="ghome" aria-label="Latin America view" data-es-aria="Vista de Latinoamérica">⌂</button>
+            <button class="btn" id="gspin" aria-label="Spin the globe" data-es-aria="Girar el globo">⟳</button>
+          </div>
+          <div class="glegend" id="glegend"></div>
+          <div class="gmsg" id="globeMsg">Loading base map…</div>
+          <div class="ghelp" data-es="Arrastra para girar · rueda o +/− para acercar · clic en tierra para analizar ese punto">Drag to spin · scroll or +/− to zoom · click on land to analyze that point</div>
+        </div>
+        <div class="place" id="place"></div>
+      </div>
+      <div class="livebox" id="livebox">
+        <div class="livehd">
+          <div><span class="ldot" id="liveDot"></span><b data-es="Herramientas NASA integradas · lo que ven los satélites aquí">Built-in NASA tools · what the satellites see here</b><span id="liveBadge"></span><div class="sub" id="liveSub"></div></div>
+          <button class="btn" id="liveRefresh" data-es="⟳ Actualizar">⟳ Refresh</button>
+        </div>
+        <div id="liveMsg"></div>
+        <div class="tiles" id="tiles"></div>
+        <div id="series"></div>
+        <div class="statgrid live4" id="livestats"></div>
+        <div id="imergBox"></div>
+      </div>
+      <details class="constel-box">
+        <summary data-es="Misiones de la NASA detrás de los datos">NASA missions behind the data</summary>
+        <div class="constel-grid">
+          <div class="constel-fig">
     <svg id="constel" viewBox="0 0 520 440" role="group" aria-label="Constellation of NASA satellites feeding the tool" data-es-aria="Constelación de satélites de la NASA que alimentan la herramienta">
       <defs>
         <radialGradient id="atm" cx="50%" cy="50%" r="50%"><stop offset="78%" stop-color="#4fb6ff" stop-opacity="0"/><stop offset="88%" stop-color="#4fb6ff" stop-opacity=".35"/><stop offset="100%" stop-color="#4fb6ff" stop-opacity="0"/></radialGradient>
@@ -84,210 +294,13 @@
     </svg>
     <div class="satinfo" id="satinfo" aria-live="polite"></div>
     <div class="satchips" aria-label="Missions" data-es-aria="Misiones"><button data-s="smap">SMAP</button><button data-s="gpm">GPM</button><button data-s="terra">MODIS</button><button data-s="noaa20">VIIRS</button><button data-s="grace">GRACE-FO</button><button data-s="landsat">Landsat</button><button data-s="ecostress">ECOSTRESS</button><button data-s="power">POWER</button></div>
-  </div>
-</section>
-<section class="pipe" aria-label="How the tool flows" data-es-aria="Cómo fluye la herramienta">
-  <a class="pstep" href="#s-config"><svg viewBox="0 0 24 24"><path d="M4 12l4-4 4 4-4 4zM12 12l4-4 4 4-4 4z"/><path d="M8 8l4-4M16 16l-4 4"/></svg><div><b data-es="1 · Configura la finca">1 · Set up the farm</b><span data-es="Ubicación, clima NASA POWER, suelo, riego y tu rotación actual.">Location, NASA POWER climate, soil, irrigation and your current rotation.</span></div></a>
-  <div class="parrow">→</div>
-  <a class="pstep" href="#s-ranking"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3"/></svg><div><b data-es="2 · Compara rotaciones">2 · Compare rotations</b><span data-es="Base editable y alternativas bajo el mismo escenario, con tus prioridades.">Editable baseline and alternatives under the same scenario, weighted by your priorities.</span></div></a>
-  <div class="parrow">→</div>
-  <a class="pstep" href="#s-fuentes"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg><div><b data-es="3 · Revisa la evidencia">3 · Review the evidence</b><span data-es="De dónde sale cada cifra, qué se simuló y qué falta validar.">Where each figure comes from, what was simulated and what still needs validating.</span></div></a>
-  <div class="parrow">·</div>
-  <a class="pstep ghost" href="#s-globo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg><div><b data-es="Explorar datos">Explore data</b><span data-es="Globo y capas satelitales NASA GIBS para mirar tu zona desde el espacio.">Globe and NASA GIBS satellite layers to look at your area from space.</span></div></a>
-</section>
-
-
-<div class="wrap">
-  <!-- ============ CONTROLS ============ -->
-  <aside class="controls" id="s-config" aria-label="Input data" data-es-aria="Datos de entrada">
-    <div class="card accent">
-      <div class="hd"><h3><span class="step">1</span><span data-es="Ubicación y clima">Location and climate</span></h3></div>
-      <label class="f" for="site" data-es="Región de referencia (o elige en el globo)">Reference region (or pick on the globe)</label>
-      <select id="site"></select>
-      <div class="row3" style="grid-template-columns:1fr 1fr auto;align-items:end">
-        <div><label class="f" for="lat" data-es="Latitud">Latitude</label><input id="lat" type="number" step="0.01" value="14.80"></div>
-        <div><label class="f" for="lon" data-es="Longitud">Longitude</label><input id="lon" type="number" step="0.01" value="-89.54"></div>
-        <button class="btn" id="goCoord" style="height:34px" data-es="Ir">Go</button>
-      </div>
-      <button class="btn" id="fetchBtn" style="width:100%;margin-top:10px" data-es="⟳ Actualizar datos NASA en vivo">⟳ Refresh live NASA data</button>
-      <div class="clim" id="clim"></div>
-      <div class="note" id="climNote"></div>
-      <label class="f" for="scen" data-es="Escenario climático a futuro">Future climate scenario</label>
-      <select id="scen">
-        <option value="actual" data-es="Clima actual">Current climate</option>
-        <option value="moderado" selected data-es="Calentamiento moderado">Moderate warming</option>
-        <option value="severo" data-es="Calentamiento severo">Severe warming</option>
-        <option value="custom" data-es="Personalizado">Custom</option>
-      </select>
-      <div class="slider"><div class="top"><span data-es="Cambio de temperatura">Temperature change</span><b id="v-dT"></b></div><input type="range" id="s-dT" min="0" max="3" step="0.5" value="1" aria-label="Temperature change" data-es-aria="Cambio de temperatura"></div>
-      <div class="slider"><div class="top"><span data-es="Cambio de lluvia">Rainfall change</span><b id="v-dP"></b></div><input type="range" id="s-dP" min="-30" max="20" step="5" value="-5" aria-label="Rainfall change" data-es-aria="Cambio de lluvia"></div>
-    </div>
-
-    <div class="card">
-      <div class="hd"><h3><span class="step">2</span><span data-es="Suelo y finca">Soil and farm</span></h3></div>
-      <label class="f" data-es="Textura del suelo">Soil texture</label>
-      <div class="seg" id="texture">
-        <button data-v="arenoso" data-es="Arenoso">Sandy</button><button data-v="franco" class="on" data-es="Franco">Loam</button><button data-v="arcilloso" data-es="Arcilloso">Clay</button>
-      </div>
-      <div class="row3">
-        <div><label class="f" for="om" data-es="M.O. %">O.M. %</label><input id="om" type="number" step="0.1" min="0.3" max="10" value="2.5"></div>
-        <div><label class="f" for="ph">pH</label><input id="ph" type="number" step="0.1" min="4" max="9" value="6.2"></div>
-        <div><label class="f" for="slope" data-es="Pendiente %">Slope %</label><input id="slope" type="number" step="1" min="0" max="60" value="8"></div>
-      </div>
-      <label class="f" data-es="Riego disponible">Irrigation available</label>
-      <div class="seg" id="irr">
-        <button data-v="none" class="on" data-es="Secano">Rainfed</button><button data-v="limited" data-es="Limitado">Limited</button><button data-v="full" data-es="Completo">Full</button>
-      </div>
-      <label class="f" data-es="Ciclos en la rotación">Cycles in the rotation</label>
-      <div class="seg" id="len">
-        <button data-v="3" data-es="3 ciclos">3 cycles</button><button data-v="4" class="on" data-es="4 ciclos">4 cycles</button>
-      </div>
-      <label class="f" data-es="Tu rotación actual (ajústala si es distinta)">Your current rotation (adjust if different)</label>
-      <div class="currot" id="currot"></div>
-    </div>
-
-    <div class="card">
-      <div class="hd"><h3><span class="step">3</span><span data-es="Prioridades del agricultor">Farmer priorities</span></h3><span class="tag" data-es="pesos">weights</span></div>
-      <div class="slider"><div class="top"><span data-es="Ganancia del ciclo">Profit per cycle</span><b id="v-econ"></b></div><input type="range" id="p-econ" min="0" max="100" value="35" aria-label="Profit weight" data-es-aria="Peso de la ganancia"></div>
-      <div class="slider"><div class="top"><span data-es="Salud del suelo a 10 años">Soil health over 10 years</span><b id="v-soil"></b></div><input type="range" id="p-soil" min="0" max="100" value="40" aria-label="Soil health weight" data-es-aria="Peso de la salud del suelo"></div>
-      <div class="slider"><div class="top"><span data-es="Ahorro de agua">Water savings</span><b id="v-water"></b></div><input type="range" id="p-water" min="0" max="100" value="95" aria-label="Water savings weight" data-es-aria="Peso del ahorro de agua"></div>
-      <div class="slider"><div class="top"><span data-es="Estabilidad ante extremos">Stability under extremes</span><b id="v-risk"></b></div><input type="range" id="p-risk" min="0" max="100" value="60" aria-label="Stability weight" data-es-aria="Peso de la estabilidad"></div>
-      <div class="slider"><div class="top"><span data-es="Forraje para animales">Forage for animals</span><b id="v-forage"></b></div><input type="range" id="p-forage" min="0" max="100" value="10" aria-label="Forage weight" data-es-aria="Peso del forraje"></div>
-      <label class="f" data-es="Cultivos que puedes vender o usar">Crops you can sell or use</label>
-      <div class="chips" id="mkt"></div>
-      <div class="note" data-es="Toca un cultivo para quitarlo si no tienes mercado, semilla o equipo para él. El ranking se recalcula al instante.">Tap a crop to remove it if you have no market, seed or equipment for it. The ranking recalculates instantly.</div>
-    </div>
-  </aside>
-
-  <!-- ============ RESULTS ============ -->
-  <main id="contenido">
-    <section class="card accent" id="s-caso">
-      <div class="hd"><h2><span class="num">01</span><span data-es="La decisión · Corredor Seco de Chiquimula, Guatemala">The decision · Dry Corridor, Chiquimula, Guatemala</span></h2><span class="tag" id="caseTag"></span></div>
-      <div id="caseBody"></div>
-    </section>
-
-    <section class="card accent" id="s-ranking">
-      <div class="hd"><h2><span class="num">02</span><span data-es="Rotaciones recomendadas para tu finca">Recommended rotations for your farm</span></h2><span class="tag" id="nEval"></span></div>
-      <div class="kpis" id="kpis"></div>
-      <div style="height:12px"></div>
-      <div class="rank" id="rank"></div>
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
-        <label class="f" style="margin-top:0" data-es="Arma tu propia rotación y compárala">Build your own rotation and compare it</label>
-        <div class="builder" id="builder"></div>
-      </div>
-    </section>
-
-    <section class="card" id="s-why">
-      <div class="hd"><h2><span class="num">03</span><span data-es="Compara estrategias y entiende cada una">Compare strategies and understand each one</span></h2>
-        <div style="display:flex;gap:6px"><button class="btn" id="copyTxt" data-es="Copiar plan">Copy plan</button><button class="btn" id="copyJson" data-es="Copiar JSON">Copy JSON</button></div></div>
-      <div class="support" data-es-html="🤝 <b>Herramienta de apoyo:</b> muestra patrones y posibilidades a partir de datos. No reemplaza tu experiencia ni la de tu extensionista o técnico local: revisen juntos los riesgos antes de cambiar la rotación.">🤝 <b>Decision-support tool:</b> it shows patterns and possibilities from data. It does not replace your experience or your local extension agent's: review the risks together before changing the rotation.</div>
-      <div style="overflow-x:auto" id="cmpTable"></div>
-      <div class="note" style="margin-bottom:12px" data-es="Toca el nombre de una opción para ver su ficha. En verde, el mejor valor de cada fila.">Tap an option's name to see its profile. Green marks the best value in each row.</div>
-      <div id="ficha"></div>
-      <textarea id="exportBox" style="display:none;margin-top:10px" readonly aria-label="Text to copy" data-es-aria="Texto para copiar"></textarea>
-    </section>
-
-    <section class="card" id="s-cal">
-      <div class="hd"><h2><span class="num">04</span><span data-es="Calendario del campo: suelo desnudo y épocas vulnerables">Field calendar: bare soil and vulnerable periods</span></h2><span class="tag" id="calTag"></span></div>
-      <svg id="climChart" viewBox="0 0 760 150" style="width:100%" role="img" aria-label="Rainfall and evapotranspiration by month" data-es-aria="Lluvia y evapotranspiración por mes"></svg>
-      <div class="calwrap"><div id="calRows"></div></div>
-      <div class="legend">
-        <span class="pill"><i style="background:#2a3446;border:1px dashed #64748b"></i><span data-es="suelo sin protección">unprotected soil</span></span>
-        <span class="pill"><i class="lg-res"></i><span data-es="rastrojo (protección parcial)">crop residue (partial protection)</span></span>
-        <span class="pill"><i class="lg-fal"></i><span data-es="barbecho">fallow</span></span>
-        <span class="pill"><i class="vf heat" style="position:static"></i><span data-es="calor">heat</span></span>
-        <span class="pill"><i class="vf dry" style="position:static"></i><span data-es="falta de agua / canícula">water stress / dry spell</span></span>
-        <span class="pill"><i class="vf frost" style="position:static"></i><span data-es="helada">frost</span></span>
-        <span class="pill"><i class="vf wet" style="position:static"></i><span data-es="exceso de lluvia">excess rain</span></span>
-      </div>
-      <div class="statgrid" id="calStats"></div>
-      <div class="note" id="calNote"></div>
-    </section>
-
-    <section class="card" id="s-mapa">
-      <div class="hd"><h2><span class="num">05</span><span data-es="Finca ilustrativa · parcelas y plan en el tiempo">Illustrative farm · plots and plan over time</span></h2>
-        <div class="seg" id="layer"><button data-v="crop" class="on" data-es="Cultivo">Crop</button><button data-v="erosion" data-es="Riesgo erosión">Erosion risk</button><button data-v="moist" data-es="Humedad suelo">Soil moisture</button><button data-v="frost" data-es="Heladas">Frost</button></div></div>
-      <div class="mapwrap">
-        <div>
-          <svg id="farm" viewBox="0 0 660 330" style="width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px" role="img" aria-label="Map of the farm's plots" data-es-aria="Mapa de parcelas de la finca"></svg>
-          <div style="display:flex;gap:10px;align-items:center;margin-top:8px">
-            <button class="btn" id="play" aria-label="Play" data-es-aria="Reproducir">▶</button>
-            <input type="range" id="year" min="0" max="7" value="0" style="flex:1" aria-label="Cycle" data-es-aria="Ciclo">
-            <span class="mono" id="yearLbl" style="min-width:80px;text-align:right"></span>
-          </div>
-          <div class="legend" id="legend"></div>
-        </div>
-        <div class="detail" id="pdetail"></div>
-      </div>
-      <div class="note" data-es="Cada parcela empieza la rotación en un punto distinto, así cada ciclo hay varios cultivos en la finca (diversifica ingresos y riesgo). Pendiente y humedad por parcela son ilustrativas a partir de tus datos.">Each plot starts the rotation at a different point, so every cycle several crops grow on the farm (diversifying income and risk). Per-plot slope and moisture are illustrative from your data.</div>
-    </section>
-
-    <div class="grid2">
-      <section class="card" id="s-tradeoff">
-        <div class="hd"><h2><span class="num">06</span><span data-es="Ventajas y desventajas">Pros and cons</span></h2>
-          <select id="cmp" style="width:auto" aria-label="Compare with" data-es-aria="Comparar con"></select></div>
-        <div style="display:grid;grid-template-columns:220px 1fr;gap:14px;align-items:center" id="tradeGrid">
-          <svg id="radar" viewBox="0 0 240 230" style="width:100%"></svg>
-          <div id="tbars"></div>
-        </div>
-        <div class="note" id="tradeNote"></div>
-      </section>
-
-      <section class="card" id="s-riesgo">
-        <div class="hd"><h2><span class="num">07</span><span data-es="Comprender el riesgo">Understanding risk</span></h2><span class="tag" id="riskTag"></span></div>
-        <div class="hzh"><span data-es="Amenaza en el sitio">Hazard at the site</span><span data-es="Elegida">Selected</span><span id="hzCmpLbl" data-es="Comparada">Compared</span></div>
-        <div id="hz"></div>
-        <div class="note" data-es="Nivel de amenaza = clima del sitio + escenario. Riesgo residual = amenaza × exposición de los cultivos (tolerancia, cobertura del suelo, labranza).">Hazard level = site climate + scenario. Residual risk = hazard × crop exposure (tolerance, soil cover, tillage).</div>
-      </section>
-    </div>
-
-    <section class="card" id="s-incert">
-      <div class="hd"><h2><span class="num">08</span><span data-es="Hacer visible la incertidumbre">Making uncertainty visible</span></h2><span class="tag" data-es="1 000 simulaciones · mismo clima para ambas rotaciones">1,000 simulations · same climate for both rotations</span></div>
-      <svg id="fan" viewBox="0 0 720 260" style="width:100%" role="img" aria-label="Fan of cumulative outcomes" data-es-aria="Abanico de resultados acumulados"></svg>
-      <div class="statgrid" id="mcStats"></div>
-      <div class="note" data-es="Cada simulación sortea la lluvia (según su variabilidad entre años), la anomalía de temperatura y olas de calor, y arrastra el estado del suelo de un ciclo al siguiente. Las bandas muestran el rango donde cae el 50 % y el 80 % de los resultados.">Each simulation draws rainfall (from its year-to-year variability), temperature anomaly and heat waves, and carries soil state from one cycle to the next. The bands show the range covering 50% and 80% of outcomes.</div>
-    </section>
-
-    <section class="card accent" id="s-globo">
-      <div class="hd"><h2><span class="num">◇</span><span data-es="Explorar datos · globo y capas satelitales">Explore data · globe and satellite layers</span></h2><span class="tag" data-es="imágenes NASA GIBS · solo visualización">NASA GIBS imagery · visualization only</span>
-        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-          <input id="gsearch" type="text" list="gsearchList" placeholder="Search country or region…" data-es-ph="Buscar país o región…" style="width:220px" aria-label="Search country or region" data-es-aria="Buscar país o región">
-          <datalist id="gsearchList"></datalist>
-          <div class="seg" id="glayer" aria-label="Globe satellite layer" data-es-aria="Capa satelital del globo">
-            <button data-v="bm" class="on" data-es="Tierra">Earth</button><button data-v="tc" data-es="Nubes">Clouds</button><button data-v="rain" data-es="Lluvia">Rain</button><button data-v="smap" data-es="Humedad">Moisture</button><button data-v="ndvi" data-es="Vegetación">Vegetation</button><button data-v="grace" data-es="Agua total">Water storage</button>
           </div>
         </div>
-      </div>
-      <div class="globewrap">
-        <div class="globebox" id="globebox">
-          <canvas id="globe" aria-label="Interactive globe: drag to spin, scroll to zoom, click to pick a place" data-es-aria="Globo interactivo: arrastra para girar, rueda para acercar, clic para elegir un lugar" role="img"></canvas>
-          <div class="gctl">
-            <button class="btn" id="gzin" aria-label="Zoom in" data-es-aria="Acercar">+</button>
-            <button class="btn" id="gzout" aria-label="Zoom out" data-es-aria="Alejar">−</button>
-            <button class="btn" id="ghome" aria-label="Latin America view" data-es-aria="Vista de Latinoamérica">⌂</button>
-            <button class="btn" id="gspin" aria-label="Spin the globe" data-es-aria="Girar el globo">⟳</button>
-          </div>
-          <div class="glegend" id="glegend"></div>
-          <div class="gmsg" id="globeMsg">Loading base map…</div>
-          <div class="ghelp" data-es="Arrastra para girar · rueda o +/− para acercar · clic en tierra para analizar ese punto">Drag to spin · scroll or +/− to zoom · click on land to analyze that point</div>
-        </div>
-        <div class="place" id="place"></div>
-      </div>
-      <div class="livebox" id="livebox">
-        <div class="livehd">
-          <div><span class="ldot" id="liveDot"></span><b data-es="Herramientas NASA integradas · lo que ven los satélites aquí">Built-in NASA tools · what the satellites see here</b><span id="liveBadge"></span><div class="sub" id="liveSub"></div></div>
-          <button class="btn" id="liveRefresh" data-es="⟳ Actualizar">⟳ Refresh</button>
-        </div>
-        <div id="liveMsg"></div>
-        <div class="tiles" id="tiles"></div>
-        <div id="series"></div>
-        <div class="statgrid live4" id="livestats"></div>
-        <div id="imergBox"></div>
-      </div>
+      </details>
     </section>
 
     <section class="card" id="s-fuentes">
-      <div class="hd"><h2><span class="num">09</span><span data-es="Datos NASA y limitaciones">NASA data and limitations</span></h2></div>
+      <div class="hd"><h2><span data-es="Fuentes y metodología">Sources and methodology</span></h2></div>
       <div style="overflow-x:auto"><table class="src">
         <thead><tr><th data-es="Dato">Data</th><th data-es="Fuente">Source</th><th data-es="Uso en la herramienta">Use in the tool</th><th data-es="Estado">Status</th></tr></thead>
         <tbody>
@@ -313,7 +326,7 @@
     </section>
 
     <section class="card" id="s-glosario">
-      <div class="hd"><h2><span class="num">10</span><span data-es="Glosario y cómo piensa la herramienta">Glossary and how the tool reasons</span></h2></div>
+      <div class="hd"><h2><span data-es="Glosario y método">Glossary and method</span></h2></div>
       <div class="glos">
         <div><h4 data-es="Evapotranspiración (ET)">Evapotranspiration (ET)</h4><p data-es="Agua que se va del campo al aire: la que se evapora del suelo y la que transpiran las plantas. Si la lluvia de un mes es mucho menor que la ET, el cultivo sufre. ECOSTRESS la mide desde el espacio.">Water leaving the field into the air: what evaporates from the soil plus what plants transpire. If a month's rain falls well below ET, the crop suffers. ECOSTRESS measures it from space.</p></div>
         <div><h4 data-es="Balance hídrico">Water balance</h4><p data-es="Lluvia (más riego) menos evapotranspiración. En el calendario, las barras ámbar marcan los meses en que la lluvia no llega ni a la mitad de lo que el campo pierde.">Rainfall (plus irrigation) minus evapotranspiration. In the calendar, amber bars mark months when rain doesn't reach even half of what the field loses.</p></div>
@@ -337,7 +350,6 @@
       </div>
     </section>
 
-  </main>
 </div>
 
 <footer>
@@ -353,9 +365,8 @@
   </div>
   <div>
     <h5 data-es="Secciones">Sections</h5>
-    <a href="#s-globo" data-es="Globo">Globe</a> · <a href="#s-ranking" data-es="Rotaciones">Rotations</a> · <a href="#s-mapa" data-es="Parcelas">Plots</a><br>
-    <a href="#s-tradeoff" data-es="Ventajas y desventajas">Pros and cons</a> · <a href="#s-riesgo" data-es="Riesgo">Risk</a><br>
-    <a href="#s-incert" data-es="Incertidumbre">Uncertainty</a> · <a href="#s-fuentes" data-es="Datos y limitaciones">Data and limitations</a>
+    <a href="#s-caso" data-es="Comparar rotaciones">Compare rotations</a> · <a href="#s-cal" data-es="Calendario">Calendar</a> · <a href="#s-mapa" data-es="Parcelas">Plots</a><br>
+    <a href="#s-globo" data-es="Datos satelitales">Satellite data</a> · <a href="#s-fuentes" data-es="Fuentes">Sources</a> · <a href="#s-glosario" data-es="Glosario">Glossary</a>
   </div>
   <div class="fine"><span data-es="Prototipo con fines demostrativos: valida las decisiones con extensionistas locales.">Demo prototype: validate decisions with local extension agents.</span><span id="foot"></span></div>
 </footer>
@@ -381,11 +392,12 @@
   </form>
   <div class="aifine" data-es="AGRI-AI interpreta los resultados del modelo de AGRI-ORBIT; no garantiza rendimientos. Valida con extensionistas locales.">AGRI-AI interprets AGRI-ORBIT model results; it does not guarantee yields. Validate with local extension agents.</div>
 </section>
+<div class="scrim" id="farmScrim" hidden></div>
 <div class="tip" id="tip"></div>
 <div class="toast" id="toast"></div>
 <button class="totop" id="totop" aria-label="Back to top" data-es-aria="Volver arriba">↑</button>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="js/vendor/d3.min.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/models/data.js"></script>
 <script src="js/models/state.js"></script>

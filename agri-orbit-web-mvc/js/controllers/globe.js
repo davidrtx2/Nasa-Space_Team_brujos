@@ -55,7 +55,12 @@ function fillSearch(){
 }
 
 function initGlobe(){
-  if (!window.d3){ $('#globeMsg').textContent=tr('Could not load D3 (offline).','No se pudo cargar D3 (sin conexión).'); return; }
+  if (!window.d3){
+    $('#globeMsg').textContent=tr('Globe unavailable: its map library (D3) needs an internet connection. The farm analysis still works.','Globo no disponible: su librería de mapas (D3) necesita conexión a internet. El análisis de la finca sigue funcionando.');
+    document.getElementById('globebox').classList.add('nod3');
+    const t=document.querySelector('.gtools'); if (t){ t.classList.add('off'); t.setAttribute('aria-disabled','true'); t.querySelectorAll('input,button').forEach(x=>x.disabled=true); }
+    return;
+  }
   G.proj=d3.geoOrthographic().clipAngle(90).precision(.4);
   G.grat=d3.geoGraticule10();
   sizeGlobe(); renderLegend();

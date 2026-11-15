@@ -19,7 +19,7 @@ function renderTrade(){
   [25,50,75,100].forEach(l=>{ h+=`<polygon points="${axes.map((_,i)=>pt(i,l).join(',')).join(' ')}" fill="none" stroke="#1f2a3d" stroke-width="${l===100?1:.6}"/>`; });
   axes.forEach((ax,i)=>{ const [x,y]=pt(i,100), [lx,ly]=pt(i,122); h+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#1f2a3d"/>`; h+=`<text x="${lx}" y="${ly+3}" text-anchor="middle" font-size="9.5" fill="#94a3b8">${ax[1]}</text>`; });
   h+=`<polygon points="${axes.map((ax,i)=>pt(i,B.m[ax[0]]).join(',')).join(' ')}" fill="rgba(248,113,113,.15)" stroke="#f87171" stroke-width="1.5" stroke-dasharray="4 3"/>`;
-  h+=`<polygon points="${axes.map((ax,i)=>pt(i,A.m[ax[0]]).join(',')).join(' ')}" fill="rgba(45,212,191,.22)" stroke="#2dd4bf" stroke-width="2"/>`;
+  h+=`<polygon points="${axes.map((ax,i)=>pt(i,A.m[ax[0]]).join(',')).join(' ')}" fill="rgba(124,197,118,.22)" stroke="#7cc576" stroke-width="2"/>`;
   $('#radar').innerHTML=h;
   const rows=[['econ',tr('Expected profit (index)','Ganancia esperada (índice)')],['water',tr('Fit to rainfall (less irrigation)','Ajuste a la lluvia (menos riego)')],['soil',tr('Soil health','Salud del suelo')],['resil',tr('Stability under extremes','Estabilidad ante extremos')],['nAuto',tr('Nitrogen self-sufficiency','Autonomía de nitrógeno')]];
   $('#tbars').innerHTML = `<div class="mono" style="display:flex;gap:12px;font-size:10px;margin-bottom:6px"><span style="color:var(--cyan)">━ ${A.name}</span><span style="color:var(--red)">┅ ${B.name}</span></div>` +
@@ -67,9 +67,9 @@ function renderFan(){
   h+=`<polyline points="${line(mc.stats[1],'p50')}" fill="none" stroke="#f87171" stroke-width="1.6" stroke-dasharray="5 3"/>`;
   h+=`<polygon points="${band(mc.stats[0],'p10','p90')}" fill="rgba(251,191,36,.16)"/>`;
   h+=`<polygon points="${band(mc.stats[0],'p25','p75')}" fill="rgba(45,212,191,.28)"/>`;
-  h+=`<polyline points="${line(mc.stats[0],'p50')}" fill="none" stroke="#2dd4bf" stroke-width="2.2"/>`;
+  h+=`<polyline points="${line(mc.stats[0],'p50')}" fill="none" stroke="#7cc576" stroke-width="2.2"/>`;
   const last=mc.stats[0][H];
-  h+=`<text x="${X(H)-4}" y="${Y(last.p50)-6}" text-anchor="end" font-size="10" fill="#2dd4bf">${A.name}</text>`;
+  h+=`<text x="${X(H)-4}" y="${Y(last.p50)-6}" text-anchor="end" font-size="10" fill="#7cc576">${A.name}</text>`;
   h+=`<text x="${X(H)-4}" y="${Y(mc.stats[1][H].p50)+12}" text-anchor="end" font-size="10" fill="#f87171">${B.name}</text>`;
   h+=`<g font-size="9.5" fill="#94a3b8"><rect x="${ml+8}" y="6" width="10" height="6" fill="rgba(45,212,191,.4)"/><text x="${ml+22}" y="12">${tr('central 50 %','50 % central')}</text>
       <rect x="${ml+100}" y="6" width="10" height="6" fill="rgba(251,191,36,.35)"/><text x="${ml+114}" y="12">${tr('80 % of cases','80 % de los casos')}</text></g>`;

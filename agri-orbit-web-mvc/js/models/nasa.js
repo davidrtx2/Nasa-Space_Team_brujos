@@ -17,15 +17,15 @@ const GIBS = 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi';
    model: estimación del modelo (índices relativos, simulaciones)
    gibs:  visualización NASA GIBS (no alimenta el motor numérico)      */
 const SRCKIND = {
-  api:  {s:'API',   en:'Live query to the NASA POWER API', es:'Consulta a la API de NASA POWER en vivo'},
-  snap: {s:'Inst.', en:'Saved snapshot (real NASA POWER data)', es:'Instantánea guardada (datos reales de NASA POWER)'},
-  ref:  {s:'Ref.',  en:'Regional reference (approximate values)', es:'Referencia regional (valores aproximados)'},
-  input:{s:'Entrada', en:'Farmer input', es:'Entrada del agricultor'},
-  model:{s:'Modelo', en:'Model estimate (relative index)', es:'Estimación del modelo (índice relativo)'},
-  gibs: {s:'GIBS',  en:'Visualization only · NASA GIBS', es:'Solo visualización · NASA GIBS'}
+  api:  {s:'Live', sEs:'En vivo', en:'Live query to the NASA POWER API', es:'Consulta a la API de NASA POWER en vivo'},
+  snap: {s:'Snapshot', sEs:'Instantánea', en:'Saved snapshot (real NASA POWER data)', es:'Instantánea guardada (datos reales de NASA POWER)'},
+  ref:  {s:'Reference', sEs:'Referencia', en:'Regional reference (approximate values)', es:'Referencia regional (valores aproximados)'},
+  input:{s:'Farmer', sEs:'Agricultor', en:'Farmer input', es:'Entrada del agricultor'},
+  model:{s:'Model', sEs:'Modelo', en:'Model estimate (relative index)', es:'Estimación del modelo (índice relativo)'},
+  gibs: {s:'GIBS', sEs:'GIBS', en:'Visualization only · NASA GIBS', es:'Solo visualización · NASA GIBS'}
 };
 const srcKind = () => LIVE.mode==='live' ? 'api' : LIVE.mode==='snap' ? 'snap' : 'ref';
-const srcChip = (kind, extra='') => { const k=SRCKIND[kind]||SRCKIND.ref; return `<span class="srcchip ${kind}" title="${tr(k.en,k.es)}${extra?' · '+extra:''}">${k.s}</span>`; };
+const srcChip = (kind, extra='') => { const k=SRCKIND[kind]||SRCKIND.ref; const t=`${tr(k.en,k.es)}${extra?' · '+extra:''}`; return `<span class="srcchip ${kind}" title="${t}" aria-label="${t}">${tr(k.s,k.sEs||k.s)}</span>`; };
 const isoDay = d => d.toISOString().slice(0,10);
 const ymdC = d => isoDay(d).replace(/-/g,'');
 const fmtDia = s => { const d=new Date(s+'T12:00:00Z'), m=MESL[d.getUTCMonth()].slice(0,3); return tr(m+' '+d.getUTCDate(), d.getUTCDate()+' '+m); };

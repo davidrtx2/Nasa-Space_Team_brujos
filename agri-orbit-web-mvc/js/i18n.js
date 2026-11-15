@@ -45,6 +45,7 @@ const ROOT_EN = { 'media': 'medium', 'superficial': 'shallow', 'profunda': 'deep
      data-es-ph     -> placeholder
      data-es-aria   -> aria-label
      data-es-title  -> title
+     data-es-alt    -> alt
    ========================================================= */
 function applyStaticLang() {
   const es = LANG === 'es';
@@ -64,6 +65,10 @@ function applyStaticLang() {
     if (el.dataset.enaria === undefined) el.dataset.enaria = el.getAttribute('aria-label') || '';
     el.setAttribute('aria-label', es ? el.dataset.esAria : el.dataset.enaria);
   });
+  document.querySelectorAll('[data-es-alt]').forEach(el => {
+    if (el.dataset.enalt === undefined) el.dataset.enalt = el.alt;
+    el.alt = es ? el.dataset.esAlt : el.dataset.enalt;
+  });
   document.querySelectorAll('[data-es-title]').forEach(el => {
     if (el.dataset.entitle === undefined) el.dataset.entitle = el.title;
     el.title = es ? el.dataset.esTitle : el.dataset.entitle;
@@ -75,8 +80,8 @@ function setLang(l, save = true) {
   if (save) try { localStorage.setItem('agriLang', LANG); } catch (e) {}
   document.documentElement.lang = LANG;
   MES = MONTHS[LANG].s; MESL = MONTHS[LANG].l;
-  document.title = tr('AGRI-ORBIT · Resilient rotations with NASA data',
-                      'AGRI-ORBIT · Rotaciones resilientes con datos NASA');
+  document.title = tr('AGRI-ORBIT · Decide what to plant next',
+                      'AGRI-ORBIT · Decide qué sembrar después');
   const md = document.querySelector('meta[name="description"]');
   if (md) md.content = tr('AGRI-ORBIT compares crop rotations for Latin America with NASA satellite data: rainfall, soil moisture, vegetation, heat and groundwater.',
                           'AGRI-ORBIT compara rotaciones de cultivos para Latinoamérica con datos satelitales de la NASA: lluvia, humedad del suelo, vegetación, calor y agua subterránea.');

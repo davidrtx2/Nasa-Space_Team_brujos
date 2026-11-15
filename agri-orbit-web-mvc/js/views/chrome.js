@@ -52,6 +52,7 @@ function decorateSections(){
 }
 
 function renderHeroStats(){
+  if (!document.getElementById('heroStats')) return;
   const nCountries=new Set(Object.values(SITES).filter(s=>s.country!=='EE. UU.').map(s=>s.country)).size;
   const nCrops=Object.keys(CROPS).filter(k=>k!=='barbecho').length;
   $('#heroStats').innerHTML=[[Object.keys(SITES).length,tr('agricultural regions','regiones agrícolas')],[nCountries,tr('Latin American countries','países de Latinoamérica')],[nCrops,tr('crops and covers','cultivos y coberturas')],['1 000',tr('simulations per analysis','simulaciones por análisis')]]
@@ -60,6 +61,9 @@ function renderHeroStats(){
 function initChrome(){
   renderHeroStats();
   const links=[...document.querySelectorAll('nav.top a')];
-  const io=new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting){ links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id)); } }); },{rootMargin:'-45% 0px -50% 0px'});
-  links.forEach(a=>{ const t=document.querySelector(a.getAttribute('href')); if(t) io.observe(t); });
+  const secs=a=>(a.dataset.secs||a.getAttribute('href').slice(1)).split(' ');
+  const mark=id=>links.forEach(a=>{ const on=secs(a).includes(id); a.classList.toggle('active',on); if (on) a.setAttribute('aria-current','location'); else a.removeAttribute('aria-current'); });
+  if (typeof IntersectionObserver==='undefined') return;
+  const io=new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting) mark(e.target.id); }); },{rootMargin:'-45% 0px -50% 0px'});
+  new Set(links.flatMap(secs)).forEach(id=>{ const t=document.getElementById(id); if(t) io.observe(t); });
 }

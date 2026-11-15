@@ -33,8 +33,39 @@ function runChiquimula(){
   toast(tr('Chiquimula case loaded: compare the base rotation with two alternatives','Caso Chiquimula cargado: compara la rotación base con dos alternativas'));
 }
 
+/* Panel de la finca: lateral en escritorio, cajón con «Editar finca» en pantallas angostas */
+const farmDrawer = () => matchMedia('(max-width:1180px)').matches;
+function setFarmOpen(open, focus=true){
+  const a=$('#s-config'), b=$('#editFarm'), sc=$('#farmScrim'); if (!a) return;
+  a.classList.toggle('open',open); if (b) b.setAttribute('aria-expanded',String(open));
+  if (sc) sc.hidden=!open;
+  document.body.classList.toggle('farm-open',open);
+  if (!focus) return;
+  if (open){ const c=$('#closeFarm'); if (c) c.focus(); } else if (b && farmDrawer()) b.focus();
+}
+function initFarmPanel(){
+  const b=$('#editFarm'); if (!b) return;
+  b.onclick=()=>setFarmOpen(true);
+  $('#closeFarm').onclick=()=>setFarmOpen(false);
+  $('#farmScrim').onclick=()=>setFarmOpen(false);
+  document.addEventListener('keydown',e=>{
+    const a=$('#s-config'); if (!a.classList.contains('open')) return;
+    if (e.key==='Escape'){ setFarmOpen(false); return; }
+    if (e.key!=='Tab') return;
+    const f=[...a.querySelectorAll('button,select,input,textarea,a[href],[tabindex]:not([tabindex="-1"])')].filter(x=>!x.disabled && x.offsetParent!==null);
+    if (!f.length) return;
+    const first=f[0], last=f[f.length-1];
+    if (!a.contains(document.activeElement)){ e.preventDefault(); first.focus(); }
+    else if (e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+  });
+  document.querySelectorAll('a[href="#s-config"]').forEach(a=>a.addEventListener('click',e=>{ if (farmDrawer()){ e.preventDefault(); setFarmOpen(true); } }));
+  matchMedia('(max-width:1180px)').addEventListener('change',m=>{ if (!m.matches) setFarmOpen(false,false); });
+}
+
 function initControls(){
   buildSiteSelect();
+  initFarmPanel();
   const cb=$('#caseBtn'); if (cb) cb.onclick=runChiquimula;
   $('#site').onchange=e=>selectSite(e.target.value);
   $('#goCoord').onclick=()=>{ const lat=+$('#lat').value, lon=+$('#lon').value;
