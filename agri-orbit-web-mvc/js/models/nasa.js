@@ -22,6 +22,7 @@ const SRCKIND = {
   ref:  {s:'Reference', sEs:'Referencia', en:'Regional reference (approximate values)', es:'Referencia regional (valores aproximados)'},
   input:{s:'Farmer', sEs:'Agricultor', en:'Farmer input', es:'Entrada del agricultor'},
   model:{s:'Model', sEs:'Modelo', en:'Model estimate (relative index)', es:'Estimación del modelo (índice relativo)'},
+  cad:  {s:'CNR', sEs:'CNR', en:'Official cadastre · CNR El Salvador (not NASA)', es:'Catastro oficial · CNR El Salvador (no NASA)'},
   gibs: {s:'GIBS', sEs:'GIBS', en:'Visualization only · NASA GIBS', es:'Solo visualización · NASA GIBS'}
 };
 const srcKind = () => LIVE.mode==='live' ? 'api' : LIVE.mode==='snap' ? 'snap' : 'ref';
