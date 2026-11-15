@@ -9,6 +9,7 @@ const { createRateLimiter } = require('./lib/rateLimit');
 const { validateChatBody, ValidationError } = require('./lib/validate');
 const { buildMessages } = require('./lib/prompt');
 const { chatCompletion } = require('./lib/provider');
+const { getCadastreConfig, createCadastreHandler } = require('./lib/cadastre');
 
 const MIME = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'text/javascript; charset=utf-8',
   '.json':'application/json; charset=utf-8', '.webp':'image/webp', '.png':'image/png', '.jpg':'image/jpeg', '.svg':'image/svg+xml', '.ico':'image/x-icon', '.md':'text/plain; charset=utf-8' };
@@ -17,6 +18,9 @@ function createServer(cfg = getConfig(), deps = {}){
   const limiter = createRateLimiter({ max: cfg.rateMax, windowMs: cfg.rateWindowMs });
   const complete = deps.chatCompletion || chatCompletion;
   const log = deps.log || ((...a) => console.log(new Date().toISOString(), ...a));
+  const cadCfg = cfg.cadastre || getCadastreConfig({});
+  const cadLimiter = createRateLimiter({ max: cadCfg.rateMax, windowMs: 60000 });
+  const cadastre = createCadastreHandler(cadCfg, { fetch: deps.cadastreFetch, log });
 
   const security = res => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -111,16 +115,25 @@ function createServer(cfg = getConfig(), deps = {}){
       if (p === '/api/agri-ai/chat' && req.method === 'POST') return handleChat(req, res);
       return json(res, 404, { error: 'Not found' });
     }
+    if (p.startsWith('/api/cadastre/')) {
+      if (!cors(req, res)) return json(res, 403, { error: 'Origin not allowed' });
+      if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
+      const rl = cadLimiter.check(clientIp(req));
+      if (!rl.ok) return json(res, 429, { error: 'Too many requests' }, { 'Retry-After': String(rl.retryAfterS) });
+      try { return await cadastre(req, res, url, json); }
+      catch (e) { log('cadastre error', { msg: e && e.message }); if (!res.headersSent) return json(res, 500, { error: 'Server error' }); }
+      return;
+    }
     return serveStatic(req, res, p);
   });
   server.requestTimeout = cfg.upstreamTimeoutMs + 15000;
-  server.on('close', () => limiter.stop());
+  server.on('close', () => { limiter.stop(); cadLimiter.stop(); });
   return server;
 }
 
 if (require.main === module) {
   loadDotEnv(path.join(__dirname, '.env'));
-  const cfg = getConfig();
+  const cfg = { ...getConfig(), cadastre: getCadastreConfig() };
   createServer(cfg).listen(cfg.port, () => {
     console.log(`AGRI-AI backend on http://localhost:${cfg.port} · provider ${cfg.apiKey ? 'configured (' + cfg.model + ')' : 'NOT configured (set OPENAI_API_KEY)'} · static ${cfg.serveStatic ? 'on' : 'off'}`);
   });
